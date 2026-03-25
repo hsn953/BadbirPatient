@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="bbPatientApp.Views.AboutPage"
+             xmlns:vm="clr-namespace:bbPatientApp.ViewModels"
+             Title="{Binding Title}">
+    
+    <ContentPage.BindingContext>
+        <vm:AboutViewModel />
+    </ContentPage.BindingContext>
+    
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Color x:Key="Accent">#96d1ff</Color>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <StackLayout  VerticalOptions="FillAndExpand" HorizontalOptions="Fill">
+            <StackLayout Orientation="Horizontal" HorizontalOptions="Center" VerticalOptions="Center">
+                <ContentView Padding="0,40,0,0" VerticalOptions="FillAndExpand">
+                    <Image Source="xamarin_logo.png" VerticalOptions="Center" HeightRequest="100" />
+                </ContentView>
+            </StackLayout>
+        </StackLayout>
+        <ScrollView Grid.Row="1">
+            <StackLayout Style="{StaticResource MainOuterStackLayout}" >
+                <Label Text="Information for patients" Style="{StaticResource TitleLabel}"/>
+                <Label Style="{StaticResource BodyLabel}" Text="We have introduced the Patient Portal to provide another method for BADBIR participants to complete questionnaires. Previously, we have only asked you to complete the questionnaires on paper when you've attended a dermatology clinic appointment. However, with more appointments being carried out remotely and to allow more flexibility, we have created the Patient Portal so that the questionnaires can be completed easily from your phone, tablet or computer." />
+                <Label Style="{StaticResource BodyLabel}" Text="Use of the Patient Portal for completion of our questionnaires is optional – if you prefer to complete questionnaires on paper at your appointment, then you can indicate this to your clinician and continue as before." />
+                <Label FontSize="16" Padding="0,24,0,0">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <FormattedString.Spans>
+                                <Span Text="Learn more at " />
+                                <Span Text="http://www.badbir.org/Participants/PatientPortal/" FontAttributes="Bold" />
+                            </FormattedString.Spans>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+            </StackLayout>
+        </ScrollView>
+    </Grid>
+
+</ContentPage>

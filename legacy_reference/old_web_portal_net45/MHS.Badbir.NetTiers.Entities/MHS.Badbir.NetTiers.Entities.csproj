@@ -1,0 +1,813 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>12.0.21005.1</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{BEF768BE-FB43-47B4-A603-3141223AB7CE}</ProjectGuid>
+    <ProjectType>Local</ProjectType>
+	<TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <OutputType>Library</OutputType>
+    <ApplicationIcon>
+	</ApplicationIcon>
+    <AssemblyKeyContainerName>
+	</AssemblyKeyContainerName>
+    <AssemblyName>MHS.Badbir.NetTiers.Entities</AssemblyName>
+    <AssemblyOriginatorKeyFile>..\MHS.Badbir.NetTiers.snk</AssemblyOriginatorKeyFile>
+	<SignAssembly>false</SignAssembly>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <RootNamespace>MHS.Badbir.NetTiers.Entities</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject></StartupObject>
+    <FileUpgradeFlags></FileUpgradeFlags>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>MHS.Badbir.NetTiers.Entities.xml</DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>MHS.Badbir.NetTiers.Entities.xml</DocumentationFile>
+	 <DebugType>pdbonly</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'GenerateDebug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>MHS.Badbir.NetTiers.Entities.xml</DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System"/>
+	<Reference Include="System.Core">
+		<RequiredTargetFramework>4.5</RequiredTargetFramework>
+	</Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations"/>
+    <Reference Include="System.Web"/>
+    <Reference Include="System.Data"/>
+    <Reference Include="System.Design"/>
+    <Reference Include="System.Xml"/>
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Drawing" />
+	<Reference Include="Microsoft.Practices.EnterpriseLibrary.Common, Version=5.0.414.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\Microsoft.Practices.EnterpriseLibrary.Common.dll</HintPath>
+    </Reference>    
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Caching, Version=5.0.414.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\Microsoft.Practices.EnterpriseLibrary.Caching.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Caching.Cryptography, Version=5.0.414.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\Microsoft.Practices.EnterpriseLibrary.Caching.Cryptography.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity, Version=2.0.414.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\Microsoft.Practices.Unity.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.ServiceLocation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\Microsoft.Practices.ServiceLocation.dll</HintPath>
+    </Reference>    
+     
+	
+	
+	
+	
+    
+    	
+	
+	
+	
+	</ItemGroup>
+	
+		
+	<!-- Custom code folder: C:\Work\BadbirSrc\BbPatientApp\BbPatientApp\MHS.Badbir.NetTiers.Entities\App_Code -->
+	<ItemGroup>	
+		<Folder Include="App_Code\" />
+        <Compile Include="App_Code\**\*.cs">
+          <SubType>Code</SubType>
+        </Compile>		
+	</ItemGroup>
+
+	<!-- Include any user files -->
+	<ItemGroup>	
+		<Compile Include="**\*.user.*" Exclude="**\*.csproj.user;**\.svn\**" >
+          <SubType>Code</SubType>
+        </Compile>		
+	</ItemGroup>
+	
+	<ItemGroup>
+			<Compile Include="BbPatientCohortTrackingStatuslkp.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbPatientCohortTrackingStatuslkpBase.generated.cs">
+			  <DependentUpon>BbPatientCohortTrackingStatuslkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbPatientCohortTrackingStatuslkp.cs">
+			  <DependentUpon>BbPatientCohortTrackingStatuslkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbPatient.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbPatientBase.generated.cs">
+			  <DependentUpon>BbPatient.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbPatient.cs">
+			  <DependentUpon>BbPatient.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbCentreRegionlkp.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbCentreRegionlkpBase.generated.cs">
+			  <DependentUpon>BbCentreRegionlkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbCentreRegionlkp.cs">
+			  <DependentUpon>BbCentreRegionlkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbCentrestatus.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbCentrestatusBase.generated.cs">
+			  <DependentUpon>BbCentrestatus.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbCentrestatus.cs">
+			  <DependentUpon>BbCentrestatus.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbUkcrNregionlkp.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbUkcrNregionlkpBase.generated.cs">
+			  <DependentUpon>BbUkcrNregionlkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbUkcrNregionlkp.cs">
+			  <DependentUpon>BbUkcrNregionlkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbCentre.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbCentreBase.generated.cs">
+			  <DependentUpon>BbCentre.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbCentre.cs">
+			  <DependentUpon>BbCentre.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbPatientdrug.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbPatientdrugBase.generated.cs">
+			  <DependentUpon>BbPatientdrug.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbPatientdrug.cs">
+			  <DependentUpon>BbPatientdrug.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbQueryTypelkp.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbQueryTypelkpBase.generated.cs">
+			  <DependentUpon>BbQueryTypelkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbQueryTypelkp.cs">
+			  <DependentUpon>BbQueryTypelkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbQueryStatuslkp.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbQueryStatuslkpBase.generated.cs">
+			  <DependentUpon>BbQueryStatuslkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbQueryStatuslkp.cs">
+			  <DependentUpon>BbQueryStatuslkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbPatientStatusDetaillkp.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbPatientStatusDetaillkpBase.generated.cs">
+			  <DependentUpon>BbPatientStatusDetaillkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbPatientStatusDetaillkp.cs">
+			  <DependentUpon>BbPatientStatusDetaillkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbPatientdrugdose.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbPatientdrugdoseBase.generated.cs">
+			  <DependentUpon>BbPatientdrugdose.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbPatientdrugdose.cs">
+			  <DependentUpon>BbPatientdrugdose.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbPatientLifestyle.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbPatientLifestyleBase.generated.cs">
+			  <DependentUpon>BbPatientLifestyle.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbPatientLifestyle.cs">
+			  <DependentUpon>BbPatientLifestyle.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbQueryForCentre.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbQueryForCentreBase.generated.cs">
+			  <DependentUpon>BbQueryForCentre.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbQueryForCentre.cs">
+			  <DependentUpon>BbQueryForCentre.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbPatientStatuslkp.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbPatientStatuslkpBase.generated.cs">
+			  <DependentUpon>BbPatientStatuslkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbPatientStatuslkp.cs">
+			  <DependentUpon>BbPatientStatuslkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbQueryForCentreMessage.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbQueryForCentreMessageBase.generated.cs">
+			  <DependentUpon>BbQueryForCentreMessage.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbQueryForCentreMessage.cs">
+			  <DependentUpon>BbQueryForCentreMessage.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbGenderlkp.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbGenderlkpBase.generated.cs">
+			  <DependentUpon>BbGenderlkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbGenderlkp.cs">
+			  <DependentUpon>BbGenderlkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbPatientCohortHistory.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbPatientCohortHistoryBase.generated.cs">
+			  <DependentUpon>BbPatientCohortHistory.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbPatientCohortHistory.cs">
+			  <DependentUpon>BbPatientCohortHistory.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbQuery.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbQueryBase.generated.cs">
+			  <DependentUpon>BbQuery.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbQuery.cs">
+			  <DependentUpon>BbQuery.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbQueryMessage.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbQueryMessageBase.generated.cs">
+			  <DependentUpon>BbQueryMessage.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbQueryMessage.cs">
+			  <DependentUpon>BbQueryMessage.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbSaeClinicianlkp.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbSaeClinicianlkpBase.generated.cs">
+			  <DependentUpon>BbSaeClinicianlkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbSaeClinicianlkp.cs">
+			  <DependentUpon>BbSaeClinicianlkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbCohortlkp.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbCohortlkpBase.generated.cs">
+			  <DependentUpon>BbCohortlkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbCohortlkp.cs">
+			  <DependentUpon>BbCohortlkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbTitlelkp.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbTitlelkpBase.generated.cs">
+			  <DependentUpon>BbTitlelkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbTitlelkp.cs">
+			  <DependentUpon>BbTitlelkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbPositionRolelkp.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbPositionRolelkpBase.generated.cs">
+			  <DependentUpon>BbPositionRolelkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbPositionRolelkp.cs">
+			  <DependentUpon>BbPositionRolelkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbWorkStatuslkp.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbWorkStatuslkpBase.generated.cs">
+			  <DependentUpon>BbWorkStatuslkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbWorkStatuslkp.cs">
+			  <DependentUpon>BbWorkStatuslkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbPappPatientMedProblemFup.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbPappPatientMedProblemFupBase.generated.cs">
+			  <DependentUpon>BbPappPatientMedProblemFup.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbPappPatientMedProblemFup.cs">
+			  <DependentUpon>BbPappPatientMedProblemFup.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbAdditionalUserDetail.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbAdditionalUserDetailBase.generated.cs">
+			  <DependentUpon>BbAdditionalUserDetail.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbAdditionalUserDetail.cs">
+			  <DependentUpon>BbAdditionalUserDetail.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbAnswerlkp.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbAnswerlkpBase.generated.cs">
+			  <DependentUpon>BbAnswerlkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbAnswerlkp.cs">
+			  <DependentUpon>BbAnswerlkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbCommonFrequencylkp.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbCommonFrequencylkpBase.generated.cs">
+			  <DependentUpon>BbCommonFrequencylkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbCommonFrequencylkp.cs">
+			  <DependentUpon>BbCommonFrequencylkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbConfigFactory.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbConfigFactoryBase.generated.cs">
+			  <DependentUpon>BbConfigFactory.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbConfigFactory.cs">
+			  <DependentUpon>BbConfigFactory.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbEthnicitylkp.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbEthnicitylkpBase.generated.cs">
+			  <DependentUpon>BbEthnicitylkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbEthnicitylkp.cs">
+			  <DependentUpon>BbEthnicitylkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbFileStorage.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbFileStorageBase.generated.cs">
+			  <DependentUpon>BbFileStorage.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbFileStorage.cs">
+			  <DependentUpon>BbFileStorage.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbLesionlkp.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbLesionlkpBase.generated.cs">
+			  <DependentUpon>BbLesionlkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbLesionlkp.cs">
+			  <DependentUpon>BbLesionlkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbPatientCohortTrackingClinicAttendanceLkp.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbPatientCohortTrackingClinicAttendanceLkpBase.generated.cs">
+			  <DependentUpon>BbPatientCohortTrackingClinicAttendanceLkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbPatientCohortTrackingClinicAttendanceLkp.cs">
+			  <DependentUpon>BbPatientCohortTrackingClinicAttendanceLkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbLoginLog.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbLoginLogBase.generated.cs">
+			  <DependentUpon>BbLoginLog.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbLoginLog.cs">
+			  <DependentUpon>BbLoginLog.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbMailingListSubscriptions.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbMailingListSubscriptionsBase.generated.cs">
+			  <DependentUpon>BbMailingListSubscriptions.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbMailingListSubscriptions.cs">
+			  <DependentUpon>BbMailingListSubscriptions.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbNotificationTypelkp.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbNotificationTypelkpBase.generated.cs">
+			  <DependentUpon>BbNotificationTypelkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbNotificationTypelkp.cs">
+			  <DependentUpon>BbNotificationTypelkp.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbNotification.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbNotificationBase.generated.cs">
+			  <DependentUpon>BbNotification.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbNotification.cs">
+			  <DependentUpon>BbNotification.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbPappPatientCohortTracking.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbPappPatientCohortTrackingBase.generated.cs">
+			  <DependentUpon>BbPappPatientCohortTracking.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbPappPatientCohortTracking.cs">
+			  <DependentUpon>BbPappPatientCohortTracking.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbPappPatientDlqi.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbPappPatientDlqiBase.generated.cs">
+			  <DependentUpon>BbPappPatientDlqi.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbPappPatientDlqi.cs">
+			  <DependentUpon>BbPappPatientDlqi.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbPappPatientLifestyle.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbPappPatientLifestyleBase.generated.cs">
+			  <DependentUpon>BbPappPatientLifestyle.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbPappPatientLifestyle.cs">
+			  <DependentUpon>BbPappPatientLifestyle.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbMailingLists.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbMailingListsBase.generated.cs">
+			  <DependentUpon>BbMailingLists.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbMailingLists.cs">
+			  <DependentUpon>BbMailingLists.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+			<Compile Include="BbPatientCohortTracking.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="BbPatientCohortTrackingBase.generated.cs">
+			  <DependentUpon>BbPatientCohortTracking.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IBbPatientCohortTracking.cs">
+			  <DependentUpon>BbPatientCohortTracking.cs</DependentUpon>
+			  <SubType>Code</SubType>
+			</Compile>
+		
+		
+		<Compile Include="..\AssemblyInfo.cs">
+		  <SubType>Code</SubType>
+		</Compile>
+			
+			<Compile Include="IEntity.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IEntityId.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IEntityKey.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="EntityBase.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="EntityBaseCore.generated.cs">
+			  <SubType>Code</SubType>
+			  <DependentUpon>EntityBase.cs</DependentUpon>
+			</Compile>
+			<Compile Include="EntityKeyBase.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="EntityKeyBaseCore.generated.cs">
+			  <SubType>Code</SubType>
+			  <DependentUpon>EntityKeyBase.cs</DependentUpon>
+			</Compile>
+			<Compile Include="ListBase.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="TList.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+            <Compile Include="WeakRefDictionary.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="Views\VList.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="EntityFilter.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="EntityPropertyComparer.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="EntityHelper.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="EntityUtil.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IEntityFactory.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="EntityFactoryBase.cs">
+			  <SubType>Code</SubType>
+			</Compile>			
+			<Compile Include="EntityFactory.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="EntityLocator.cs">
+			  <SubType>Code</SubType>
+			</Compile>		
+			<Compile Include="EntityManager.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="IEntityCacheItem.cs">
+			  <SubType>Code</SubType>
+			</Compile>		
+			<Compile Include="EntityCache.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="GenericTypeConverter.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="Validation\BrokenRule.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="Validation\BrokenRulesList.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="Validation\CommonRules.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="Validation\ValidationRuleArgs.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="Validation\ValidationRuleHandler.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="Validation\ValidationRuleInfo.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+			<Compile Include="Validation\ValidationRules.cs">
+			  <SubType>Code</SubType>
+			</Compile>
+
+		
+		
+
+		
+		
+		
+		
+		 <AppDesigner Include="Properties\" />
+	</ItemGroup>
+	
+	
+	
+	
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSHARP.Targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+	<PostBuildEvent>
+	</PostBuildEvent>
+  </PropertyGroup>
+
+</Project>

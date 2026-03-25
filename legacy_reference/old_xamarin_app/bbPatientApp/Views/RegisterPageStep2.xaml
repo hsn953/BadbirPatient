@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+             x:Class="bbPatientApp.Views.RegisterPageStep2"
+             Shell.TabBarIsVisible="False"
+             Shell.PresentationMode="Animated"
+                          
+             Title="Step 2 of 3">
+    <ContentPage.Content>
+        <ScrollView>
+
+            <StackLayout Orientation="Vertical" Padding="10" >
+                <Label Text="We found you!" Style="{StaticResource TitleLabel}"/>
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+                <Label Text="We need your verified email address to use as username" Style="{StaticResource SubtitleLabel}"/>
+                
+                
+                <StackLayout x:Name="SendCodeStack" Orientation="Vertical" IsVisible="true">
+                    <Label Text="Please enter your email address" Style="{StaticResource BodyLabel}"/>
+
+                    <Entry x:Name="Entry_Email" Text="{Binding EmailAddress, Mode=TwoWay, UpdateSourceEventName=PropertyChanged}" 
+                           Placeholder="Email Address" Keyboard="Email" PlaceholderColor="MediumPurple" TextColor="{StaticResource BADBIRPurple}">
+                        <Entry.Behaviors>
+                            <xct:EmailValidationBehavior />
+                        </Entry.Behaviors>
+                    </Entry>
+                    <Line Style="{StaticResource QuestionSpacerV}"/>
+                    <Line Style="{StaticResource QuestionSpacerV}"/>
+                    <Button Text="Send Verification Code" Clicked="SendCodeButton_Clicked"  Style="{StaticResource PrimaryButtonPurple}" />
+                </StackLayout>
+                <StackLayout x:Name="CodeSentStack" Orientation="Vertical" IsVisible="false">
+                    <Label x:Name="EmailLabel" Text="" Style="{StaticResource BodyLabel}"/>
+                    <Entry x:Name="Entry_ValidationCode" Keyboard="Numeric" MaxLength="6" PlaceholderColor="MediumPurple" Placeholder="Code" TextColor="{StaticResource BADBIRPurple}"/>
+                    <Line Style="{StaticResource QuestionSpacerV}"/>
+                    <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                    <Button Text="Verify Code" Clicked="VerifyCodeButton_Clicked"  Style="{StaticResource PrimaryButtonPurple}" />
+
+                </StackLayout>
+                <StackLayout x:Name="EmailVerifiedStack" Orientation="Vertical" IsVisible="false">
+                    <Label x:Name="EmailVerificationComplete" Text="Your email address is verified." Style="{StaticResource BodyLabel}"/>
+                    <Line Style="{StaticResource QuestionSpacerV}"/>
+                    <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                    <Button Text="Proceed" Clicked="Proceed_Clicked"  Style="{StaticResource PrimaryButtonPurple}" />
+
+                </StackLayout>
+
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

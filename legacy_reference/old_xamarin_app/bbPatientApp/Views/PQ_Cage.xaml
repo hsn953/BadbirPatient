@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns:viewmodels="clr-namespace:bbPatientApp.ViewModels" 
+             x:DataType="viewmodels:CageViewModel"
+             Title="CAGE"
+             x:Class="bbPatientApp.Views.PQ_Cage">
+    <ContentPage.BindingContext>
+        <viewmodels:CageViewModel/>
+    </ContentPage.BindingContext>
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout Style="{StaticResource MainOuterStackLayout}">
+
+                <Label Text="CAGE Questionnaire" Style="{StaticResource TitleLabel}"></Label>
+
+                <Label Text="This questionnaire comprises of four questions and is applicable for alcohol users." Style="{StaticResource BodyLabel}"/>
+
+                <StackLayout x:Name="RBGC" RadioButtonGroup.GroupName="QC" RadioButtonGroup.SelectedValue="{Binding CageDAO.Cutdown}">
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="1. Have you ever felt you should cut down on your drinking?" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <RadioButton Content="Yes" Value="True" />
+                    <RadioButton Content="No" Value="False" />
+                </StackLayout>
+
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                <StackLayout x:Name="RBGA" RadioButtonGroup.GroupName="QA" RadioButtonGroup.SelectedValue="{Binding CageDAO.Annoyed}">
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="2. Have people annoyed you by criticising your drinking?" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <RadioButton Content="Yes" Value="True" />
+                    <RadioButton Content="No" Value="False" />
+                </StackLayout>
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                <StackLayout x:Name="RBGG" RadioButtonGroup.GroupName="QG" RadioButtonGroup.SelectedValue="{Binding CageDAO.Guilty}">
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="3. Have you ever felt bad or guilty about your drinking?" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <RadioButton Content="Yes" Value="True" />
+                    <RadioButton Content="No" Value="False" />
+                </StackLayout>
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                <StackLayout x:Name="RBGE" RadioButtonGroup.GroupName="QE" RadioButtonGroup.SelectedValue="{Binding CageDAO.Earlymorning}">
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="4. Have you ever had a drink first thing in the morning (as an 'eye opener') to steady your nerves or to get rid of a hangover?" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <RadioButton Content="Yes" Value="True" />
+                    <RadioButton Content="No" Value="False" />
+                </StackLayout>
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                <StackLayout Margin="10">
+                    <Label Text="Today's date will be stored as the completion date of this questionnaire." HorizontalTextAlignment="Center"/>
+                </StackLayout>
+
+                <Button Text="Save &amp; proceed" Command="{Binding SaveQCommand}" Style="{StaticResource PrimaryButtonPurple}" />
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

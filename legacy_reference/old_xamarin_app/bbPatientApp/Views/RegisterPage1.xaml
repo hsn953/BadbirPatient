@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="bbPatientApp.Views.RegisterPage1"
+             Shell.PresentationMode="Animated"
+             Shell.TabBarIsVisible="False">
+            
+    <ContentPage.Content>
+        <ScrollView >
+
+            <StackLayout Padding="10" >
+                <Label HorizontalTextAlignment="Center" Text="Before you register..." Style="{StaticResource TitleLabel}" />
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+                <Label Style="{StaticResource SubtitleLabel}" FontSize="Small" Text="Currently you can only activate an account if you have been consented to BADBIR and your details have been registered with us."   />
+                <Label Style="{StaticResource BodyLabel}" Text="You will need to provide the following information in order for us to find your existing record:" />
+                <Label Style="{StaticResource BodyLabel}" Text="• One of NHS Number, CHI Number (Scotland) or BADBIR Study Number:" />
+                <Label Style="{StaticResource BodyLabel}" Text="• Date of birth" />
+                <Label Style="{StaticResource BodyLabel}" Text="• First and last name initials" />
+                <Label Style="{StaticResource BodyLabel}"  Text="You will also need to provide an active email address  and set up a password." />
+
+                <Label Style="{StaticResource BodyLabel}"  Text="By progressing with registration, you are agreeing to the privacy policy." />
+                <Button Text="Proceed..." Style="{StaticResource PrimaryButtonPurple}" Clicked="RegisterStep1Button_Clicked" />
+
+                <Button Text="View Privacy Policy" Style="{StaticResource PrimaryButtonPurple}" Clicked="Button_Clicked" />
+
+                <StackLayout x:Name="PrivacyStack" IsVisible="False" HeightRequest="300">
+                    <ScrollView>
+                    <WebView  Source="https://patient.badbir.org/Privacy_PolicyBADBIR1_0.html"  HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" />
+                    </ScrollView>
+                </StackLayout>
+
+
+
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>
+
+

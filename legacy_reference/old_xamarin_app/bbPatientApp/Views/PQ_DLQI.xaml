@@ -1,0 +1,243 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns:viewmodels="clr-namespace:bbPatientApp.ViewModels" 
+             x:DataType="viewmodels:DlqiViewModel"
+             x:Class="bbPatientApp.Views.PQ_Dlqi"
+             Shell.FlyoutItemIsVisible="False"
+             Title="DLQI">
+    <ContentPage.BindingContext>
+        <viewmodels:DlqiViewModel/>
+    </ContentPage.BindingContext>
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout Style="{StaticResource MainOuterStackLayout}">
+                
+                <Label Text="Dermatology Quality of Life Index (DLQI)" Style="{StaticResource TitleLabel}"></Label>
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                <StackLayout RadioButtonGroup.GroupName="q1" x:Name="RBGQ1" RadioButtonGroup.SelectedValue="{Binding DLQIDAO.ItchsoreScore}">
+                  
+                    
+                    <Label Style="{StaticResource SubtitleLabel}">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="1. Over the last week, how "   />
+                                <Span Text="itchy, sore, painful or stinging " FontAttributes="Bold"   />
+                                <Span Text="has your skin been?" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <RadioButton Content="Very much" Value="0" />
+                    <RadioButton Content="A lot" Value="1" />
+                    <RadioButton Content="A little" Value="2" />
+                    <RadioButton Content="Not at all" Value="3" />
+                </StackLayout>
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                <StackLayout RadioButtonGroup.GroupName="q2" x:Name="RBGQ2" RadioButtonGroup.SelectedValue="{Binding DLQIDAO.EmbscScore}" >
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="2. Over the last week, how " />
+                                <Span Text="embarrassed or self conscious " FontAttributes="Bold" />
+                                <Span Text="have you been because of your skin?" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <RadioButton Content="Very much" Value="0" />
+                    <RadioButton Content="A lot" Value="1" />
+                    <RadioButton Content="A little" Value="2" />
+                    <RadioButton Content="Not at all" Value="3" />
+                </StackLayout>
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                <StackLayout RadioButtonGroup.GroupName="q3" x:Name="RBGQ3" RadioButtonGroup.SelectedValue="{Binding DLQIDAO.ShophgScore}">
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="3. Over the last week, how much has your skin interfered with you going " />
+                                <Span Text="shopping " FontAttributes="Bold" />
+                                <Span Text="or looking after your" />
+                                <Span Text="home or garden" FontAttributes="Bold" />
+                                <Span Text="?" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <RadioButton Content="Very much" Value="0" />
+                    <RadioButton Content="A lot" Value="1" />
+                    <RadioButton Content="A little" Value="2" />
+                    <RadioButton Content="Not at all" Value="3" />
+                    <RadioButton Content="Not relevant" Value="10" />
+
+                </StackLayout>
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                <StackLayout RadioButtonGroup.GroupName="q4" x:Name="RBGQ4" RadioButtonGroup.SelectedValue="{Binding DLQIDAO.ClothesScore}">
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="4. Over the last week, how much has your skin influenced the " />
+                                <Span Text="clothes " FontAttributes="Bold" />
+                                <Span Text="you wear?" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <RadioButton Content="Very much" Value="0" />
+                    <RadioButton Content="A lot" Value="1" />
+                    <RadioButton Content="A little" Value="2" />
+                    <RadioButton Content="Not at all" Value="3" />
+                    <RadioButton Content="Not relevant" Value="10" />
+
+                </StackLayout>
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                <StackLayout RadioButtonGroup.GroupName="q5" x:Name="RBGQ5" RadioButtonGroup.SelectedValue="{Binding DLQIDAO.SocleisScore}">
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="5. How much has your skin affected any " />
+                                <Span Text="social " FontAttributes="Bold" />
+                                <Span Text="or " />
+                                <Span Text="leisure " FontAttributes="Bold" />
+                                <Span Text="activities?" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <RadioButton Content="Very much" Value="0" />
+                    <RadioButton Content="A lot" Value="1" />
+                    <RadioButton Content="A little" Value="2" />
+                    <RadioButton Content="Not at all" Value="3" />
+                    <RadioButton Content="Not relevant" Value="10" />
+
+                </StackLayout>
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                <StackLayout RadioButtonGroup.GroupName="q6" x:Name="RBGQ6" RadioButtonGroup.SelectedValue="{Binding DLQIDAO.SportScore}">
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="6. Over the last week, how much has your skin made it difficult for you to do any " />
+                                <Span Text="sport" FontAttributes="Bold" />
+                                <Span Text="?" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <RadioButton Content="Very much" Value="0" />
+                    <RadioButton Content="A lot" Value="1" />
+                    <RadioButton Content="A little" Value="2" />
+                    <RadioButton Content="Not at all" Value="3" />
+                    <RadioButton Content="Not relevant" Value="10" />
+
+                </StackLayout>
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                <StackLayout RadioButtonGroup.GroupName="q7" x:Name="RBGQ7" RadioButtonGroup.SelectedValue="{Binding DLQIDAO.WorkstudScore}" >
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="7. Over the last week, has your skin prevented you from " />
+                                <Span Text="working " FontAttributes="Bold" />
+                                <Span Text="or " />
+                                <Span Text="studying " FontAttributes="Bold" />
+                                <Span Text="?" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <RadioButton Content="Yes" Value="5" CheckedChanged="Q7RadioButton_CheckedChanged" />
+                    <RadioButton Content="No" Value="6"  CheckedChanged="Q7RadioButton_CheckedChanged"/>
+                    <RadioButton Content="Not Relevant" Value="10" CheckedChanged="Q7RadioButton_CheckedChanged" />
+                </StackLayout>
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                <StackLayout RadioButtonGroup.GroupName="q7a" x:Name="RBGQA7" RadioButtonGroup.SelectedValue="{Binding DLQIDAO.WorkstudnoScore}" IsVisible="False">
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="7.a) If No, over the last week, how much has your skin been a problem at " />
+                                <Span Text="work " FontAttributes="Bold" />
+                                <Span Text="or " />
+                                <Span Text="studying " FontAttributes="Bold" />
+                                <Span Text="?" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <RadioButton Content="A lot" Value="1" />
+                    <RadioButton Content="A little" Value="2" />
+                    <RadioButton Content="Not at all" Value="3" />
+                </StackLayout>
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                <StackLayout RadioButtonGroup.GroupName="q8" x:Name="RBGQ8" RadioButtonGroup.SelectedValue="{Binding DLQIDAO.PartcrfScore}">
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="8. Over the last week, how much has your skin created problems with your " />
+                                <Span Text="partner " FontAttributes="Bold" />
+                                <Span Text="or any of your" />
+                                <Span Text="close friends or relatives " FontAttributes="Bold" />
+                                <Span Text="?" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <RadioButton Content="Very much" Value="0" />
+                    <RadioButton Content="A lot" Value="1" />
+                    <RadioButton Content="A little" Value="2" />
+                    <RadioButton Content="Not at all" Value="3" />
+                    <RadioButton Content="Not relevant" Value="10" />
+
+                </StackLayout>
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                <StackLayout RadioButtonGroup.GroupName="q9" x:Name="RBGQ9" RadioButtonGroup.SelectedValue="{Binding DLQIDAO.SexdifScore}"> 
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="9. Over the last week, how much has your skin caused any " />
+                                <Span Text="sexual difficulties " FontAttributes="Bold" />
+                                <Span Text="?" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <RadioButton Content="Very much" Value="0" />
+                    <RadioButton Content="A lot" Value="1" />
+                    <RadioButton Content="A little" Value="2" />
+                    <RadioButton Content="Not at all" Value="3" />
+                    <RadioButton Content="Not relevant" Value="10" />
+
+                </StackLayout>
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                <StackLayout RadioButtonGroup.GroupName="q10" x:Name="RBGQ10" RadioButtonGroup.SelectedValue="{Binding DLQIDAO.TreatmentScore}">
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="10. Over the last week, how much of a problem has the " />
+                                <Span Text="treatment " FontAttributes="Bold" />
+                                <Span Text="for your skin been, e.g. by making your home messy, or by taking up time?" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <RadioButton Content="Very much" Value="0" />
+                    <RadioButton Content="A lot" Value="1" />
+                    <RadioButton Content="A little" Value="2" />
+                    <RadioButton Content="Not at all" Value="3" />
+                    <RadioButton Content="Not relevant" Value="10" />
+
+                </StackLayout>
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                <StackLayout Margin="10">
+                    <Label Text="Today's date will be stored as the completion date of this questionnaire." HorizontalTextAlignment="Center"/>
+                    <Label Text="© Dermatology Life Quality Index. A Y Finlay, G K Khan, April 1992" HorizontalTextAlignment="Center"/>
+                </StackLayout>
+
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+
+                <Button Text="Save" Command="{Binding SaveQCommand}"  Style="{StaticResource PrimaryButtonPurple}" />
+                
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

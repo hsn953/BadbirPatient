@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:behaviors="clr-namespace:bbPatientApp.Behaviors"
+             xmlns:viewmodel="clr-namespace:bbPatientApp.ViewModels"
+             x:Class="bbPatientApp.Views.LoginPage"
+             Shell.FlyoutBehavior="Disabled"
+             Shell.TabBarIsVisible="False"
+             Shell.NavBarIsVisible="False"
+             
+            
+             >
+    <ContentPage.BindingContext>
+        <viewmodel:LoginViewModel/>
+    </ContentPage.BindingContext>
+
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout Style="{StaticResource MainOuterStackLayout}">
+
+                <ActivityIndicator Color="{StaticResource BADBIRPurple}" IsRunning="{Binding IsBusy}"/>
+
+                <Grid Grid.Row="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        
+                        <Label Text="BADBIR" FontSize="36" VerticalOptions="CenterAndExpand" HorizontalOptions="Center" />
+                        <Label Text="Patient App" FontSize="24" VerticalOptions="CenterAndExpand" HorizontalOptions="Center" Grid.Row="1" IsEnabled="True" FlowDirection="LeftToRight" />
+                    </Grid>
+
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                <StackLayout x:Name="LoginPanel" IsVisible="{Binding LoginPanelVisible}"    >
+                    <Entry Text="{Binding Username, Mode=TwoWay}" Placeholder="Email Address" Keyboard="Email" PlaceholderColor="MediumPurple" TextColor="{StaticResource BADBIRPurple}" >
+                        <Entry.Behaviors>
+                            <behaviors:EmailValidatorBehavior />
+                        </Entry.Behaviors>
+                    </Entry>
+
+                    <Entry Text="{Binding Password}" IsPassword="True" Placeholder="Password" PlaceholderColor="MediumPurple"  TextColor="{StaticResource BADBIRPurple}" >
+                        <Entry.Behaviors>
+                            <behaviors:PasswordValidatorBehavior />
+                        </Entry.Behaviors>
+                    </Entry>
+                    <Label Text="" TextColor="Pink" VerticalOptions="CenterAndExpand" HorizontalOptions="Center" />
+                    <Button Text="Login" Command="{Binding LoginCommand}" Style="{StaticResource PrimaryButtonPurple}" />
+                    <Label Text="First time signing in?&#10;Activate your account here if you are an existing consenting BADBIR patient" Style="{StaticResource SubtitleLabel}"/>
+                    <Button Text="Activate Account" Command="{Binding RegisterCommand}" Style="{StaticResource PrimaryButtonPurple}" />
+
+                </StackLayout>
+                <StackLayout x:Name="UseBiometricsPanel" IsVisible="{Binding BiometricPanelVisible}">
+                    
+                    <Label Text="You can sign in using the saved token" Style="{StaticResource SubtitleLabel}"/>
+                    <Button Text="Go to Dashboard" Command="{Binding SigninUsingSavedCredentials}" Style="{StaticResource PrimaryButtonPurple}" />
+                    <Line Style="{StaticResource Key=QuestionSpacerV}"></Line>
+                    <Button Text="Forget the token" Command="{Binding LogoutSavedCredentials}" Style="{StaticResource PrimaryButtonPurple}" BackgroundColor="DarkGoldenrod" />
+
+
+                </StackLayout>
+                <StackLayout>
+                    <Line Style="{StaticResource Key=QuestionSpacerV}"/>
+                    <Line Style="{StaticResource Key=QuestionSeparatorV}"/>
+                    <Line Style="{StaticResource Key=QuestionSpacerV}"/>
+                    <Label Text="Contact us" Style="{StaticResource SubtitleLabel}"  />
+
+                    <Label Text="Please contact BADBIR if you require assistance with registration or loggin in. Please Do NOT include any personal or medical information." Style="{StaticResource BodyLabel}"  />
+                    <Label Style="{StaticResource BodyLabel}">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Email" FontAttributes="Bold" />
+                                <Span Text=" badbir@manchester.ac.uk"  />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label Style="{StaticResource BodyLabel}">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Phone" FontAttributes="Bold" />
+                                <Span Text=" 0161 306 1896"  />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+
+
+                </StackLayout>
+
+                <Label Text="{Binding VersionText}" TextColor="Gray" FontSize="Small" HorizontalOptions="End"/>
+
+
+                
+                
+
+
+            </StackLayout>
+
+        </ScrollView>
+    </ContentPage.Content>
+
+</ContentPage>

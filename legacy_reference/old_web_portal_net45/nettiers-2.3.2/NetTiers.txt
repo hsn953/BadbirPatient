@@ -1,0 +1,7 @@
+﻿
+
+
+Generation complete. Execution time: 00:00:25.0181009
+You can view current documentation @ http://nettiers.net
+Generated solution can be found here: 
+file:\\\C:\Work\BadbirSrc\BbPatientApp\BbPatientApp\MHS.Badbir.NetTiers.sln

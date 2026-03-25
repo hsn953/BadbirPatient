@@ -1,0 +1,114 @@
+<%@ Master Language="C#" AutoEventWireup="true" CodeFile="bbDefault.master.cs" Inherits="MasterPages_bbDefault" %>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head id="Head1" runat="server">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=11" />
+    <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1" />
+    <meta http-equiv="PRAGMA" content="NO-CACHE" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+
+
+    <link href="../Content/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/font-awesome.min.css"/>
+
+
+    <asp:ContentPlaceHolder ID="head" runat="server" />
+
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+
+
+
+        <asp:LoginView ID="lvMenu" runat="server">
+            <LoggedInTemplate>
+                <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                    <a class="navbar-brand" href="#">BADBIR Patient Portal</a>
+                    <div class="collapse navbar-collapse" id="navbarText">
+                        <%try
+                            { %>
+                        <span class="navbar-text "> Logged in as <%=Session["UserFullname"].ToString() %>, NHS#<%=HttpContext.Current.User.Identity.Name %>
+                        </span>
+                        <%}
+                                 catch { } %>
+
+                        <span class="navbar-text"> &nbsp;&nbsp;(<asp:LoginStatus ID="LoginStatus" LogoutPageUrl="~/Default.aspx" LogoutAction="Redirect"
+                                runat="server" OnLoggingOut="LoginStatus_OnLoggingOut" LogoutText="Logout"></asp:LoginStatus>)
+
+                        </span>
+                    </div>
+                </nav>
+
+
+
+
+            </LoggedInTemplate>
+            <AnonymousTemplate>
+                <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                    <a class="navbar-brand" href="#">BADBIR Patient Portal</a>
+                    <div class="collapse navbar-collapse" id="navbarText">
+                        <span class="navbar-text"> Not Logged In</span>
+                    </div>
+                </nav>
+            </AnonymousTemplate>
+        </asp:LoginView>
+        <!-- end of login section -->
+
+
+
+        <!-- end of header -->
+
+
+        <div id="content">
+            <div runat="server" class="alert alert-primary" role="alert" id="dFormNotification" visible="false" enableviewstate="false" />
+
+            <asp:ContentPlaceHolder ID="MainContent" runat="server">
+            </asp:ContentPlaceHolder>
+
+        </div>
+
+
+      <footer id="sticky-footer" class="mt-auto bg-dark text-light p-2">
+<div class="container-fluid">
+    <div class="row m-2">
+        <div class="col-md-1"></div>
+      <div class="col-md-5 left text-center text-md-left p-3">
+            <div class="row" >
+                <div class="col h4">Contact BADBIR</div>
+                </div><div class="row">
+                <div class="col">Email: <a href="mailto:badbir@manchester.ac.uk?subject=[From Patient Portal]: Subject Here">badbir@manchester.ac.uk</a></div>
+                    </div><div class="row">
+                <div class="col">Phone: <a href="tel:01613061896">0161 306 1896</a> </div>
+            </div>
+
+
+      </div>
+      <div class="col-md-5 right text-center text-md-right p-3">
+        <div class="row">
+            <div class="col h4">Web Links</div>
+        </div>
+          <div class="row">
+              <div class="col"><a href="http://www.badbir.org/Participants/">Participants information</a></div>
+          </div>
+          <div class="row">
+              <div class="col"><a href="http://www.badbir.org/">BADBIR Main Website</a></div>
+          </div>
+          <div class="col-md-1" />
+      </div>
+    </div>
+
+
+  </footer>
+
+    
+
+    <script src='<%= ResolveUrl("~/Scripts/jquery-3.5.1.min.js") %>' type="text/javascript"></script>
+    <script src='<%= ResolveUrl("~/Scripts/popper.min.js") %>' type="text/javascript"></script>
+    <script src='<%= ResolveUrl("~/Scripts/bootstrap.min.js") %>' type="text/javascript"></script>
+
+
+
+</body>
+</html> 

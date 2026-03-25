@@ -1,0 +1,43 @@
+﻿20/04/2011
+
+* Updates to FUP menu structure
+* Creation of additional info page specific to FUP
+* Creation of current disease severity page
+* Creation of patient medical problems page for FUP
+* Creation of patient lifestyle factors page for FUP
+* Updated each FUP page to reflect FUP form order
+* Update PatientSummary (Baseline first page differs from FUP first page)
+* Creation of alternate lab values page with extra fields for FUP
+* Updated flow around site to account for above
+* Changed current therapy page to reflect concommitant therapy for FUP
+* Added information ribbon below patient's name after Baseline/FUP selection
+
+21/04/2011
+
+* CSS changes
+
+18/05/2011
+
+* add App_Data folder
+* install NLog-1.0-Refresh-setup.exe from http://nlog.codeplex.com/releases
+* http://nlog-project.org/wiki/Tutorial#Adding_NLog_to_an_application
+* Add file of type "typical NLog configuration file" called NLog.config to the root of the website. This will also add reference to NLog in bin folder.
+* modified file NLog.config
+* updated App_Code\HttpModules\HandleErrors.cs
+* updated App_Themes\bbTheme\css\style.css to change all image references from using "images" to "../images"
+* delete references to ControlAdapters and CSSfriendly from bin folder
+* delete App_Browsers\CSSFriendlyAdapters.broswer
+* delete App_Browsers\ControlAdapters.broswer
+* add reference to CSSfriendly.dll from CSSFriendly_compile_by_mike.zip
+* add App_Browsers\CSSFriendlyAdapters.broswer from CSSFriendly_compile_by_mike.zip
+* jquery-ui updated to jquery-ui-1.8.13
+* web.config netTiers provider changed to useStoredProcedure="true"
+* Web_dev.Config and Web_live.Config created with different connection strings
+
+18/05/2011 again
+
+* MasterPages\bbDefault.master and MasterPages\bbDefault.master.cs LoginStatus_OnLoggingOut
+* Centre\BbPatientdrugbiologic.aspx child gridview added to show doses
+* App_Browsers\CSSFriendlyAdapters.browser CreateUserWizard removed
+* App_Code\HttpModules\CheckSession.cs line 80 Added: if (sFolder.StartsWith("~/passwordrecovery.aspx")) { return; }
+* web.config, web_live.config, web_dev.config

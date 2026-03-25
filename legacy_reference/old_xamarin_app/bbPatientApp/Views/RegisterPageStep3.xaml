@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="bbPatientApp.RegisterPageStep3"
+             Title="Final Step">
+    <ContentPage.Content>
+        <ScrollView>
+        <StackLayout Padding="10">
+            
+            <Label Text="Create a password" Style="{StaticResource TitleLabel}"/>
+
+            <Label Text="Use this password to log in to this app in future. Your password must contain:" Style="{StaticResource BodyLabel}"/>
+
+                <Label Style="{StaticResource BodyLabel}" Text="• 8 or more characters" />
+                <Label Style="{StaticResource BodyLabel}" Text="• a mix of upper and lower case" />
+                <Label Style="{StaticResource BodyLabel}" Text="• at least one number" />
+                <Label Style="{StaticResource BodyLabel}" Text="• a special character from @ ! $ £ % *" />
+
+                <Entry IsPassword="True" x:Name="Entry_Password" />
+            <Line Style="{StaticResource QuestionSpacerV}"/>
+            <Line Style="{StaticResource QuestionSpacerV}"/>
+
+            <Label x:Name="ErrorLabel" Text="" Style="{StaticResource BodyLabel}"/>
+            <Line Style="{StaticResource QuestionSpacerV}"/>
+            <Button Text="Save and Login" Style="{StaticResource PrimaryButtonPurple}" Clicked="Button_Clicked" />
+
+        </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

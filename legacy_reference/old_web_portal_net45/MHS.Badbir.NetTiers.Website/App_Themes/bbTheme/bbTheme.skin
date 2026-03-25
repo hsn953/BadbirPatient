@@ -1,0 +1,41 @@
+﻿<%--
+Default skin template. The following skins are provided as examples only.
+
+1. Named control skin. The SkinId should be uniquely defined because
+   duplicate SkinId's per control type are not allowed in the same theme.
+
+<asp:GridView runat="server" SkinId="gridviewSkin" BackColor="White" >
+   <AlternatingRowStyle BackColor="Blue" />
+</asp:GridView>
+
+2. Default skin. The SkinId is not defined. Only one default 
+   control skin per control type is allowed in the same theme.
+
+<asp:Image runat="server" ImageUrl="~/images/image1.jpg" />
+--%>
+<asp:GridView runat="server" BackColor="White" GridLines="None">
+   <AlternatingRowStyle BackColor="ActiveBorder" />
+</asp:GridView>
+
+<asp:ImageButton runat="server" SkinID="CalendarImageButton" ImageUrl="~/images/minical.gif" />
+
+<data:EntityGridView runat="server"
+			AllowPaging="false" AllowSorting="false" 
+			PageSize="1000000" 
+            SortDescImageUrl="" 
+            SortAscImageUrl=""
+            ExportToExcelText="<img src='../Images/excel.gif' border='0' />"
+            CellPadding="3" CellSpacing="0"
+			AllowExportToExcel="false"
+			SelectedRowStyle-CssClass="gradeX"
+			>
+    <AlternatingRowStyle BackColor="ActiveBorder" />
+</data:EntityGridView>	
+
+
+<asp:DropDownList runat="server" CssClass="dropdownlist"></asp:DropDownList>
+<asp:DropDownList SkinId="cboPageSize" CssClass="dropdownlist" runat="server" />
+<asp:LinkButton CssClass="linkbutton-tab" SkinID="cmdUserEdit" runat="server"></asp:LinkButton>
+<asp:TextBox runat="Server" CssClass="textbox"></asp:TextBox>
+<asp:RadioButtonList runat="server" CssClass="radiobuttonlist"></asp:RadioButtonList>
+<asp:CheckBoxList CssClass="radiobuttonlist" runat="server" RepeatColumns="4" />

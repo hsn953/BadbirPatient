@@ -1,0 +1,16 @@
+﻿<%@ Master Language="C#" MasterPageFile="~/MasterPages/bbDefault.master" AutoEventWireup="true" CodeFile="bbStaticNoMenu.master.cs" Inherits="MasterPages_bbStaticNoMenu" %>
+<%@ MasterType VirtualPath="~/MasterPages/bbDefault.master" %>
+<asp:Content ID="PatientHead" ContentPlaceHolderID="head" Runat="Server">
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+</asp:Content>
+<asp:Content ID="PatientMainContent" ContentPlaceHolderID="MainContent" Runat="Server">
+    <div class="singlecolumn">
+        <h2 runat="server" id="hPatientFormTitle"></h2>  
+        <div runat="server" id="dPatientFormNotification" visible="false" enableviewstate="false" />
+
+        <asp:ContentPlaceHolder ID="MainContent" runat="server">
+        </asp:ContentPlaceHolder>
+    </div>
+</asp:Content>
+
