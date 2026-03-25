@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BADBIR.Api/BADBIR.Api.csproj" />
+    <Project Path="src/BADBIR.Mobile/BADBIR.Mobile.csproj" />
+    <Project Path="src/BADBIR.Shared/BADBIR.Shared.csproj" />
+    <Project Path="src/BADBIR.UI.Components/BADBIR.UI.Components.csproj" />
+    <Project Path="src/BADBIR.Web/BADBIR.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/BADBIR.Api.Tests/BADBIR.Api.Tests.csproj" />
+  </Folder>
+</Solution>
