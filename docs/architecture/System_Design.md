@@ -1,8 +1,30 @@
 # System Design – BADBIR Patient Application
 
-> **Status:** Draft  
+> **Status:** Superseded — see detailed documents below  
 > **Last Updated:** 2026-03-25  
-> **Author:** Architecture Team
+> **Note:** This file is the original high-level overview. Detailed specifications have been split into dedicated documents:
+
+## Documentation Index
+
+| Document | Path | Description |
+|---|---|---|
+| **SAD-001** | `docs/architecture/SAD-001_System_Architecture_Design.md` | Full system architecture, project structure, auth flows |
+| **SED-001** | `docs/architecture/SED-001_System_Environment_Design.md` | IIS / Docker / AWS deployment, dev setup, CI/CD |
+| **DSD-001** | `docs/architecture/DSD-001_Database_Schema_Design.md` | Database schema, new tables, PII encryption |
+| **URD-001** | `docs/requirements/URD-001_User_Requirements.md` | User stories and acceptance criteria |
+| **SRS-001** | `docs/requirements/SRS-001_Software_Requirements_Specification.md` | Functional & non-functional requirements |
+| **API-001** | `docs/api/API-001_Endpoint_Specification.md` | All API endpoints, request/response contracts |
+| **FORM-001** | `docs/forms/FORM-001_EuroQol_EQ5D.md` | EuroQol EQ-5D form specification |
+| **FORM-002** | `docs/forms/FORM-002_HAQ.md` | HAQ form specification (all 8 categories) |
+| **FORM-003** | `docs/forms/FORM-003_HADS.md` | HADS anxiety & depression scale |
+| **FORM-004** | `docs/forms/FORM-004_DLQI.md` | DLQI dermatology quality of life |
+| **FORM-005** | `docs/forms/FORM-005_CAGE.md` | CAGE alcohol screening |
+| **FORM-006** | `docs/forms/FORM-006_PGA.md` | Patient Global Assessment |
+| **FORM-007** | `docs/forms/FORM-007_SAPASI.md` | SAPASI (new — no legacy equivalent) |
+| **FORM-008** | `docs/forms/FORM-008_Lifestyle_MedProbs.md` | Lifestyle & Medical Problems forms |
+| **DECISION-LOG** | `docs/progress/DECISION-LOG.md` | All architectural decisions with rationale |
+
+---
 
 ---
 
