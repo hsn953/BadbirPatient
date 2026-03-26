@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Baseline Forms — BADBIR Mockups</title>
+<style>
+/* ═══════════════════════════════════════════════════
+   BADBIR Mockup Shared Styles
+   ═══════════════════════════════════════════════════ */
+:root {
+  --nhs-blue:      #005EB8;
+  --nhs-blue-dark: #003D78;
+  --nhs-teal:      #41B6E6;
+  --nhs-green:     #007F3B;
+  --nhs-red:       #DA291C;
+  --nhs-amber:     #FFB81C;
+  --nhs-grey-1:    #F0F4F5;
+  --nhs-grey-2:    #D8DDE0;
+  --nhs-grey-3:    #AEB7BD;
+  --nhs-text:      #212B32;
+  --nhs-text-light:#425563;
+  --white:         #FFFFFF;
+  --shadow: 0 8px 32px rgba(0,0,0,0.18);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #E8EFF5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--nhs-text);
+  padding: 40px 20px;
+}
+h1.page-title {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--nhs-blue-dark);
+  margin-bottom: 6px;
+}
+p.page-subtitle {
+  text-align: center;
+  font-size: 14px;
+  color: var(--nhs-text-light);
+  margin-bottom: 40px;
+}
+.flow-section {
+  margin-bottom: 60px;
+}
+.flow-section h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--nhs-blue);
+  border-left: 4px solid var(--nhs-teal);
+  padding-left: 12px;
+  margin-bottom: 28px;
+}
+.screens-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+/* ── Phone Frame ── */
+.phone {
+  flex: 0 0 auto;
+  width: 320px;
+}
+.phone-caption {
+  text-align: center;
+  font-size: 12px;
+  color: var(--nhs-text-light);
+  margin-top: 10px;
+  font-weight: 600;
+}
+.phone-frame {
+  width: 320px;
+  height: 620px;
+  background: var(--nhs-grey-1);
+  border-radius: 36px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  border: 2px solid #C8D3DA;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* ── Status Bar ── */
+.status-bar {
+  background: var(--nhs-blue);
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  flex-shrink: 0;
+}
+.status-bar .time {
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+}
+.status-bar .icons {
+  color: white;
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+
+/* ── App Header ── */
+.app-header {
+  background: var(--nhs-blue);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.app-header .back-btn {
+  color: var(--nhs-teal);
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 1;
+}
+.app-header .header-title {
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  flex: 1;
+}
+.app-header .header-step {
+  color: rgba(255,255,255,0.7);
+  font-size: 11px;
+}
+
+/* ── Progress Bar ── */
+.progress-bar-wrap {
+  background: var(--nhs-blue-dark);
+  padding: 0 14px 8px;
+  flex-shrink: 0;
+}
+.progress-bar-track {
+  background: rgba(255,255,255,0.25);
+  border-radius: 4px;
+  height: 4px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  background: var(--nhs-teal);
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+.progress-label {
+  color: rgba(255,255,255,0.7);
+  font-size: 10px;
+  text-align: right;
+  margin-top: 3px;
+}
+
+/* ── Scrollable Content ── */
+.screen-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Bottom Button Bar ── */
+.bottom-bar {
+  background: white;
+  border-top: 1px solid var(--nhs-grey-2);
+  padding: 10px 16px;
+  flex-shrink: 0;
+}
+.btn-primary {
+  width: 100%;
+  background: var(--nhs-blue);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  display: block;
+}
+.btn-primary:disabled {
+  background: var(--nhs-grey-3);
+}
+.btn-secondary {
+  width: 100%;
+  background: white;
+  color: var(--nhs-blue);
+  border: 2px solid var(--nhs-blue);
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  display: block;
+  margin-top: 8px;
+}
+
+/* ── UI Components ── */
+.card {
+  background: white;
+  border-radius: 10px;
+  padding: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.question-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--nhs-text);
+  line-height: 1.45;
+  margin-bottom: 10px;
+}
+.question-sub {
+  font-size: 11px;
+  color: var(--nhs-text-light);
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border: 1.5px solid var(--nhs-grey-2);
+  border-radius: 8px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  background: white;
+  transition: all 0.15s;
+}
+.radio-option.selected {
+  border-color: var(--nhs-blue);
+  background: #EBF3FC;
+  color: var(--nhs-blue);
+  font-weight: 600;
+}
+.radio-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--nhs-grey-3);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.radio-dot.filled {
+  border-color: var(--nhs-blue);
+  background: var(--nhs-blue);
+}
+.radio-dot.filled::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+}
+.yn-row {
+  display: flex;
+  gap: 8px;
+}
+.yn-btn {
+  flex: 1;
+  padding: 11px 8px;
+  border: 2px solid var(--nhs-grey-2);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  background: white;
+}
+.yn-btn.yes { border-color: var(--nhs-green); color: var(--nhs-green); }
+.yn-btn.no  { border-color: var(--nhs-red);   color: var(--nhs-red);   }
+.yn-btn.yes.selected { background: var(--nhs-green); color: white; }
+.yn-btn.no.selected  { background: var(--nhs-red);   color: white; }
+
+.form-field {
+  background: white;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.form-field label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--nhs-text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.form-field input[type=text], .form-field input[type=email],
+.form-field input[type=password], .form-field input[type=number],
+.form-field select {
+  width: 100%;
+  border: 1.5px solid var(--nhs-grey-2);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--nhs-text);
+  background: var(--nhs-grey-1);
+  outline: none;
+}
+.form-field input:focus { border-color: var(--nhs-blue); }
+
+.section-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--nhs-text-light);
+  padding: 2px 0 6px;
+}
+.divider {
+  height: 1px;
+  background: var(--nhs-grey-2);
+  margin: 2px 0;
+}
+.banner {
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 500;
+}
+.banner-info  { background: #E8F4FD; color: #005EB8; border-left: 3px solid #41B6E6; }
+.banner-warn  { background: #FFF8E6; color: #6B5000; border-left: 3px solid #FFB81C; }
+.banner-error { background: #FDECEA; color: #8B1A14; border-left: 3px solid #DA291C; }
+.banner-ok    { background: #E8F5EE; color: #00401E; border-left: 3px solid #007F3B; }
+
+.form-list-item {
+  background: white;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.form-list-item.done { opacity: 0.6; }
+.form-list-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.icon-todo { background: var(--nhs-grey-2); }
+.icon-done { background: #CCE9DA; }
+.icon-next { background: #D6E8F8; }
+.form-list-info { flex: 1; }
+.form-list-title { font-size: 13px; font-weight: 700; color: var(--nhs-text); }
+.form-list-sub   { font-size: 11px; color: var(--nhs-text-light); margin-top: 1px; }
+.badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 12px;
+}
+.badge-cond { background: #FFF3CD; color: #856404; }
+.badge-done { background: #CCE9DA; color: #00401E; }
+.badge-todo { background: var(--nhs-grey-1); color: var(--nhs-text-light); }
+.badge-next { background: #D6E8F8; color: #003D78; }
+
+.haq-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+.haq-q-label { font-size: 11px; color: var(--nhs-text); flex: 1; line-height: 1.3; }
+.haq-options {
+  display: flex;
+  gap: 3px;
+}
+.haq-opt {
+  font-size: 8px;
+  padding: 3px 4px;
+  border: 1px solid var(--nhs-grey-2);
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  color: var(--nhs-text-light);
+  background: white;
+}
+.haq-opt.sel {
+  background: var(--nhs-blue);
+  color: white;
+  border-color: var(--nhs-blue);
+}
+.haq-cat-header {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--nhs-blue);
+  background: #EBF3FC;
+  padding: 5px 8px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+
+.vas-wrapper {
+  display: flex;
+  gap: 14px;
+  align-items: stretch;
+  padding: 8px 0;
+}
+.vas-scale {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+.vas-label-top { font-size: 9px; color: var(--nhs-green); font-weight: 700; text-align: center; margin-bottom: 4px; }
+.vas-label-bot { font-size: 9px; color: var(--nhs-red);   font-weight: 700; text-align: center; margin-top: 4px; }
+.vas-track {
+  width: 28px;
+  height: 160px;
+  background: linear-gradient(to bottom, #007F3B, #FFB81C, #DA291C);
+  border-radius: 14px;
+  position: relative;
+  cursor: pointer;
+}
+.vas-thumb {
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  transform: translate(-50%, -50%);
+  width: 32px;
+  height: 32px;
+  background: white;
+  border: 3px solid var(--nhs-blue);
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--nhs-blue);
+}
+.vas-numbers {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 160px;
+  padding: 2px 0;
+}
+.vas-numbers span {
+  font-size: 9px;
+  color: var(--nhs-text-light);
+}
+.vas-value-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 8px;
+}
+.vas-big-num {
+  font-size: 42px;
+  font-weight: 700;
+  color: var(--nhs-blue);
+  line-height: 1;
+}
+.vas-unit {
+  font-size: 11px;
+  color: var(--nhs-text-light);
+  margin-top: -4px;
+}
+.vas-prompt {
+  font-size: 11px;
+  color: var(--nhs-text);
+  line-height: 1.4;
+}
+
+.sapasi-region-card {
+  background: white;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+}
+.sapasi-region-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--nhs-blue);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sapasi-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+.sapasi-row-label { font-size: 10px; color: var(--nhs-text-light); flex: 1; }
+.sapasi-dots {
+  display: flex;
+  gap: 4px;
+}
+.sapasi-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--nhs-grey-2);
+  cursor: pointer;
+}
+.sapasi-dot.active { background: var(--nhs-blue); border-color: var(--nhs-blue); }
+
+.pga-option {
+  padding: 11px 14px;
+  border: 2px solid var(--nhs-grey-2);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 7px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: white;
+}
+.pga-option.selected {
+  border-color: var(--nhs-blue);
+  background: #EBF3FC;
+  color: var(--nhs-blue);
+}
+.pga-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.dot-red    { background: #DA291C; }
+.dot-orange { background: #FF8C00; }
+.dot-yellow { background: #FFB81C; }
+.dot-ltgreen{ background: #76C442; }
+.dot-green  { background: #007F3B; }
+
+.dlqi-q {
+  background: white;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.dlqi-q-num {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--nhs-text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.dlqi-q-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--nhs-text);
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+.dlqi-opts {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.dlqi-opt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--nhs-text);
+  padding: 6px 8px;
+  border: 1.5px solid var(--nhs-grey-2);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.dlqi-opt.sel {
+  border-color: var(--nhs-blue);
+  background: #EBF3FC;
+  color: var(--nhs-blue);
+  font-weight: 600;
+}
+.dot-radio {
+  width: 13px; height: 13px;
+  border-radius: 50%;
+  border: 2px solid #AEB7BD;
+  flex-shrink: 0;
+}
+.dot-radio.fill {
+  border-color: var(--nhs-blue);
+  background: var(--nhs-blue);
+}
+
+.euro-dim {
+  background: white;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.euro-dim-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--nhs-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 7px;
+}
+.euro-opt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--nhs-text);
+  padding: 6px 8px;
+  border: 1.5px solid var(--nhs-grey-2);
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 4px;
+}
+.euro-opt.sel {
+  border-color: var(--nhs-blue);
+  background: #EBF3FC;
+  color: var(--nhs-blue);
+  font-weight: 600;
+}
+
+.score-result {
+  background: var(--nhs-blue);
+  border-radius: 12px;
+  padding: 16px;
+  color: white;
+  text-align: center;
+}
+.score-result .big { font-size: 40px; font-weight: 700; line-height: 1; }
+.score-result .sub { font-size: 12px; margin-top: 4px; opacity: 0.8; }
+.score-result .band {
+  display: inline-block;
+  background: rgba(255,255,255,0.2);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-top: 8px;
+}
+
+.timeline-dot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+}
+.tdot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.tdot-done  { background: var(--nhs-green); }
+.tdot-now   { background: var(--nhs-teal);  }
+.tdot-next  { background: var(--nhs-grey-3);}
+.tdot-label { font-size: 12px; color: var(--nhs-text); font-weight: 500; }
+.tdot-label span { font-size: 10px; color: var(--nhs-text-light); display: block; }
+.timeline-line { width: 2px; height: 14px; background: var(--nhs-grey-2); margin-left: 6px; }
+
+.checkbox-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1.5px solid var(--nhs-grey-2);
+  border-radius: 8px;
+  margin-bottom: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  background: white;
+}
+.checkbox-option.checked {
+  border-color: var(--nhs-blue);
+  background: #EBF3FC;
+  color: var(--nhs-blue);
+}
+.chk-box {
+  width: 16px; height: 16px;
+  border-radius: 4px;
+  border: 2px solid #AEB7BD;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.chk-box.chk { border-color: var(--nhs-blue); background: var(--nhs-blue); color: white; font-size: 10px; }
+
+.hads-q {
+  background: white;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.hads-q-num { font-size: 9px; font-weight: 700; color: var(--nhs-text-light); letter-spacing: 0.5px; margin-bottom: 3px; }
+.hads-q-type {
+  display: inline-block;
+  font-size: 8px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-bottom: 5px;
+}
+.type-a { background: #FEF3C7; color: #92400E; }
+.type-d { background: #EDE9FE; color: #4C1D95; }
+.hads-q-text { font-size: 12px; font-weight: 600; color: var(--nhs-text); line-height: 1.35; margin-bottom: 8px; }
+.hads-opts { display: flex; flex-direction: column; gap: 4px; }
+.hads-opt {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 10px; color: var(--nhs-text);
+  padding: 5px 8px;
+  border: 1.5px solid var(--nhs-grey-2);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.hads-opt.sel { border-color: var(--nhs-blue); background: #EBF3FC; color: var(--nhs-blue); font-weight: 600; }
+
+.med-prob-q {
+  background: white;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.med-opts { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 7px; }
+.med-opt {
+  padding: 6px 10px;
+  border: 1.5px solid var(--nhs-grey-2);
+  border-radius: 20px;
+  font-size: 11px;
+  cursor: pointer;
+  background: white;
+  color: var(--nhs-text);
+}
+.med-opt.sel { background: var(--nhs-blue); color: white; border-color: var(--nhs-blue); }
+
+/* ── Dashboard visit timeline bar ── */
+.visit-bar {
+  background: white;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.visit-bar-title { font-size: 10px; font-weight: 700; color: var(--nhs-text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.visit-timeline {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.vt-item { display: flex; flex-direction: column; align-items: center; flex: 1; }
+.vt-dot { width: 12px; height: 12px; border-radius: 50%; }
+.vt-line { height: 2px; background: var(--nhs-grey-2); flex: 1; }
+.vt-label { font-size: 8px; color: var(--nhs-text-light); margin-top: 3px; text-align: center; white-space: nowrap; }
+.vt-active .vt-dot { background: var(--nhs-teal); box-shadow: 0 0 0 3px rgba(65,182,230,0.3); }
+.vt-done .vt-dot   { background: var(--nhs-green); }
+.vt-future .vt-dot { background: var(--nhs-grey-2); }
+
+/* ── Welcome screen ── */
+.welcome-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px 12px;
+  text-align: center;
+}
+.welcome-logo {
+  width: 64px;
+  height: 64px;
+  background: var(--nhs-blue);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 14px rgba(0,94,184,0.35);
+}
+.welcome-name { font-size: 22px; font-weight: 800; color: var(--nhs-blue-dark); }
+.welcome-tagline { font-size: 11px; color: var(--nhs-text-light); margin-top: 4px; line-height: 1.4; }
+
+/* ── Identity form ── */
+.id-row { display: flex; gap: 8px; }
+.id-row > .form-field { flex: 1; }
+
+/* ── Email verify ── */
+.verify-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px 0;
+  gap: 10px;
+}
+.verify-icon {
+  font-size: 48px;
+  line-height: 1;
+}
+.verify-title { font-size: 17px; font-weight: 700; color: var(--nhs-blue-dark); }
+.verify-sub   { font-size: 12px; color: var(--nhs-text-light); line-height: 1.5; }
+.verify-email { font-size: 13px; font-weight: 600; color: var(--nhs-blue); }
+</style>
+</head>
+<body>
+<p style="text-align:center;margin-bottom:24px"><a href="index.html" style="color:#005EB8;font-size:13px;font-weight:600;text-decoration:none">← Back to Index</a></p>
+<h1 class="page-title">BADBIR Patient App — Baseline Forms</h1>
+<p class="page-subtitle">All 7 patient-completed baseline forms — Dashboard · Demographics · CAGE · DLQI · EuroQol · HAQ · HADS · SAPASI</p>
+<div class="flow-section"><h2>Baseline Dashboard</h2><div class="screens-row"><div class="phone"><div class="phone-frame"><div class="status-bar" style="background:#005EB8"><span class="time">9:41</span><span class="icons">▲ wifi ▇▇</span></div><div class="app-header" style="background:#005EB8"><span class="back-btn">← </span><span class="header-title">My Questionnaires</span><span class="header-step">Baseline — 0% complete</span></div><div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:0%"></div></div><div class="progress-label">0 of 7 forms done</div></div><div class="screen-content"><div class="banner banner-ok">Welcome back, Jane. Please complete your Baseline questionnaires.</div><div class="card"><div class="visit-bar-title">Your BADBIR Journey</div>
+<div style="display:flex;align-items:center">
+  <div style="text-align:center;flex:1"><div style="width:14px;height:14px;border-radius:50%;background:#41B6E6;box-shadow:0 0 0 3px rgba(65,182,230,0.3);margin:0 auto"></div><div style="font-size:8px;color:#425563;margin-top:3px">Baseline</div></div>
+  <div style="height:2px;background:#D8DDE0;flex:1"></div>
+  <div style="text-align:center;flex:1"><div style="width:14px;height:14px;border-radius:50%;background:#D8DDE0;margin:0 auto"></div><div style="font-size:8px;color:#425563;margin-top:3px">6 months</div></div>
+  <div style="height:2px;background:#D8DDE0;flex:1"></div>
+  <div style="text-align:center;flex:1"><div style="width:14px;height:14px;border-radius:50%;background:#D8DDE0;margin:0 auto"></div><div style="font-size:8px;color:#425563;margin-top:3px">12 months</div></div>
+  <div style="height:2px;background:#D8DDE0;flex:1"></div>
+  <div style="text-align:center;flex:1"><div style="width:14px;height:14px;border-radius:50%;background:#D8DDE0;margin:0 auto"></div><div style="font-size:8px;color:#425563;margin-top:3px">18 months</div></div>
+</div></div><div class="section-label">Forms to complete — 0 of 7 done</div><div class="form-list-item"><div class="form-list-icon icon-next">👤</div><div class="form-list-info"><div class="form-list-title">Demographics &amp; Lifestyle</div><div class="form-list-sub">Personal details, smoking, alcohol</div></div><span class="badge badge-next">Next</span></div><div class="form-list-item"><div class="form-list-icon icon-todo">💬</div><div class="form-list-info"><div class="form-list-title">CAGE — Alcohol Screening</div><div class="form-list-sub">Only if you drink alcohol</div></div><span class="badge badge-cond">Conditional</span></div><div class="form-list-item"><div class="form-list-icon icon-todo">🎨</div><div class="form-list-info"><div class="form-list-title">DLQI</div><div class="form-list-sub">Dermatology Life Quality Index</div></div><span class="badge badge-todo">ToDo</span></div><div class="form-list-item"><div class="form-list-icon icon-todo">❤️</div><div class="form-list-info"><div class="form-list-title">EuroQol EQ-5D</div><div class="form-list-sub">Health status today</div></div><span class="badge badge-todo">ToDo</span></div><div class="form-list-item"><div class="form-list-icon icon-todo">🦾</div><div class="form-list-info"><div class="form-list-title">HAQ</div><div class="form-list-sub">Only if inflammatory arthritis</div></div><span class="badge badge-cond">Conditional</span></div><div class="form-list-item"><div class="form-list-icon icon-todo">🧠</div><div class="form-list-info"><div class="form-list-title">HADS</div><div class="form-list-sub">Anxiety &amp; Depression Scale</div></div><span class="badge badge-todo">ToDo</span></div><div class="form-list-item"><div class="form-list-icon icon-todo">📐</div><div class="form-list-info"><div class="form-list-title">SAPASI</div><div class="form-list-sub">Self-assessed psoriasis score</div></div><span class="badge badge-todo">ToDo</span></div></div><div class="bottom-bar"><button class="btn-primary">Start First Form</button></div></div><div class="phone-caption">B1. Baseline Dashboard</div></div></div></div><div class="flow-section"><h2>Form 1: Demographics &amp; Lifestyle</h2><div class="screens-row"><div class="phone"><div class="phone-frame"><div class="status-bar" style="background:#005EB8"><span class="time">9:41</span><span class="icons">▲ wifi ▇▇</span></div><div class="app-header" style="background:#005EB8"><span class="back-btn">← </span><span class="header-title">Demographics</span><span class="header-step">Step 1 of 4 — Personal</span></div><div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:15%"></div></div><div class="progress-label">Form 1 of 7</div></div><div class="screen-content"><div class="banner banner-info">These details are collected once at registration.</div><div class="section-label">Birthplace</div><div class="id-row"><div class="form-field"><label>Town of Birth</label><input type="text" value="" placeholder="Town"></div><div class="form-field"><label>Country</label><input type="text" value="" placeholder="Country"></div></div><div class="form-field"><label>What is your occupation?</label><input type="text" value="" placeholder="Job title or description"></div><div class="form-field"><label>Employment Status</label><select><option selected>Working full-time</option><option >Working part-time</option><option >Working full-time in the home</option><option >Student</option><option >Unemployed but seeking work</option><option >Not working due to ill health/disability</option><option >Retired</option></select></div><div class="form-field"><label>Ethnic Group</label><select><option selected>White</option><option >Indian</option><option >Pakistani</option><option >Bangladeshi</option><option >Chinese</option><option >Black-African</option><option >Black-Caribbean</option><option >Black-British</option><option >Black-other</option><option >Other</option></select></div></div><div class="bottom-bar"><button class="btn-primary">Next: Outdoor &amp; Lifestyle</button></div></div><div class="phone-caption">B2. Demographics — Personal Details</div></div><div class="phone"><div class="phone-frame"><div class="status-bar" style="background:#005EB8"><span class="time">9:41</span><span class="icons">▲ wifi ▇▇</span></div><div class="app-header" style="background:#005EB8"><span class="back-btn">← </span><span class="header-title">Demographics</span><span class="header-step">Step 2 of 4 — Lifestyle</span></div><div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:30%"></div></div><div class="progress-label">Form 1 of 7</div></div><div class="screen-content"><div class="section-label">Lifestyle Questions</div><div class="card"><div class="question-text">Do you have an occupation or hobby which is <strong>mainly outdoors?</strong></div><div class="yn-row"><div class="yn-btn yes">Yes</div><div class="yn-btn no selected">No</div></div></div><div class="card"><div class="question-text">Have you <strong>ever lived</strong> in a tropical/subtropical (hot/sunny climate) country?</div><div class="yn-row"><div class="yn-btn yes">Yes</div><div class="yn-btn no selected">No</div></div></div><div class="section-label">Smoking History</div><div class="card"><div class="question-text">Have you <strong>EVER</strong> smoked more than one cigarette a day?</div><div class="yn-row"><div class="yn-btn yes selected">Yes</div><div class="yn-btn no">No</div></div></div><div class="card"><div class="question-sub">Since you answered Yes:</div><div class="form-field"><label>Average cigarettes per day</label><input type="number" value="10" placeholder=""></div><div class="id-row"><div class="form-field"><label>Age started</label><input type="number" value="18" placeholder=""></div><div class="form-field"><label>Age stopped</label><input type="number" value="30" placeholder=""></div></div></div><div class="card"><div class="question-text">Do you <strong>currently</strong> smoke more than one cigarette a day?</div><div class="yn-row"><div class="yn-btn yes">Yes</div><div class="yn-btn no selected">No</div></div></div></div><div class="bottom-bar"><button class="btn-primary">Next: Alcohol</button></div></div><div class="phone-caption">B3. Demographics — Smoking</div></div><div class="phone"><div class="phone-frame"><div class="status-bar" style="background:#005EB8"><span class="time">9:41</span><span class="icons">▲ wifi ▇▇</span></div><div class="app-header" style="background:#005EB8"><span class="back-btn">← </span><span class="header-title">Demographics</span><span class="header-step">Step 3–4 — Alcohol &amp; PGA</span></div><div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:45%"></div></div><div class="progress-label">Form 1 of 7</div></div><div class="screen-content"><div class="card"><div class="question-text">Do you drink alcohol?</div><div class="yn-row"><div class="yn-btn yes selected">Yes</div><div class="yn-btn no">No</div></div></div><div class="card"><div class="question-sub">How many units do you drink in an average week?</div><div class="form-field"><label>Units per week</label><input type="number" value="14" placeholder="e.g. 10"></div><div style="font-size:10px;color:#425563;background:#F8FAFB;border-radius:6px;padding:8px;margin-top:6px">
+<strong>Unit guide:</strong><br>
+Pint of beer/lager (4%) = 2.3 units &nbsp;|&nbsp; Standard 175ml wine = 2 units<br>
+Large 250ml wine = 3 units &nbsp;|&nbsp; Small spirit (25ml) = 1 unit
+</div></div><div class="section-label">Your Psoriasis Today — Patient Global Assessment</div><div class="banner banner-info">This is the last question. How would you rate your psoriasis right now?</div><div class="question-text">How would you currently rate your psoriasis?</div><div class="pga-option"><div class="pga-dot dot-green"></div>Clear</div><div class="pga-option"><div class="pga-dot dot-ltgreen"></div>Almost clear</div><div class="pga-option selected"><div class="pga-dot dot-yellow"></div>Mild</div><div class="pga-option"><div class="pga-dot dot-orange"></div>Moderate</div><div class="pga-option"><div class="pga-dot dot-red"></div>Severe</div></div><div class="bottom-bar"><button class="btn-primary">Save &amp; Continue to CAGE</button></div></div><div class="phone-caption">B4. Demographics — Alcohol + PGA</div></div></div></div><div class="flow-section"><h2>Form 2: CAGE (Conditional — Alcohol)</h2><div class="screens-row"><div class="phone"><div class="phone-frame"><div class="status-bar" style="background:#005EB8"><span class="time">9:41</span><span class="icons">▲ wifi ▇▇</span></div><div class="app-header" style="background:#005EB8"><span class="back-btn">← </span><span class="header-title">CAGE</span><span class="header-step">Alcohol Screening — 4 questions</span></div><div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:50%"></div></div><div class="progress-label">Form 2 of 7</div></div><div class="screen-content"><div class="banner banner-info">The following questions are about your alcohol use.</div><div class="card"><div class="question-text"><strong>C</strong> — Have you ever felt you should <strong>cut down</strong> on your drinking?</div><div class="yn-row"><div class="yn-btn yes">Yes</div><div class="yn-btn no selected">No</div></div></div><div class="card"><div class="question-text"><strong>A</strong> — Have people <strong>annoyed</strong> you by criticising your drinking?</div><div class="yn-row"><div class="yn-btn yes">Yes</div><div class="yn-btn no selected">No</div></div></div><div class="card"><div class="question-text"><strong>G</strong> — Have you ever felt <strong>bad or guilty</strong> about your drinking?</div><div class="yn-row"><div class="yn-btn yes selected">Yes</div><div class="yn-btn no">No</div></div></div><div class="card"><div class="question-text"><strong>E</strong> — Have you ever had a drink first thing in the morning (as an <strong>eye opener</strong>)?</div><div class="yn-row"><div class="yn-btn yes">Yes</div><div class="yn-btn no selected">No</div></div></div></div><div class="bottom-bar"><button class="btn-primary">Save &amp; Continue to DLQI</button></div></div><div class="phone-caption">B5. CAGE — Alcohol Screening</div></div></div></div><div class="flow-section"><h2>Form 3: DLQI — Dermatology Life Quality Index</h2><div class="screens-row"><div class="phone"><div class="phone-frame"><div class="status-bar" style="background:#005EB8"><span class="time">9:41</span><span class="icons">▲ wifi ▇▇</span></div><div class="app-header" style="background:#005EB8"><span class="back-btn">← </span><span class="header-title">DLQI</span><span class="header-step">Questions 1–3 of 10</span></div><div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:57%"></div></div><div class="progress-label">Form 3 of 7</div></div><div class="screen-content"><div class="banner banner-info">The aim is to measure how much your skin problem has affected your life OVER THE LAST WEEK.</div><div class="dlqi-q"><div class="dlqi-q-num">Q1</div><div class="dlqi-q-text">Over the last week, how <strong>itchy, sore, painful or stinging</strong> has your skin been?</div><div class="dlqi-opts"><div class="dlqi-opt "><div class="dot-radio "></div>Very much</div><div class="dlqi-opt "><div class="dot-radio "></div>A lot</div><div class="dlqi-opt sel"><div class="dot-radio fill"></div>A little</div><div class="dlqi-opt "><div class="dot-radio "></div>Not at all</div></div></div><div class="dlqi-q"><div class="dlqi-q-num">Q2</div><div class="dlqi-q-text">Over the last week, how <strong>embarrassed or self conscious</strong> have you been because of your skin?</div><div class="dlqi-opts"><div class="dlqi-opt "><div class="dot-radio "></div>Very much</div><div class="dlqi-opt sel"><div class="dot-radio fill"></div>A lot</div><div class="dlqi-opt "><div class="dot-radio "></div>A little</div><div class="dlqi-opt "><div class="dot-radio "></div>Not at all</div></div></div><div class="dlqi-q"><div class="dlqi-q-num">Q3</div><div class="dlqi-q-text">Over the last week, how much has your skin <strong>interfered with shopping or looking after your home?</strong></div><div class="dlqi-opts"><div class="dlqi-opt "><div class="dot-radio "></div>Very much</div><div class="dlqi-opt "><div class="dot-radio "></div>A lot</div><div class="dlqi-opt "><div class="dot-radio "></div>A little</div><div class="dlqi-opt sel"><div class="dot-radio fill"></div>Not at all</div><div class="dlqi-opt "><div class="dot-radio "></div>Not relevant</div></div></div></div><div class="bottom-bar"><button class="btn-primary">Next: Q4–7</button></div></div><div class="phone-caption">B6. DLQI — Questions 1–3</div></div><div class="phone"><div class="phone-frame"><div class="status-bar" style="background:#005EB8"><span class="time">9:41</span><span class="icons">▲ wifi ▇▇</span></div><div class="app-header" style="background:#005EB8"><span class="back-btn">← </span><span class="header-title">DLQI</span><span class="header-step">Questions 4–7 of 10</span></div><div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:60%"></div></div><div class="progress-label">Form 3 of 7</div></div><div class="screen-content"><div class="dlqi-q"><div class="dlqi-q-num">Q4</div><div class="dlqi-q-text">Over the last week, how much has your skin <strong>influenced the clothes you wear?</strong></div><div class="dlqi-opts"><div class="dlqi-opt "><div class="dot-radio "></div>Very much</div><div class="dlqi-opt "><div class="dot-radio "></div>A lot</div><div class="dlqi-opt "><div class="dot-radio "></div>A little</div><div class="dlqi-opt "><div class="dot-radio "></div>Not at all</div><div class="dlqi-opt "><div class="dot-radio "></div>Not relevant</div></div></div><div class="dlqi-q"><div class="dlqi-q-num">Q5</div><div class="dlqi-q-text">Over the last week, how much has your skin <strong>affected any social or leisure activities?</strong></div><div class="dlqi-opts"><div class="dlqi-opt "><div class="dot-radio "></div>Very much</div><div class="dlqi-opt "><div class="dot-radio "></div>A lot</div><div class="dlqi-opt "><div class="dot-radio "></div>A little</div><div class="dlqi-opt "><div class="dot-radio "></div>Not at all</div><div class="dlqi-opt "><div class="dot-radio "></div>Not relevant</div></div></div><div class="dlqi-q"><div class="dlqi-q-num">Q6</div><div class="dlqi-q-text">Over the last week, how much has your skin <strong>made it difficult for you to do any sport?</strong></div><div class="dlqi-opts"><div class="dlqi-opt "><div class="dot-radio "></div>Very much</div><div class="dlqi-opt "><div class="dot-radio "></div>A lot</div><div class="dlqi-opt sel"><div class="dot-radio fill"></div>A little</div><div class="dlqi-opt "><div class="dot-radio "></div>Not at all</div><div class="dlqi-opt "><div class="dot-radio "></div>Not relevant</div></div></div><div class="dlqi-q"><div class="dlqi-q-num">Q7a</div><div class="dlqi-q-text">Over the last week, has your skin <strong>prevented you from working or studying?</strong></div><div class="dlqi-opts"><div class="dlqi-opt "><div class="dot-radio "></div>Yes — prevented</div><div class="dlqi-opt sel"><div class="dot-radio fill"></div>No</div><div class="dlqi-opt "><div class="dot-radio "></div>Not relevant</div></div></div><div class="dlqi-q"><div class="dlqi-q-num">Q7b</div><div class="dlqi-q-text">If No — how much of a problem at work?</div><div class="dlqi-opts"><div class="dlqi-opt "><div class="dot-radio "></div>A lot</div><div class="dlqi-opt sel"><div class="dot-radio fill"></div>A little</div><div class="dlqi-opt "><div class="dot-radio "></div>Not at all</div></div></div></div><div class="bottom-bar"><button class="btn-primary">Next: Q8–10</button></div></div><div class="phone-caption">B7. DLQI — Questions 4–7</div></div><div class="phone"><div class="phone-frame"><div class="status-bar" style="background:#005EB8"><span class="time">9:41</span><span class="icons">▲ wifi ▇▇</span></div><div class="app-header" style="background:#005EB8"><span class="back-btn">← </span><span class="header-title">DLQI</span><span class="header-step">Questions 8–10 of 10</span></div><div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:64%"></div></div><div class="progress-label">Form 3 of 7</div></div><div class="screen-content"><div class="dlqi-q"><div class="dlqi-q-num">Q8</div><div class="dlqi-q-text">Over the last week, how much has your skin <strong>created problems with your partner or friends/relatives?</strong></div><div class="dlqi-opts"><div class="dlqi-opt "><div class="dot-radio "></div>Very much</div><div class="dlqi-opt "><div class="dot-radio "></div>A lot</div><div class="dlqi-opt "><div class="dot-radio "></div>A little</div><div class="dlqi-opt sel"><div class="dot-radio fill"></div>Not at all</div><div class="dlqi-opt "><div class="dot-radio "></div>Not relevant</div></div></div><div class="dlqi-q"><div class="dlqi-q-num">Q9</div><div class="dlqi-q-text">Over the last week, how much has your skin <strong>caused any sexual difficulties?</strong></div><div class="dlqi-opts"><div class="dlqi-opt "><div class="dot-radio "></div>Very much</div><div class="dlqi-opt "><div class="dot-radio "></div>A lot</div><div class="dlqi-opt "><div class="dot-radio "></div>A little</div><div class="dlqi-opt sel"><div class="dot-radio fill"></div>Not at all</div><div class="dlqi-opt "><div class="dot-radio "></div>Not relevant</div></div></div><div class="dlqi-q"><div class="dlqi-q-num">Q10</div><div class="dlqi-q-text">Over the last week, how much of a problem has the <strong>treatment for your skin</strong> been?</div><div class="dlqi-opts"><div class="dlqi-opt "><div class="dot-radio "></div>Very much</div><div class="dlqi-opt sel"><div class="dot-radio fill"></div>A lot</div><div class="dlqi-opt "><div class="dot-radio "></div>A little</div><div class="dlqi-opt "><div class="dot-radio "></div>Not at all</div><div class="dlqi-opt "><div class="dot-radio "></div>Not relevant</div></div></div><div class="card"><div style="font-size:10px;color:#425563;margin-bottom:8px">© AY Finlay, GK Khan, April 1992</div>
+<div class="score-result"><div class="big">6</div><div class="sub">DLQI Total Score (out of 30)</div><div class="band">Moderate effect</div></div></div></div><div class="bottom-bar"><button class="btn-primary">Save &amp; Continue to EuroQol</button></div></div><div class="phone-caption">B8. DLQI — Q8–10 + Score</div></div></div></div><div class="flow-section"><h2>Form 4: EuroQol EQ-5D (3L)</h2><div class="screens-row"><div class="phone"><div class="phone-frame"><div class="status-bar" style="background:#005EB8"><span class="time">9:41</span><span class="icons">▲ wifi ▇▇</span></div><div class="app-header" style="background:#005EB8"><span class="back-btn">← </span><span class="header-title">EuroQol EQ-5D</span><span class="header-step">Health today — 5 dimensions</span></div><div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:71%"></div></div><div class="progress-label">Form 4 of 7</div></div><div class="screen-content"><div class="banner banner-info">Please indicate which statement best describes your health state today.</div><div class="euro-dim"><div class="euro-dim-title">MOBILITY</div><div class="euro-opt sel"><div class="dot-radio fill"></div>I have no problems in walking</div><div class="euro-opt "><div class="dot-radio "></div>I have some problems in walking</div><div class="euro-opt "><div class="dot-radio "></div>I am confined to bed</div></div><div class="euro-dim"><div class="euro-dim-title">SELF CARE</div><div class="euro-opt sel"><div class="dot-radio fill"></div>I have no problems with self care</div><div class="euro-opt "><div class="dot-radio "></div>I have some problems washing or dressing</div><div class="euro-opt "><div class="dot-radio "></div>I am unable to wash or dress</div></div><div class="euro-dim"><div class="euro-dim-title">USUAL ACTIVITIES</div><div class="euro-opt "><div class="dot-radio "></div>I have no problems with usual activities</div><div class="euro-opt sel"><div class="dot-radio fill"></div>I have some problems with usual activities</div><div class="euro-opt "><div class="dot-radio "></div>I am unable to perform usual activities</div></div><div class="euro-dim"><div class="euro-dim-title">PAIN / DISCOMFORT</div><div class="euro-opt "><div class="dot-radio "></div>I have no pain or discomfort</div><div class="euro-opt sel"><div class="dot-radio fill"></div>I have moderate pain or discomfort</div><div class="euro-opt "><div class="dot-radio "></div>I have extreme pain or discomfort</div></div><div class="euro-dim"><div class="euro-dim-title">ANXIETY / DEPRESSION</div><div class="euro-opt sel"><div class="dot-radio fill"></div>I am not anxious or depressed</div><div class="euro-opt "><div class="dot-radio "></div>I am moderately anxious or depressed</div><div class="euro-opt "><div class="dot-radio "></div>I am extremely anxious or depressed</div></div></div><div class="bottom-bar"><button class="btn-primary">Next: Health Scale (VAS)</button></div></div><div class="phone-caption">B9. EuroQol — 5 Dimensions</div></div><div class="phone"><div class="phone-frame"><div class="status-bar" style="background:#005EB8"><span class="time">9:41</span><span class="icons">▲ wifi ▇▇</span></div><div class="app-header" style="background:#005EB8"><span class="back-btn">← </span><span class="header-title">EuroQol EQ-5D</span><span class="header-step">Health scale &amp; comparison</span></div><div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:75%"></div></div><div class="progress-label">Form 4 of 7</div></div><div class="screen-content">
+<div class="question-text">How do you feel today?</div>
+<div class="question-sub">Drag the indicator to indicate your health on the scale from 0 (worst) to 100 (best).</div>
+<div class="vas-wrapper">
+  <div class="vas-scale">
+    <div class="vas-label-top">Best<br>Imaginable<br>100</div>
+    <div class="vas-track">
+      <div class="vas-thumb">72</div>
+    </div>
+    <div class="vas-label-bot">Worst<br>Imaginable<br>0</div>
+  </div>
+  <div class="vas-numbers">
+    <span>100</span><span>80</span><span>60</span><span>40</span><span>20</span><span>0</span>
+  </div>
+  <div class="vas-value-box">
+    <div class="vas-big-num">72</div>
+    <div class="vas-unit">out of 100</div>
+    <div class="vas-prompt">Compared with my general health over the past 12 months, today is:</div>
+    <div class="radio-option"><div class="radio-dot"></div>Better</div>
+    <div class="radio-option selected"><div class="radio-dot filled"></div>Much the same</div>
+    <div class="radio-option"><div class="radio-dot"></div>Worse</div>
+  </div>
+</div></div><div class="bottom-bar"><button class="btn-primary">Save &amp; Continue to HAQ</button></div></div><div class="phone-caption">B10. EuroQol — VAS Scale</div></div></div></div><div class="flow-section"><h2>Form 5: HAQ (Conditional — Inflammatory Arthritis)</h2><div class="screens-row"><div class="phone"><div class="phone-frame"><div class="status-bar" style="background:#005EB8"><span class="time">9:41</span><span class="icons">▲ wifi ▇▇</span></div><div class="app-header" style="background:#005EB8"><span class="back-btn">← </span><span class="header-title">HAQ</span><span class="header-step">Page 1 of 2 — Dressing to Walking</span></div><div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:79%"></div></div><div class="progress-label">Form 5 of 7</div></div><div class="screen-content"><div class="banner banner-info">Please tick the response which best describes your usual abilities over the <strong>past week</strong>.</div><div class="haq-cat-header">1. DRESSING &amp; GROOMING</div><div class="haq-row"><span class="haq-q-label">Dress yourself (incl. tying shoelaces)?</span><div class="haq-options"><span class="haq-opt">Without</span><span class="haq-opt sel">Some</span><span class="haq-opt">Much</span><span class="haq-opt">Unable</span></div></div><div class="haq-row"><span class="haq-q-label">Shampoo your hair?</span><div class="haq-options"><span class="haq-opt">Without</span><span class="haq-opt sel">Some</span><span class="haq-opt">Much</span><span class="haq-opt">Unable</span></div></div><div class="haq-cat-header">2. RISING</div><div class="haq-row"><span class="haq-q-label">Stand up from an armless chair?</span><div class="haq-options"><span class="haq-opt">Without</span><span class="haq-opt sel">Some</span><span class="haq-opt">Much</span><span class="haq-opt">Unable</span></div></div><div class="haq-row"><span class="haq-q-label">Get in and out of bed?</span><div class="haq-options"><span class="haq-opt">Without</span><span class="haq-opt sel">Some</span><span class="haq-opt">Much</span><span class="haq-opt">Unable</span></div></div><div class="haq-cat-header">3. EATING</div><div class="haq-row"><span class="haq-q-label">Cut your meat?</span><div class="haq-options"><span class="haq-opt">Without</span><span class="haq-opt sel">Some</span><span class="haq-opt">Much</span><span class="haq-opt">Unable</span></div></div><div class="haq-row"><span class="haq-q-label">Lift a full cup or glass?</span><div class="haq-options"><span class="haq-opt">Without</span><span class="haq-opt sel">Some</span><span class="haq-opt">Much</span><span class="haq-opt">Unable</span></div></div><div class="haq-row"><span class="haq-q-label">Open a new carton of milk?</span><div class="haq-options"><span class="haq-opt">Without</span><span class="haq-opt sel">Some</span><span class="haq-opt">Much</span><span class="haq-opt">Unable</span></div></div><div class="haq-cat-header">4. WALKING</div><div class="haq-row"><span class="haq-q-label">Walk outdoors on flat ground?</span><div class="haq-options"><span class="haq-opt">Without</span><span class="haq-opt sel">Some</span><span class="haq-opt">Much</span><span class="haq-opt">Unable</span></div></div><div class="haq-row"><span class="haq-q-label">Climb up five steps?</span><div class="haq-options"><span class="haq-opt">Without</span><span class="haq-opt sel">Some</span><span class="haq-opt">Much</span><span class="haq-opt">Unable</span></div></div><div class="section-label">Aids or devices (Categories 1–4)</div><div class="checkbox-option"><div class="chk-box"></div>Cane / Walking frame / Crutches</div><div class="checkbox-option"><div class="chk-box"></div>Devices for dressing (button hooks etc)</div><div class="checkbox-option"><div class="chk-box"></div>Built-up or special utensils</div><div class="checkbox-option"><div class="chk-box"></div>Special chair</div></div><div class="bottom-bar"><button class="btn-primary">Next: Hygiene to Activities</button></div></div><div class="phone-caption">B11. HAQ — Categories 1–4</div></div><div class="phone"><div class="phone-frame"><div class="status-bar" style="background:#005EB8"><span class="time">9:41</span><span class="icons">▲ wifi ▇▇</span></div><div class="app-header" style="background:#005EB8"><span class="back-btn">← </span><span class="header-title">HAQ</span><span class="header-step">Page 2 of 2 — Hygiene to Activities</span></div><div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:82%"></div></div><div class="progress-label">Form 5 of 7</div></div><div class="screen-content"><div class="haq-cat-header">5. HYGIENE</div><div class="haq-row"><span class="haq-q-label">Wash and dry your entire body?</span><div class="haq-options"><span class="haq-opt">Without</span><span class="haq-opt sel">Some</span><span class="haq-opt">Much</span><span class="haq-opt">Unable</span></div></div><div class="haq-row"><span class="haq-q-label">Take a bath?</span><div class="haq-options"><span class="haq-opt">Without</span><span class="haq-opt sel">Some</span><span class="haq-opt">Much</span><span class="haq-opt">Unable</span></div></div><div class="haq-row"><span class="haq-q-label">Get on and off the toilet?</span><div class="haq-options"><span class="haq-opt">Without</span><span class="haq-opt sel">Some</span><span class="haq-opt">Much</span><span class="haq-opt">Unable</span></div></div><div class="haq-cat-header">6. REACH</div><div class="haq-row"><span class="haq-q-label">Reach and get down a 5 lb object from above your head?</span><div class="haq-options"><span class="haq-opt">Without</span><span class="haq-opt sel">Some</span><span class="haq-opt">Much</span><span class="haq-opt">Unable</span></div></div><div class="haq-row"><span class="haq-q-label">Bend down to pick up clothing from the floor?</span><div class="haq-options"><span class="haq-opt">Without</span><span class="haq-opt sel">Some</span><span class="haq-opt">Much</span><span class="haq-opt">Unable</span></div></div><div class="haq-cat-header">7. GRIP</div><div class="haq-row"><span class="haq-q-label">Open car doors?</span><div class="haq-options"><span class="haq-opt">Without</span><span class="haq-opt sel">Some</span><span class="haq-opt">Much</span><span class="haq-opt">Unable</span></div></div><div class="haq-row"><span class="haq-q-label">Open jars previously opened?</span><div class="haq-options"><span class="haq-opt">Without</span><span class="haq-opt sel">Some</span><span class="haq-opt">Much</span><span class="haq-opt">Unable</span></div></div><div class="haq-row"><span class="haq-q-label">Turn taps on and off?</span><div class="haq-options"><span class="haq-opt">Without</span><span class="haq-opt sel">Some</span><span class="haq-opt">Much</span><span class="haq-opt">Unable</span></div></div><div class="haq-cat-header">8. ACTIVITIES</div><div class="haq-row"><span class="haq-q-label">Run errands and shop?</span><div class="haq-options"><span class="haq-opt">Without</span><span class="haq-opt sel">Some</span><span class="haq-opt">Much</span><span class="haq-opt">Unable</span></div></div><div class="haq-row"><span class="haq-q-label">Get in and out of a car?</span><div class="haq-options"><span class="haq-opt">Without</span><span class="haq-opt sel">Some</span><span class="haq-opt">Much</span><span class="haq-opt">Unable</span></div></div><div class="haq-row"><span class="haq-q-label">Do chores such as vacuuming or light gardening?</span><div class="haq-options"><span class="haq-opt">Without</span><span class="haq-opt sel">Some</span><span class="haq-opt">Much</span><span class="haq-opt">Unable</span></div></div><div class="section-label">Aids or devices (Categories 5–8)</div><div class="checkbox-option"><div class="chk-box"></div>Raised toilet seat / Bath seat / Bath rail</div><div class="checkbox-option"><div class="chk-box"></div>Long-handled appliances for reach</div><div class="checkbox-option"><div class="chk-box"></div>Jar opener</div><div class="card"><div class="score-result"><div class="big">0.75</div><div class="sub">HAQ-DI Score (out of 3.00)</div><div class="band">Moderate</div></div></div></div><div class="bottom-bar"><button class="btn-primary">Save &amp; Continue to HADS</button></div></div><div class="phone-caption">B12. HAQ — Categories 5–8 + Score</div></div></div></div><div class="flow-section"><h2>Form 6: HADS — Hospital Anxiety &amp; Depression</h2><div class="screens-row"><div class="phone"><div class="phone-frame"><div class="status-bar" style="background:#005EB8"><span class="time">9:41</span><span class="icons">▲ wifi ▇▇</span></div><div class="app-header" style="background:#005EB8"><span class="back-btn">← </span><span class="header-title">HADS</span><span class="header-step">Questions 1–4 of 14</span></div><div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:86%"></div></div><div class="progress-label">Form 6 of 7</div></div><div class="screen-content"><div class="banner banner-info">Please choose the reply which comes closest to how you have been feeling in the <strong>past week</strong>.</div><div class="hads-q"><div class="hads-q-num">Q1 <span class="hads-q-type type-a">Anxiety</span></div><div class="hads-q-text">I feel tense or wound up:</div><div class="hads-opts"><div class="hads-opt "><div class="dot-radio "></div>Most of the time</div><div class="hads-opt "><div class="dot-radio "></div>A lot of the time</div><div class="hads-opt sel"><div class="dot-radio fill"></div>Occasionally</div><div class="hads-opt "><div class="dot-radio "></div>Not at all</div></div></div><div class="hads-q"><div class="hads-q-num">Q2 <span class="hads-q-type type-d">Depression</span></div><div class="hads-q-text">I still enjoy the things I used to enjoy:</div><div class="hads-opts"><div class="hads-opt "><div class="dot-radio "></div>Definitely as much</div><div class="hads-opt sel"><div class="dot-radio fill"></div>Not quite as much</div><div class="hads-opt "><div class="dot-radio "></div>Only a little</div><div class="hads-opt "><div class="dot-radio "></div>Hardly at all</div></div></div><div class="hads-q"><div class="hads-q-num">Q3 <span class="hads-q-type type-a">Anxiety</span></div><div class="hads-q-text">I get a frightened feeling as if something awful is about to happen:</div><div class="hads-opts"><div class="hads-opt "><div class="dot-radio "></div>Very definitely and quite badly</div><div class="hads-opt "><div class="dot-radio "></div>Yes, but not too badly</div><div class="hads-opt "><div class="dot-radio "></div>A little, but doesn't worry me</div><div class="hads-opt sel"><div class="dot-radio fill"></div>Not at all</div></div></div><div class="hads-q"><div class="hads-q-num">Q4 <span class="hads-q-type type-d">Depression</span></div><div class="hads-q-text">I can laugh and see the funny side of things:</div><div class="hads-opts"><div class="hads-opt sel"><div class="dot-radio fill"></div>As much as I always could</div><div class="hads-opt "><div class="dot-radio "></div>Not quite so much now</div><div class="hads-opt "><div class="dot-radio "></div>Definitely not so much now</div><div class="hads-opt "><div class="dot-radio "></div>Not at all</div></div></div></div><div class="bottom-bar"><button class="btn-primary">Next: Q5–8</button></div></div><div class="phone-caption">B13. HADS — Q1–4</div></div><div class="phone"><div class="phone-frame"><div class="status-bar" style="background:#005EB8"><span class="time">9:41</span><span class="icons">▲ wifi ▇▇</span></div><div class="app-header" style="background:#005EB8"><span class="back-btn">← </span><span class="header-title">HADS</span><span class="header-step">Questions 5–14 of 14</span></div><div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:89%"></div></div><div class="progress-label">Form 6 of 7</div></div><div class="screen-content"><div class="hads-q"><div class="hads-q-num">Q5 <span class="hads-q-type type-a">Anxiety</span></div><div class="hads-q-text">Worrying thoughts go through my mind:</div><div class="hads-opts"><div class="hads-opt "><div class="dot-radio "></div>A great deal of the time</div><div class="hads-opt "><div class="dot-radio "></div>A lot of the time</div><div class="hads-opt "><div class="dot-radio "></div>From time to time</div><div class="hads-opt sel"><div class="dot-radio fill"></div>Only occasionally</div></div></div><div class="hads-q"><div class="hads-q-num">Q6 <span class="hads-q-type type-d">Depression</span></div><div class="hads-q-text">I feel cheerful:</div><div class="hads-opts"><div class="hads-opt "><div class="dot-radio "></div>Not at all</div><div class="hads-opt "><div class="dot-radio "></div>Not often</div><div class="hads-opt sel"><div class="dot-radio fill"></div>Sometimes</div><div class="hads-opt "><div class="dot-radio "></div>Most of the time</div></div></div><div class="hads-q"><div class="hads-q-num">Q7 <span class="hads-q-type type-a">Anxiety</span></div><div class="hads-q-text">I can sit at ease and feel relaxed:</div><div class="hads-opts"><div class="hads-opt "><div class="dot-radio "></div>Definitely</div><div class="hads-opt sel"><div class="dot-radio fill"></div>Usually</div><div class="hads-opt "><div class="dot-radio "></div>Not often</div><div class="hads-opt "><div class="dot-radio "></div>Not at all</div></div></div><div class="hads-q"><div class="hads-q-num">Q8 <span class="hads-q-type type-d">Depression</span></div><div class="hads-q-text">I feel as if I am slowed down:</div><div class="hads-opts"><div class="hads-opt "><div class="dot-radio "></div>Nearly all the time</div><div class="hads-opt "><div class="dot-radio "></div>Very often</div><div class="hads-opt sel"><div class="dot-radio fill"></div>Sometimes</div><div class="hads-opt "><div class="dot-radio "></div>Not at all</div></div></div><div class="banner banner-info">Continue through Q9–14 (6 more questions)...</div><div class="card"><div class="score-result"><div style="display:flex;gap:12px"><div style="flex:1"><div class="big" style="font-size:28px">4</div><div class="sub">Anxiety</div><div class="band">Normal</div></div><div style="flex:1"><div class="big" style="font-size:28px">5</div><div class="sub">Depression</div><div class="band">Normal</div></div></div></div></div></div><div class="bottom-bar"><button class="btn-primary">Save &amp; Continue to SAPASI</button></div></div><div class="phone-caption">B14. HADS — Q5–14 + Score</div></div></div></div><div class="flow-section"><h2>Form 7: SAPASI — Self-Administered PASI</h2><div class="screens-row"><div class="phone"><div class="phone-frame"><div class="status-bar" style="background:#005EB8"><span class="time">9:41</span><span class="icons">▲ wifi ▇▇</span></div><div class="app-header" style="background:#005EB8"><span class="back-btn">← </span><span class="header-title">SAPASI</span><span class="header-step">Body regions assessment</span></div><div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:93%"></div></div><div class="progress-label">Form 7 of 7</div></div><div class="screen-content"><div class="banner banner-info">Self-Administered PASI — Rate your psoriasis in 4 body regions.</div><div style="border:2px solid #41B6E6;border-radius:12px;padding:12px;margin-bottom:8px">
+<div style="font-size:11px;font-weight:700;color:#005EB8;margin-bottom:8px">Option A — Sliders (provisional)</div>
+<div style="display:flex;gap:10px">
+  <div style="flex:1">
+    <div style="width:100%;height:120px;background:linear-gradient(to bottom,#f5f5f5,#e0e0e0);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:32px">🧍</div>
+    <div style="font-size:8px;color:#425563;text-align:center;margin-top:4px">Body outline<br>(4 regions)</div>
+  </div>
+  <div style="flex:2">
+    <div style="font-size:9px;font-weight:700;color:#005EB8;margin-bottom:4px">HEAD (10%)</div>
+    <div style="font-size:8px;color:#425563">Coverage: <input type="range" min="0" max="4" value="2" style="width:80px;vertical-align:middle"></div>
+    <div style="font-size:8px;color:#425563">Redness: <input type="range" min="0" max="4" value="2" style="width:80px;vertical-align:middle"></div>
+    <div style="font-size:8px;color:#425563">Thickness: <input type="range" min="0" max="4" value="1" style="width:80px;vertical-align:middle"></div>
+    <div style="font-size:8px;color:#425563">Scaliness: <input type="range" min="0" max="4" value="1" style="width:80px;vertical-align:middle"></div>
+  </div>
+</div>
+</div><div class="banner banner-warn">SAPASI UX design will be finalised at the development sprint. Both options (sliders and interactive body map) are being considered. The data model and scoring are already defined.</div><div class="card"><div style="font-size:10px;color:#425563">Each region: Coverage (0–4) × Redness + Thickness + Scaliness (0–4 each). Score range: 0–72.</div></div></div><div class="bottom-bar"><button class="btn-primary">Save &amp; Continue</button></div></div><div class="phone-caption">B15. SAPASI — Psoriasis Self-Assessment</div></div></div></div><div class="flow-section"><h2>Completion</h2><div class="screens-row"><div class="phone"><div class="phone-frame"><div class="status-bar" style="background:#005EB8"><span class="time">9:41</span><span class="icons">▲ wifi ▇▇</span></div><div class="app-header" style="background:#005EB8"><span class="back-btn">← </span><span class="header-title">All done! 🎉</span><span class="header-step">Baseline 100% complete</span></div><div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:100%"></div></div><div class="progress-label">7 of 7 forms complete</div></div><div class="screen-content"><div style="text-align:center;padding:20px 0">
+<div style="font-size:56px;margin-bottom:12px">🎉</div>
+<div style="font-size:20px;font-weight:800;color:#003D78;margin-bottom:8px">Baseline Complete!</div>
+<div style="font-size:12px;color:#425563;line-height:1.6;margin-bottom:16px">Thank you for completing your baseline questionnaires.<br>Your next questionnaire is due in <strong>6 months</strong>.</div>
+</div>
+<div class="card"><div class="score-result" style="background:linear-gradient(135deg,#003D78,#005EB8)">
+<div style="font-size:13px;font-weight:700;margin-bottom:8px">Today's Scores Summary</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px">
+  <div>DLQI: <strong>6</strong> <span style="opacity:0.7">(Moderate)</span></div>
+  <div>HAQ: <strong>0.75</strong> <span style="opacity:0.7">(Mod.)</span></div>
+  <div>EuroQol VAS: <strong>72</strong></div>
+  <div>HADS-A: <strong>4</strong> / HADS-D: <strong>5</strong></div>
+  <div>PGA: <strong>Mild</strong></div>
+  <div>SAPASI: <strong>10.7</strong></div>
+</div>
+</div></div>
+<div class="banner banner-info">Your next visit is due: <strong>October 2024</strong></div></div><div class="bottom-bar"><button class="btn-primary">Back to Home</button></div></div><div class="phone-caption">B16. Baseline Complete</div></div></div></div>
+<p style="text-align:center;font-size:11px;color:#AEB7BD;margin-top:40px">BADBIR Mockups — Not for clinical use</p>
+</body>
+</html>
