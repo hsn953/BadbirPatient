@@ -232,45 +232,73 @@ CREATE TABLE [dbo].[NotificationLog] (
 
 ## 5. PII Encryption Strategy
 
-### 5.1 Encrypted Columns
+> **Status:** Algorithm confirmed — see ADR-015. DB-04 is CLOSED.
 
-| Table | Column | Algorithm | Notes |
+### 5.1 Confirmed Algorithm (from legacy Clinician System `EncryptionService.cs`)
+
+The Patient API **must** use the exact same encryption algorithm as the legacy Clinician System to ensure shared encrypted columns can be read by both systems.
+
+| Property | Value |
+|---|---|
+| Cipher | AES (Rijndael, .NET `Aes.Create()`) |
+| Mode | CBC (default for .NET AES) |
+| Block size | 128 bits |
+| Key derivation | `PasswordDeriveBytes(password, salt)` — PBKDF1-style legacy derivation |
+| Salt computation | `Encoding.ASCII.GetBytes(password.Length.ToString())` |
+| AES key | `PasswordDeriveBytes.GetBytes(32)` → 256-bit key |
+| AES IV | `PasswordDeriveBytes.GetBytes(16)` → 128-bit IV (deterministic, derived from password) |
+| Plaintext encoding | `Encoding.Unicode` (UTF-16 LE) |
+| Ciphertext storage | `Convert.ToBase64String(encryptedBytes)` → stored as `NVARCHAR(MAX)` |
+| Password source | `IConfiguration["EncryptionServiceConfig:Password"]` |
+
+**Implementation note on the IV:** The legacy code calls `aes.GenerateIV()` but this random IV is never used — the `PasswordDeriveBytes.GetBytes(16)` call overrides it in both encrypt and decrypt. The IV is therefore **deterministic** (always derived from the password). Consequence: identical plaintext values will produce identical ciphertext in the database. This is a known limitation of the legacy algorithm.
+
+**Using `PasswordDeriveBytes`:** This class uses a non-standard PBKDF1 derivation. Use `System.Security.Cryptography.PasswordDeriveBytes` (not `Rfc2898DeriveBytes`) to maintain byte-for-byte compatibility.
+
+### 5.2 Encrypted Columns (Confirmed)
+
+| Table | Column | Encrypted? | Notes |
 |---|---|---|---|
-| `Patients` | `NhsNumber` | AES-256 | + HMAC hash stored separately |
-| `Patients` | `ChiNumber` | AES-256 | + HMAC hash |
-| `Patients` | `FirstName` | AES-256 | — |
-| `Patients` | `LastName` | AES-256 | — |
-| `Patients` | `BirthPlace` | AES-256 | — |
-| `Patients` | `Occupation` | AES-256 | — |
-| `PatientHoldingAccounts` | `NhsNumberEncrypted` | AES-256 | + hash column |
-| `PatientHoldingAccounts` | `InitialsEncrypted` | AES-256 | — |
-| `PatientHoldingAccounts` | `DobEncrypted` | AES-256 | — |
+| `bb_patient` | `title` | ✅ Yes | |
+| `bb_patient` | `forenames` | ✅ Yes | |
+| `bb_patient` | `surname` | ✅ Yes | |
+| `bb_patient` | `countryresidence` | ✅ Yes | |
+| `bb_patient` | `phrn` | ✅ Yes | CHI / Health & Care number (Scotland) |
+| `bb_patient` | `pnhs` | ✅ Yes | NHS number (England/Wales) |
+| `bb_papp_patient_lifestyle` | `birthtown` | ✅ Yes | Via `EncryptLifestyle` |
+| `bb_papp_patient_lifestyle` | `birthcountry` | ✅ Yes | Via `EncryptLifestyle` |
+| `PatientHoldingAccounts` | `NhsNumberEncrypted` | ✅ Yes | New holding table column |
+| `PatientHoldingAccounts` | `InitialsEncrypted` | ✅ Yes | New holding table column |
+| `PatientHoldingAccounts` | `DobEncrypted` | ✅ Yes | New holding table column |
+| `bb_papp_patient_lifestyle` | `occupation` | ❓ Pending | Not encrypted in legacy `EncryptLifestyle` — confirm with GDPR/legal review |
 
-### 5.2 HMAC Strategy for Deterministic Lookups
+### 5.3 HMAC Strategy for Deterministic Lookups (New `PatientHoldingAccounts` Only)
 
-To support identity verification (DOB + Initials + NHS/CHI lookup) and future NHS Login matching without decrypting all rows:
+To support identity verification (DOB + Initials + NHS/CHI lookup) in the **new** holding account table, an HMAC-SHA256 hash is stored alongside the encrypted value. This is **only for the new Identity columns** — the legacy `bb_patient` columns do not have hash equivalents and must be looked up by decrypting all rows (legacy behaviour).
 
 ```
 NhsNumber = "1234567890"
-NhsNumberHash  = HMAC-SHA256(key=HMAC_KEY, data="1234567890")
-NhsNumberEncrypted = AES-256-CBC(key=AES_KEY, data="1234567890")
+NhsNumberHash      = HMAC-SHA256(key=HMAC_KEY, data="1234567890")
+NhsNumberEncrypted = Encrypt("1234567890")   [using confirmed algorithm above]
 ```
 
 Lookup query:
 ```sql
-SELECT * FROM Patients 
+SELECT * FROM PatientHoldingAccounts 
 WHERE NhsNumberHash = @inputHash
 ```
 
-The HMAC key must be different from the AES key and stored separately.
+The HMAC key must be different from the encryption password and stored separately.
 
-### 5.3 Key Management
+### 5.4 Key Management
 
 | Phase | Key Storage |
 |---|---|
-| Development | `dotnet user-secrets` |
+| Development | `dotnet user-secrets` (`EncryptionServiceConfig:Password`) |
 | Phase 1 (IIS) | Windows environment variables on the server |
 | Phase 2 (AWS) | AWS Secrets Manager (injected at container startup) |
+
+> **Critical:** The `EncryptionServiceConfig:Password` must be the **same value** in both the Patient API configuration and the Clinician System configuration. It must never be committed to source control. The DBA must provision both systems with the same value.
 
 ---
 
@@ -286,18 +314,20 @@ Patients
     ├── BbPappPatientCohortTracking (follow-ups)
     │       │  1:N
     │       ├── EuroQolSubmissions
-    │       ├── HadsSubmissions
+    │       ├── HadsSubmissions          (IsCountable flag for GL Assessments invoice)
     │       ├── HaqSubmissions
     │       ├── DlqiSubmissions
     │       ├── CageSubmissions
-    │       ├── SapasiSubmissions       (NEW)
+    │       ├── SapasiSubmissions        (NEW)
     │       ├── PgaSubmissions
     │       └── LifestyleSubmissions
     ├── ConsentRecords
-    ├── PushTokens                      (NEW)
-    └── NotificationLog                 (NEW)
+    ├── PushTokens                       (NEW)
+    ├── NotificationLog                  (NEW)
+    └── PromotionAuditLog                (NEW — records holding→live promotions)
 
 PatientHoldingAccounts → AspNetUsers (soft link, deleted on confirmation)
+PendingClinicianActions → Patients (clinician inbox entries, NEW)
 SecurityAuditLog       → UserId (no FK — must survive user deletion)
 ```
 
@@ -305,12 +335,14 @@ SecurityAuditLog       → UserId (no FK — must survive user deletion)
 
 ## 7. Open Database Questions
 
-| # | Question | Impact |
-|---|---|---|
-| DB-01 | What are the exact table and column names in the production database? (DDL script needed) | EF Core scaffolding accuracy |
-| DB-02 | Does the existing DB already have Identity tables (AspNetUsers etc.)? | Migration strategy |
-| DB-03 | Is `chid` an auto-increment INT or a GUID? | FK mapping strategy |
-| DB-04 | What is the encryption algorithm used by the Clinician System? AES-256-CBC? Key size? IV handling? | Must match exactly |
-| DB-05 | Are there stored procedures for any of the form saves that must be retained? | EF Core `FromSqlRaw` vs. LINQ |
-| DB-06 | Is the `PatientHoldingAccounts` table new or does a similar table already exist? | Avoid duplicate table creation |
-| DB-07 | What is the SAPASI score formula used in production (if any prior implementation exists)? | Score calculation accuracy |
+| # | Question | Status | Impact |
+|---|---|---|---|
+| DB-01 | What are the exact table and column names in the production database? (DDL script needed) | 🔵 OPEN | EF Core scaffolding accuracy |
+| DB-02 | Does the existing DB already have Identity tables (AspNetUsers etc.)? | 🔵 OPEN | Migration strategy |
+| DB-03 | Is `chid` an auto-increment INT or a GUID? | 🔵 OPEN | FK mapping strategy |
+| DB-04 | What is the encryption algorithm used by the Clinician System? AES-256-CBC? Key size? IV handling? | ✅ CLOSED (ADR-015) | Algorithm confirmed from source code |
+| DB-05 | Are there stored procedures for any of the form saves that must be retained? | 🔵 OPEN | EF Core `FromSqlRaw` vs. LINQ |
+| DB-06 | Is the `PatientHoldingAccounts` table new or does a similar table already exist? | 🔵 OPEN | Avoid duplicate table creation |
+| DB-07 | What is the SAPASI score formula used in production (if any prior implementation exists)? | 🔵 OPEN | Score calculation accuracy |
+| DB-08 | Is `occupation` in `bb_papp_patient_lifestyle` encrypted in the Clinician System? | 🔵 OPEN | GDPR / data classification review needed |
+| DB-09 | Does `bb_papp_patient_had` already have Q11–Q14 columns (`q11restless` etc.)? | 🔵 OPEN | Confirmed from paper form; confirm DB columns |

@@ -152,3 +152,20 @@ Response `201 Created`:
 - Options must NOT be reordered from the standard left-to-right presentation.
 - On completion, display Anxiety and Depression subscale scores with interpretation bands.
 - Copyright notice must be displayed: *"HADS copyright © R.P. Snaith and A.S. Zigmond, 1983, 1992, 1994."*
+
+---
+
+## 10. Licence Note — Pay-Per-Form (GL Assessments)
+
+**IMPORTANT:** HADS is published by **GL Assessment** and is subject to a **pay-per-completed-form agreement** between GL Assessments and BADBIR.
+
+| Requirement | Detail |
+|---|---|
+| Billing model | Per successfully completed and submitted HADS form |
+| Agreement holder | BADBIR (registered charity) |
+| Counter field | `IsCountable` flag in `HadsSubmissions` table — set to `1` only on full submission |
+| What counts | Fully completed (all 14 items answered) and submitted forms only |
+| What does NOT count | Abandoned/incomplete sessions, draft auto-saves, test submissions |
+| Reporting | `GET /api/admin/reports/hads-submissions-count?from=&to=` — for monthly/quarterly finance reporting |
+
+**Implementation rule:** The `HadsSubmissions.IsCountable` column must remain `0` until the form is fully completed and the patient clicks "Submit". If the session is abandoned, the incomplete row should be deleted or remain with `IsCountable = 0`. The submission count must be auditable.

@@ -112,7 +112,7 @@ Each entry includes:
 ## ADR-006: AES-256 Encryption for PII at the API Layer
 
 **Date:** 2026-03-25  
-**Status:** Decided (algorithm details pending client confirmation)  
+**Status:** Decided — algorithm confirmed in ADR-015 (2026-03-26)  
 
 **Context:** NHS Number, name, DOB-related fields are PII that must be encrypted at rest under GDPR. The encryption algorithm must match the Clinician System.
 
@@ -163,15 +163,17 @@ Each entry includes:
 
 ## Pending Decisions
 
-| ID | Decision Needed | Owner | Deadline |
-|---|---|---|---|
-| PD-01 | EuroQol version: EQ-5D-3L vs EQ-5D-5L | Client | Before EuroQol implementation sprint |
-| PD-02 | Encryption algorithm specifics (key size, IV mode) from Clinician System | Client / DBA | Before any PII data storage |
-| PD-03 | SAPASI UX approach: shaded slider vs. interactive body map | Client / UX | Before SAPASI sprint |
-| PD-04 | Full database DDL (CREATE TABLE scripts) | DBA | Before scaffolding sprint |
-| PD-05 | Notification service provider: FCM / AWS SNS / other | Client | Before notification sprint |
-| PD-06 | HADS Q11–Q14 inclusion confirmation | Client | Before HADS implementation sprint |
-| PD-07 | NHS Login integration timeline and OIDC provider specs | Client / NHS Digital | Long-term planning |
+| ID | Decision Needed | Status | Owner | Deadline |
+|---|---|---|---|---|
+| PD-01 | EuroQol version: EQ-5D-3L vs EQ-5D-5L | ✅ CLOSED (ADR-009) | — | — |
+| PD-02 | Encryption algorithm specifics (key size, IV mode) from Clinician System | ✅ CLOSED (ADR-015) | — | — |
+| PD-03 | SAPASI UX approach: shaded slider vs. interactive body map | ✅ CLOSED (ADR-010) | — | Finalised at SAPASI sprint |
+| PD-04 | Full database DDL (CREATE TABLE scripts) | 🔵 OPEN | DBA | Before scaffolding sprint — SQLite DB forthcoming |
+| PD-05 | Notification service provider: FCM / AWS SNS / other | 🔵 OPEN | Client | Before notification sprint |
+| PD-06 | HADS Q11–Q14 inclusion confirmation | ✅ CLOSED (ADR-013) | — | — |
+| PD-07 | NHS Login integration timeline and OIDC provider specs | 🔵 OPEN | Client / NHS Digital | Long-term planning |
+| PD-08 | Is `occupation` field encrypted in the legacy Clinician System? (DB-08) | 🔵 OPEN | Client / GDPR review | Before demographics sprint |
+| PD-09 | Clinician System webhook vs. Patient API polling — integration direction | 🔵 OPEN | Both teams | Before data promotion sprint |
 
 ---
 
@@ -258,3 +260,158 @@ Each entry includes:
 | PD-05 Notification service | 🔵 OPEN | Pending |
 | PD-06 HADS Q11–Q14 | ✅ CLOSED | All 14 items confirmed |
 | PD-07 NHS Login | 🔵 OPEN | Long-term |
+
+---
+
+## ADR-014: papp Holding Tables — Replace Scheduled Sync Job with API-Triggered Promotion
+
+**Date:** 2026-03-26  
+**Status:** Decided (v1) / Proposed (v2)
+
+**Context:** The legacy system uses SQL Server Agent to run a 5-minute scheduled job that copies rows from patient-app holding tables (`bb_papp_*`) into live BADBIR tables. The client has asked for a better approach. 
+
+**The papp holding table pattern exists for good reasons:**
+- Patient data must be physically isolated until clinician-confirmed — easier to delete, audit, and roll back
+- Unvalidated patient data must not contaminate the main clinical dataset
+- The 14-day window (before a holding record expires) is a key data governance requirement
+- The physical separation means if the Patient App is compromised, live clinical data is not directly writable
+
+**Problems with the 5-minute scheduled job:**
+- Up to 5 minutes latency from clinician confirmation to data being "live"
+- No application-layer error handling or retry
+- Silent failures with no notification to users
+- Impossible to test without a running SQL Agent
+- No transactional guarantee that all related tables are promoted together
+- No promotion audit trail at the application layer
+
+**Decision (v1 — immediate):** Replace the SQL Agent scheduled job with an **API-triggered promotion endpoint**. The Clinician System calls `POST /api/admin/patients/{chid}/promote` immediately when the clinician confirms a patient. This endpoint:
+1. Wraps all holding-to-live table copies in a single database transaction
+2. Validates completeness and consistency before committing
+3. Creates an immutable `PromotionAuditLog` record
+4. Updates the patient status to `Active`
+5. Notifies the patient that their account is now active
+6. Returns success/error to the Clinician System for display
+
+**Decision (v2 — longer term, recommended):** Remove the physical papp/live table duplication entirely. Instead, add a `DataStatus` column to each form table:
+- `0 = Holding` — written by Patient App, not visible to clinical queries
+- `1 = Active` — promoted by clinician confirmation, visible to all
+- `2 = Rejected` — rejected by clinician, retained for audit
+
+The Patient App API writes with `DataStatus = 0`. The promotion action performs a `SET DataStatus = 1 WHERE chid = @chid` across all form tables in one transaction. No data movement required. This eliminates the holding/live table duplication and the sync job entirely.
+
+**Why not v2 immediately?**
+- Requires schema changes to all form tables and live table queries in the Clinician System
+- High coordination cost with the Clinician System team
+- The v1 approach can be deployed immediately by removing the SQL Agent job and adding the API endpoint
+
+**Alternatives Considered:**
+- Keep the 5-minute job but add error handling — rejected: fundamentally unclean; latency still present
+- Event bus (Azure Service Bus / AWS SQS) — rejected: over-engineered for current scope; adds infrastructure dependency
+- Polling endpoint from Clinician System — rejected: polling is the anti-pattern we are moving away from
+- Database triggers — rejected: opaque, hard to test, breaks the application-layer audit trail
+
+**Consequences:**
+- SQL Agent job must be disabled when v1 is deployed
+- Clinician System team must implement the `POST /api/admin/patients/{chid}/promote` call (see INT-001 §5)
+- A `PromotionAuditLog` table is required (see DSD-001)
+- The `PendingClinicianActions` coordination table provides the inbox for the Clinician System (see INT-001 §5.3)
+- v2 migration can be planned for a later sprint once v1 is stable
+
+---
+
+## ADR-015: PII Encryption Algorithm Confirmed — OQ-06 / PD-02 Closed
+
+**Date:** 2026-03-26  
+**Status:** Decided — algorithm confirmed from legacy Clinician System source code
+
+**Context:** OQ-06 / PD-02 asked for the exact encryption algorithm used by the legacy Clinician System so that the Patient API could store identically encrypted data in shared columns. The client has provided the actual `EncryptionService.cs` source code.
+
+**Confirmed Algorithm:**
+
+| Property | Value |
+|---|---|
+| Cipher | AES (Rijndael) |
+| Key derivation | `PasswordDeriveBytes(password, salt)` — PBKDF1 / legacy .NET derivation |
+| Salt computation | `Encoding.ASCII.GetBytes(password.Length.ToString())` |
+| Key bytes | `.GetBytes(32)` → 256-bit AES key |
+| IV bytes | `.GetBytes(16)` → 128-bit IV (deterministic, derived from password) |
+| Plaintext encoding | `Encoding.Unicode` (UTF-16 LE) |
+| Ciphertext format | `Convert.ToBase64String(cipherBytes)` |
+| AES block size | 128 bits |
+| AES mode | CBC (default for .NET `Aes.Create()`) |
+
+**Important implementation notes:**
+
+1. **IV is deterministic** — The code calls `aes.GenerateIV()` but this is immediately overridden by the `PasswordDeriveBytes.GetBytes(16)` IV. The effective IV is always derived from the password, making it the same for every encryption call. This means: (a) identical plaintexts produce identical ciphertexts (no semantic security), and (b) decryption does not need to store or retrieve the IV — it derives it from the password each time.
+
+2. **`PasswordDeriveBytes` is PBKDF1-based** — This is a legacy, non-standard derivation function (`System.Security.Cryptography.PasswordDeriveBytes`). It is deprecated in modern cryptography but must be used by the new system to maintain compatibility with existing encrypted data in the shared DB.
+
+3. **Encrypted fields** (confirmed from `EncryptPatient` and `EncryptLifestyle`):
+   - `bb_patient`: `title`, `forenames`, `surname`, `countryresidence`, `phrn` (CHI/H&C number), `pnhs` (NHS number)
+   - `bb_papp_patient_lifestyle`: `birthtown`, `birthcountry`
+   - The `occupation` field in demographics is **not** encrypted (free text, not classified as PII in the legacy system — confirm with GDPR review)
+
+4. **The password** is stored in `appsettings.json` under `EncryptionServiceConfig:Password`. This same password **must** be configured in both the Patient API and the Clinician System. It must never be committed to source control.
+
+**Decision:** The `IEncryptionService` in `BADBIR.Api` must replicate this exact algorithm. The implementation:
+- Uses `PasswordDeriveBytes` (not `Rfc2898DeriveBytes`) to maintain backward compatibility
+- Encrypts with Unicode encoding (not UTF-8)
+- Stores as Base64
+- Reads the password from `IConfiguration["EncryptionServiceConfig:Password"]`
+
+**Note on security:** The deterministic IV pattern means that two patients with the same NHS number will produce identical encrypted values in the DB, which is a theoretical information leak. For v2, a proper AES-CBC with random IV prepended to the ciphertext should be considered — but only if the Clinician System is also updated at the same time, as this would break backward compatibility with existing encrypted data.
+
+**Consequences:**
+- PD-02 is CLOSED
+- DSD-001 §5 is updated with the confirmed algorithm details
+- The `IEncryptionService` stub in BADBIR.Api can now be implemented
+- HMAC-SHA256 strategy for deterministic lookups (in ADR-006) is still valid as a supplementary lookup mechanism for new Identity columns in `PatientHoldingAccounts`
+- The `occupation` field encryption status needs GDPR/legal review confirmation
+
+**Updated pending decisions:**
+
+| ID | Status | Resolution |
+|---|---|---|
+| PD-01 EuroQol version | ✅ CLOSED | EQ-5D-3L confirmed |
+| PD-02 Encryption algorithm | ✅ CLOSED | AES + PasswordDeriveBytes + Unicode + Base64 (see above) |
+| PD-03 SAPASI UX | ✅ CLOSED (deferred) | UX design to be finalised at sprint |
+| PD-04 Full DB DDL | 🔵 OPEN | SQLite DB forthcoming from client |
+| PD-05 Notification service | 🔵 OPEN | Pending |
+| PD-06 HADS Q11–Q14 | ✅ CLOSED | All 14 items confirmed |
+| PD-07 NHS Login | 🔵 OPEN | Long-term |
+
+---
+
+## ADR-016: Form Licences Confirmed — All In Place
+
+**Date:** 2026-03-26  
+**Status:** Decided
+
+**Context:** The BADBIR Patient App uses several licensed clinical instruments (DLQI, HADS, EQ-5D, HAQ, CAGE, SAPASI, PGA). Questions were raised about licence compliance and what text could be used.
+
+**Decision:** The client has confirmed that all required licences and payment agreements are in place:
+
+| Instrument | Licence Holder | Model | Notes |
+|---|---|---|---|
+| DLQI | Cardiff University (© AY Finlay, GK Khan, 1992) | Licensed — agreement in place | BADBIR holds institutional licence |
+| HADS | GL Assessment (© R.P. Snaith, A.S. Zigmond, 1983) | **Pay-per-completed-form** — agreement with GL Assessments in place | Must track number of completed HADS submissions |
+| EQ-5D-3L | EuroQol Research Foundation | Licensed — non-commercial / charity arrangement | BADBIR is a registered charity; confirm EuroQol terms |
+| HAQ | Stanford University | Free for non-commercial/academic research | Confirm annually |
+| CAGE | Public domain | Free | No restrictions |
+| SAPASI | Fleischer et al. (1994) | Academic instrument — free for research | No restrictions |
+| PGA | Clinical convention — no specific copyright | Free | No restrictions |
+
+**Key consequence: HADS pay-per-form counter required.** The `HadsSubmissions` table must include a `counted` flag or similar mechanism so that:
+1. Each completed (not partially completed) HADS submission is counted
+2. Monthly/quarterly submission count reporting is available for the GL Assessments invoice
+3. Draft/incomplete submissions that are discarded are not counted
+
+**Action required:**
+- Add `IsCountable BIT DEFAULT 0` to `HadsSubmissions` — set to `1` only when the form is fully completed and submitted
+- Add a reporting endpoint `GET /api/admin/reports/hads-submissions-count?from=&to=` for finance team use
+- Confirm with GL Assessments whether online/app-based completion counts the same as paper-based completion
+
+**Consequences:**
+- FORM-003 (HADS spec) is updated to note the pay-per-form licence model
+- The `HadsSubmissions` table definition in DSD-001 must include the `IsCountable` field
+- Incomplete/abandoned HADS sessions (forms abandoned mid-completion) must not be counted

@@ -24,6 +24,7 @@
 | **FORM-008** | `docs/forms/FORM-008_Lifestyle_MedProbs.md` | Lifestyle & Medical Problems forms (Baseline vs FUP split) |
 | **FORM-009** | `docs/forms/FORM-009_Eligibility_Screener.md` | Eligibility Screener (Pathway A registration) |
 | **TST-001** | `docs/testing/TST-001_Testing_Strategy.md` | SQLite testing strategy, test cases, infrastructure |
+| **INT-001** | `docs/requirements/INT-001_Clinician_System_Integration.md` | Clinician System integration requirements (consent inbox, data promotion, shared schema) |
 | **MOCK-001** | `docs/mockups/index.html` | UI mockup screens — Registration (10), Baseline (17), Follow-Up (11) |
 | **DECISION-LOG** | `docs/progress/DECISION-LOG.md` | All architectural decisions with rationale |
 
