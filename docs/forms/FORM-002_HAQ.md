@@ -3,8 +3,9 @@
 ## BADBIR Patient Application
 
 > **Document ID:** FORM-002  
-> **Version:** 0.1 (Draft)  
-> **Last Updated:** 2026-03-25
+> **Version:** 0.2  
+> **Status:** Updated — confirmed from actual paper forms (Baseline p.11–12, FUP p.15–16)  
+> **Last Updated:** 2026-03-26
 
 ---
 
@@ -15,174 +16,261 @@
 | Form Name | Health Assessment Questionnaire – Disability Index (HAQ-DI) |
 | Legacy API endpoint | `POST /Dashboard/SaveHAQ` |
 | Legacy DTO | `PatientHaq` |
-| **Conditional** | **YES — Only shown if patient has psoriatic or inflammatory arthritis diagnosis** |
-| Estimated Duration | 8–12 minutes (long form — must be sectioned) |
-| Scoring | HAQ-DI = mean of 8 category scores (0–3); displayed to patient after submission |
+| **Conditional** | **YES — Only shown if patient has a rheumatologist's diagnosis of inflammatory arthritis** |
+| Estimated Duration | 8–12 minutes |
+| Paper title | "HEALTH ASSESSMENT QUESTIONNAIRE (HAQ)" |
+| Form appears at | Baseline p.11–12; FUP p.15–16 |
 
 ---
 
 ## 2. Conditional Logic
 
-- The HAQ form is **only presented** if `PatientDiagnoses` includes a psoriatic arthritis or inflammatory arthritis code.
+**Trigger:** `PatientDiagnoses` includes a rheumatologist's diagnosis of inflammatory arthritis (including psoriatic arthritis).
+
+- The clinician baseline form (p.5) states: *"(2) Only if patient has a rheumatologist's diagnosis of inflammatory arthritis"* for HAQ.
+- The patient baseline registration checklist (p.1) states: *"HAQ (only if patient has diagnosis of IA)"*.
+- If the condition is not met, HAQ is **omitted silently** from the form sequence — it does NOT appear as "Skipped" to the patient.
 - The API checks this condition when building the dashboard form list.
-- If the condition is not met, the form is silently omitted from the sequence (not shown as "skipped").
-- **UX Note:** Because HAQ is long and frequently skipped, the skip confirmation must be prominently available from the start of the form, not just at the end.
 
 ---
 
 ## 3. Form Structure
 
-The HAQ is divided into **8 functional categories**. Within each category there are 2–3 individual questions. The category score is the **maximum** of the individual question scores (per HAQ-DI standard method).
+**Scale instruction (exact text):**  
+*"Please tick the one response which best describes your usual abilities over the past week"*
 
-### 3.1 Scoring Scale (per question)
+**Answer options (same for all 20 individual questions):**
 
-| Score | Meaning |
+| Option | DB value |
 |---|---|
-| 0 | Without any difficulty |
-| 1 | With some difficulty |
-| 2 | With much difficulty |
-| 3 | Unable to do |
-
-If a patient uses an **aid or device** for a category, the minimum score for that category is raised to **2** (per HAQ-DI rules).
+| Without ANY difficulty | 0 |
+| With SOME difficulty | 1 |
+| With MUCH difficulty | 2 |
+| UNABLE to do | 3 |
 
 ---
 
-### 3.2 Category 1: Dressing and Grooming
+## 4. HAQ Categories and Questions (Exact text from paper forms)
 
-| # | Legacy Field | Question |
-|---|---|---|
-| 1.1 | `dressself` | Are you able to... **Dress yourself**, including tying shoelaces and doing buttons? |
-| 1.2 | `shampoo` | Are you able to... **Shampoo your hair**? |
+### Category 1: DRESSING AND GROOMING
 
-Category score = max(1.1, 1.2), adjusted for aids.
+*"Are you able to:"*
 
-**Aids/devices for this category:** `dressing` (bool flag), `dressingdetails` (text)
+| Code | Question |
+|---|---|
+| `dressself` | a. Dress yourself, including tying shoelaces and doing buttons? |
+| `shampoo` | b. Shampoo your hair? |
 
----
+Category score field: `dressgroom`
 
-### 3.3 Category 2: Arising
-
-| # | Legacy Field | Question |
-|---|---|---|
-| 2.1 | `standchair` | Are you able to... **Stand up from a straight chair**? |
-| 2.2 | `bed` | Are you able to... **Get in and out of bed**? |
-
-Category score = max(2.1, 2.2).
-
-**Section category score:** `dressgroom` (Dressing & Grooming combined score), `rising` (Arising score)
+**Aids applicable to this category:**
+- Devices used for dressing (button hooks, zipper pull, shoe horn) — `dressing` flag
 
 ---
 
-### 3.4 Category 3: Eating
+### Category 2: RISING
 
-| # | Legacy Field | Question |
-|---|---|---|
-| 3.1 | `cutmeat` | Are you able to... **Cut your meat**? |
-| 3.2 | `liftglass` | Are you able to... **Lift a full cup or glass to your mouth**? |
-| 3.3 | `openmilk` | Are you able to... **Open a new milk carton**? |
+*"Are you able to:"*
 
-Category score = max(3.1, 3.2, 3.3).  
-Legacy field: `eating`
+| Code | Question |
+|---|---|
+| `standchair` | a. Stand up from an armless straight chair? |
+| `bed` | b. Get in and out of bed? |
 
-**Aids:** `specialutensils` (bool flag)
+Category score field: `rising`
 
----
-
-### 3.5 Category 4: Walking
-
-| # | Legacy Field | Question |
-|---|---|---|
-| 4.1 | `walkflat` | Are you able to... **Walk outdoors on flat ground**? |
-| 4.2 | `climbsteps` | Are you able to... **Climb up 5 steps**? |
-
-Category score = max(4.1, 4.2).  
-Legacy field: `walking`
-
-**Aids:** `cane`, `crutches`, `walker`, `wheelchair` (separate bool flags for each)
+**Aids applicable to this category:**
+- Special or built-up chair (A) — `specialchair` flag
 
 ---
 
-### 3.6 Category 5: Hygiene
+### Category 3: EATING
 
-| # | Legacy Field | Question |
-|---|---|---|
-| 5.1 | `washdry` | Are you able to... **Wash and dry your body**? |
-| 5.2 | `bath` | Are you able to... **Take a tub bath**? |
-| 5.3 | `toilet` | Are you able to... **Get on and off the toilet**? |
+*"Are you able to:"*
 
-Category score = max(5.1, 5.2, 5.3).
+| Code | Question |
+|---|---|
+| `cutmeat` | a. Cut your meat? |
+| `liftglass` | b. Lift a full cup or glass to your mouth? |
+| `openmilk` | c. Open a new carton of milk (or soap powder)? |
 
-**Aids:** `loolift`, `bathseat`, `bathrail` (bool flags)
+Category score field: `eating`
 
----
-
-### 3.7 Category 6: Reach
-
-| # | Legacy Field | Question |
-|---|---|---|
-| 6.1 | `reachabove` | Are you able to... **Reach and get down a 5-pound object (such as a bag of sugar) from above your head**? |
-| 6.2 | `bend` | Are you able to... **Bend down to pick up clothing from the floor**? |
-
-Category score = max(6.1, 6.2).
+**Aids applicable to this category:**
+- Built-up or special utensils (E) — `specialutensils` flag
 
 ---
 
-### 3.8 Category 7: Grip
+### Category 4: WALKING
 
-| # | Legacy Field | Question |
-|---|---|---|
-| 7.1 | `cardoor` | Are you able to... **Open car doors**? |
-| 7.2 | `openjar` | Are you able to... **Open jars that have been previously opened**? |
-| 7.3 | `turntap` | Are you able to... **Turn taps on and off**? |
+*"Are you able to:"*
 
-Category score = max(7.1, 7.2, 7.3).
+| Code | Question |
+|---|---|
+| `walkflat` | a. Walk outdoors on flat ground? |
+| `climbsteps` | b. Climb up five steps? |
 
----
+Category score field: `walking`
 
-### 3.9 Category 8: Activities
-
-| # | Legacy Field | Question |
-|---|---|---|
-| 8.1 | `shop` | Are you able to... **Run errands and shop**? |
-| 8.2 | `getincar` | Are you able to... **Get in and out of a car**? |
-| 8.3 | `housework` | Are you able to... **Do chores such as vacuuming and gardening**? |
-
-Category score = max(8.1, 8.2, 8.3).
+**Aids applicable to this category (Walking):**
+- Cane (W) — `cane` flag
+- Crutches (W) — `crutches` flag
+- Walking frame (W) — `walker` flag
+- Wheelchair (W) — `wheelchair` flag
 
 ---
 
-## 4. HAQ-DI Score Calculation
+### Category 5: HYGIENE
+
+*"Are you able to:"*
+
+| Code | Question |
+|---|---|
+| `washdry` | a. Wash and dry your entire body? |
+| `bath` | b. Take a bath? |
+| `toilet` | c. Get on and off the toilet? |
+
+**Aids applicable to this category:**
+- Raised toilet seat (H) — `loolift` flag
+- Bath seat (H) — `bathseat` flag
+- Bath rail (H) — `bathrail` flag
+
+---
+
+### Category 6: REACH
+
+*"Are you able to:"*
+
+| Code | Question |
+|---|---|
+| `reachabove` | a. Reach and get down a 5 lb object (e.g. a bag of potatoes) from just above your head? |
+| `bend` | b. Bend down to pick up clothing off the floor? |
+
+**Aids applicable to this category:**
+- Long handled appliances for reach (R)
+
+---
+
+### Category 7: GRIP
+
+*"Are you able to:"*
+
+| Code | Question |
+|---|---|
+| `cardoor` | a. Open car doors? |
+| `openjar` | b. Open jars which have been previously opened? |
+| `turntap` | c. Turn taps on and off? |
+
+**Aids applicable to this category:**
+- Jar opener (for jars previously opened) (G)
+
+---
+
+### Category 8: ACTIVITIES
+
+*"Are you able to:"*
+
+| Code | Question |
+|---|---|
+| `shop` | a. Run errands and shop? |
+| `getincar` | b. Get in and out of a car? |
+| `housework` | c. Do chores such as vacuuming, housework or light gardening? |
+
+---
+
+## 5. "Help from Another Person" Flags
+
+The paper form asks patients to tick categories where they need help from another person:
+
+| Paper label | Mapped to categories |
+|---|---|
+| Dressing and Grooming | Category 1 |
+| Rising | Category 2 |
+| Eating | Category 3 |
+| Walking | Category 4 |
+| Hygiene | Category 5 |
+| Gripping and opening things | Category 7 |
+| Reach | Category 6 |
+| Errands and housework | Category 8 |
+
+These are stored as boolean flags per category on the DTO.
+
+---
+
+## 6. HAQ-DI Score Calculation
+
+### 6.1 Category Score
+
+Each category score is the **maximum** of the individual question scores within that category, subject to the aid adjustment below.
 
 ```
-HAQ-DI = mean(Category1, Category2, Category3, Category4, Category5, Category6, Category7, Category8)
-Range: 0.00 – 3.00
-
-Interpretation:
-  0.00 – 0.25: Mild disability
-  0.26 – 0.50: Mild-to-moderate
-  0.51 – 1.00: Moderate
-  1.01 – 2.00: Moderate-to-severe
-  2.01 – 3.00: Severe disability
+CategoryScore = max(all individual question scores in category)
 ```
 
-**Aid adjustment:** If a patient uses an aid for any question within a category, the category score minimum becomes 2 (if the unaided score was 0 or 1).
+### 6.2 Aid Adjustment
+
+If the patient uses an aid or device for any question within a category, the minimum category score for that category is raised to **2** (if the unaided score was 0 or 1).
+
+```
+if (anyAidUsedInCategory && categoryScore < 2):
+    categoryScore = 2
+```
+
+### 6.3 HAQ-DI Formula
+
+```
+HAQ-DI = Sum(8 category scores) / 8
+Range: 0.0 – 3.0
+```
+
+The paper form includes a lookup table directly on the scoring page (confirmed from OCR):
+
+| Sum of 8 category scores | HAQ-DI |
+|---|---|
+| 0 | 0.000 |
+| 1 | 0.125 |
+| 2 | 0.250 |
+| 3 | 0.375 |
+| 4 | 0.500 |
+| 5 | 0.625 |
+| 6 | 0.750 |
+| 7 | 0.875 |
+| 8 | 1.000 |
+| 9 | 1.125 |
+| 10 | 1.250 |
+| 11 | 1.375 |
+| 12 | 1.500 |
+| 13 | 1.625 |
+| 14 | 1.750 |
+| 15 | 1.875 |
+| 16 | 2.000 |
+| 17 | 2.125 |
+| 18 | 2.250 |
+| 19 | 2.375 |
+| 20 | 2.500 |
+| 21 | 2.625 |
+| 22 | 2.750 |
+| 23 | 2.875 |
+| 24 | 3.000 |
+
+### 6.4 Interpretation Bands
+
+| HAQ-DI | Band |
+|---|---|
+| 0.00–0.25 | Mild disability |
+| 0.26–0.50 | Mild-to-moderate |
+| 0.51–1.00 | Moderate |
+| 1.01–2.00 | Moderate-to-severe |
+| 2.01–3.00 | Severe disability |
 
 ---
 
-## 5. Missing Data
-
-Legacy field `missingdata` (bool) + `missingdatadetails` (string). If the patient cannot complete a question, the clinician can flag it as missing. The new system should retain this but it is a clinician-facing annotation, not patient-facing.
-
----
-
-## 6. Legacy Data Contract
+## 7. Legacy Data Contract
 
 ```json
 {
-  "formId": 0,
   "chid": 12345,
   "pappFupId": 67,
-  "missingdata": false,
   "dressself": 1, "shampoo": 0,
   "standchair": 1, "bed": 1,
   "cutmeat": 0, "liftglass": 0, "openmilk": 1,
@@ -202,35 +290,20 @@ Legacy field `missingdata` (bool) + `missingdatadetails` (string). If the patien
 
 ---
 
-## 7. New API Contract (Proposed)
+## 8. API Contract
 
-**POST** `/api/forms/haq`
+**POST** `/api/forms/haq`  
+**Auth:** ****** required
 
-```json
-{
-  "pappFupId": 67,
-  "q_dressself": 1, "q_shampoo": 0,
-  "q_standchair": 1, "q_bed": 1,
-  "q_cutmeat": 0, "q_liftglass": 0, "q_openmilk": 1,
-  "q_walkflat": 0, "q_climbsteps": 1,
-  "q_washdry": 0, "q_bath": 0, "q_toilet": 0,
-  "q_reachabove": 1, "q_bend": 1,
-  "q_cardoor": 0, "q_openjar": 1, "q_turntap": 0,
-  "q_shop": 0, "q_getincar": 0, "q_housework": 1,
-  "aid_cane": false, "aid_crutches": false, "aid_walker": false, "aid_wheelchair": false,
-  "aid_specialUtensils": false, "aid_specialChair": false,
-  "aid_dressing": false, "aid_loolift": false, "aid_bathseat": false, "aid_bathrail": false
-}
-```
-
-Response `201 Created` includes computed `haqDiScore`.
+Response `201 Created` includes computed `haqDiScore` (decimal 0.000–3.000).
 
 ---
 
-## 8. UX Requirements
+## 9. UX Requirements
 
-- The 8 categories must be presented as **separate sections or pages** with a progress indicator.
-- Display an estimated completion time (e.g., "About 10 minutes") at the start.
-- Aids/devices questions should appear at the **end** of each relevant category section.
-- The skip confirmation must be easily accessible throughout — not only at the end.
-- On completion, display the calculated HAQ-DI score with a brief interpretation band (mild/moderate/severe).
+- Present categories in 2 pages matching the paper form layout: Categories 1–4 on page 1, Categories 5–8 on page 2.
+- Aids/devices checkboxes appear at the bottom of each page.
+- "Help from another person" checkboxes appear at the bottom of each page.
+- Display a progress indicator ("Page 1 of 2").
+- On completion, show the computed HAQ-DI score and interpretation band.
+- Skip confirmation must be accessible throughout (not just at the end).

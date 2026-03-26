@@ -96,6 +96,20 @@ See `docs/architecture/SAD-001_System_Architecture_Design.md` for the full archi
 
 ### 3.2 Registration Workflows
 
+#### FR-REG-00: Eligibility Screener (Pathway A Only)
+
+Before any demographics or consent forms are shown, Pathway A patients must pass a 3-question screener:
+
+1. **Q1 — Diagnosis:** "Have you been diagnosed with psoriasis by a dermatologist?" → Must be YES.
+2. **Q2 — Treatment Window:** "Have you started a new prescribed pill, injection, or light therapy (systemic treatment) for your psoriasis in the last 6 months?" → Must be YES.
+3. **Q3 — Age:** "Are you currently 16 years of age or older?" → Must be YES.
+
+- If Q1 or Q2 = NO → display rejection message; halt registration; no data stored.
+- If Q3 = NO → display paediatric deferral message; halt registration; no data stored.
+- Screener answers are NOT persisted to the database.
+- Pathway B (clinician-initiated invite) bypasses the screener entirely.
+- See FORM-009 for exact question text and messages.
+
 #### FR-REG-01: Patient Identity Verification
 - Patients are verified against the BADBIR database using exactly **three data points**:
   1. Date of Birth
@@ -148,16 +162,42 @@ See `docs/architecture/SAD-001_System_Architecture_Design.md` for the full archi
 
 #### FR-DASH-02: Form Assignment Logic
 
-| Follow-Up | Forms Assigned (Patient-Facing) |
-|---|---|
-| Baseline (0) | Demographics/Lifestyle, DLQI, EuroQol, HADS, CAGE (conditional), HAQ (conditional), SAPASI, PGA |
-| FU 1–6 (6–36 months) | Lifestyle Update, Medical Problems Update, DLQI, EuroQol, HADS, CAGE (conditional), HAQ (conditional), SAPASI, PGA |
-| FU 7+ (48+ months, annual) | Lifestyle Update, Medical Problems Update, DLQI, EuroQol, HADS, CAGE (conditional), HAQ (conditional), SAPASI, PGA |
+> **Note: SAPASI UX design (body map vs sliders) is TBD — will be finalised at development sprint. Data model and API are fixed. See FORM-007.**
+
+Form sequences mirror the actual paper form order:
+
+**Baseline Sequence:**
+
+| Sequence | Form | Conditional? |
+|---|---|---|
+| 1 | Demographics / Lifestyle (includes PGA at end) | No |
+| 2 | CAGE | Yes — only if DrinkAlcohol = true |
+| 3 | DLQI | No |
+| 4 | EuroQol (5D + VAS) | No |
+| 5 | HAQ | Yes — only if IA diagnosis |
+| 6 | HADS | No |
+| 7 | SAPASI | No |
+
+**Follow-Up Sequence (FU 1–6 and FU 7+):**
+
+| Sequence | Form | Conditional? |
+|---|---|---|
+| 1 | PGA | No |
+| 2 | Medical Problems Update (incl. occupation) | No |
+| 3 | DLQI | No |
+| 4 | EuroQol (5D + VAS) | No |
+| 5 | Smoking Update | No |
+| 6 | Drinking Update | No |
+| 7 | CAGE | Yes — only if DrinkAlcohol = true |
+| 8 | HADS | No |
+| 9 | HAQ | Yes — only if IA diagnosis |
+| 10 | SAPASI | No |
 
 #### FR-DASH-03: Conditional Form Logic
-- **HAQ**: Only displayed if the patient's diagnosis includes psoriatic or inflammatory arthritis.
-- **CAGE**: Only displayed if the patient indicated they consume alcohol in the Lifestyle form.
+- **HAQ**: Only displayed if the patient has a rheumatologist's confirmed diagnosis of inflammatory arthritis (including psoriatic arthritis). Source: Baseline clinical form and patient checklist.
+- **CAGE**: Only displayed if the patient answered "Yes" to the current-follow-up drinking question (Lifestyle form at Baseline; Drinking section in FUP).
 - Conditional checks are performed by the API; the client renders what it is told to.
+- If a conditional form does not apply, it does NOT appear as "Skipped" — it is simply absent from the sequence.
 
 #### FR-DASH-04: Form State Tracking
 Each form submission record must carry a `FormStatus` field:

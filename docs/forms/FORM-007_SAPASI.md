@@ -1,11 +1,11 @@
 # FORM-007 – SAPASI Form Specification
-## Self-Administered Psoriasis Area and Severity Index
+## Self-Administered PASI
 ## BADBIR Patient Application
 
 > **Document ID:** FORM-007  
-> **Version:** 0.1 (Draft)  
-> **Status:** New implementation — no legacy equivalent  
-> **Last Updated:** 2026-03-25
+> **Version:** 0.2  
+> **Status:** In scope for v1 — UX design decision pending (to be finalised at development sprint)  
+> **Last Updated:** 2026-03-26
 
 ---
 
@@ -13,149 +13,111 @@
 
 | Attribute | Value |
 |---|---|
-| Form Name | Self-Administered Psoriasis Area and Severity Index (SAPASI) |
-| Legacy API endpoint | **None** — this is a **new form with no legacy implementation** |
-| Conditional | No — always shown |
+| Form Name | Self-Administered PASI (SAPASI) |
+| Conditional | No — shown at Baseline and every Follow-up |
 | Estimated Duration | 3–5 minutes |
-| Scoring | Composite score 0–72; higher = more severe psoriasis |
+| Legacy equivalent | None — **new form with no legacy history** |
+| DB table | New — `SapasiSubmissions` (see DSD-001 §4.5) |
+| API endpoint | `POST /api/forms/sapasi` (new — no legacy endpoint) |
+
+### Why SAPASI?
+
+The clinical PASI (Psoriasis Area and Severity Index) is calculated by the clinician during a face-to-face visit. SAPASI allows the **patient** to self-report an equivalent score between visits, making it possible to track psoriasis severity at every follow-up without requiring a clinic appointment.
 
 ---
 
-## 2. Background
+## 2. ⚠️ UX Design Decision: PENDING
 
-The SAPASI is a patient self-administered adaptation of the clinician-scored PASI (Psoriasis Area and Severity Index). It is a validated tool (Fleischer et al., 1994; Feldman & Fleischer, 1996) that produces scores closely correlated with clinician PASI assessments.
+**The scoring algorithm and data model are fixed (see below). The open question is how to present the body diagram to the patient.**
 
-The SAPASI divides the body into **4 regions** and asks the patient to rate:
-1. **Area coverage** — using a shaded body diagram
-2. **Redness, thickness, and scaliness** — using visual analogue scales (0–4)
+| Option | Description | Pros | Cons |
+|---|---|---|---|
+| **Option A — Shaded silhouette + sliders** | Show a static body diagram split into 4 regions. For each region, patient uses sliders for: % coverage (0–4 bands) and severity (Redness + Thickness + Scaliness, each 0–4). | Simple, accessible, works on all screen sizes, no complex UI component | Less intuitive than tapping; patients may not relate to static diagram |
+| **Option B — Interactive tappable body map** | Full-colour interactive body silhouette. Patient taps/shades affected areas to indicate coverage, then rates severity per region. | Intuitive and visual; closely matches the concept | Complex UI; accessibility concerns; harder to implement on small screens |
 
----
+**Decision process:** This will be finalised at the sprint planning for the SAPASI form, with input from clinical users.
 
-## 3. Body Regions & Weights
-
-| Region | Body Surface Area Weight |
-|---|---|
-| Head & neck | 10% (weight factor: 0.1) |
-| Upper limbs (arms) | 20% (weight factor: 0.2) |
-| Trunk (front + back) | 30% (weight factor: 0.3) |
-| Lower limbs (legs) | 40% (weight factor: 0.4) |
+> **Until the UX decision is made:** Implement the data model and API fully (both options store the same 4-region data). The UI component is the only variable.
 
 ---
 
-## 4. Form Structure
+## 3. SAPASI Scoring Model
 
-### 4.1 For Each Body Region: Coverage (Area) Score
+SAPASI is based on the Fleischer et al. (1994) validated instrument. It has **4 body regions**, each scored independently.
 
-The patient is shown a **body silhouette diagram** for the region with a gradient fill slider or tappable area, and selects what proportion of the region is affected by psoriasis:
+### 3.1 Body Regions
 
-| Score | Coverage |
-|---|---|
-| 0 | 0% (no psoriasis in this area) |
-| 1 | 1–9% |
-| 2 | 10–29% |
-| 3 | 30–49% |
-| 4 | 50–69% |
-| 5 | 70–89% |
-| 6 | 90–100% |
-
-*(Area score conversion for SAPASI: each coverage band converts to a numeric value in the SAPASI formula.)*
-
-### 4.2 For Each Body Region: Severity Scores
-
-The patient rates three severity descriptors using a **horizontal slider (0–4 each)**:
-
-| Descriptor | DB Column | Scale |
+| Region | Abbreviation | Body Surface Weight |
 |---|---|---|
-| **Redness** (Erythema) | `{Region}Redness` | 0 (none) → 4 (very severe) |
-| **Thickness** (Induration) | `{Region}Thickness` | 0 (none) → 4 (very severe) |
-| **Scaliness** (Desquamation) | `{Region}Scaliness` | 0 (none) → 4 (very severe) |
+| Head | H | 0.1 |
+| Upper Limbs | U | 0.2 |
+| Trunk | T | 0.3 |
+| Lower Limbs | L | 0.4 |
 
-> **Note:** The initial database schema stub (`DSD-001`) stored only a single `Coverage` and `Severity` column per region. This specification refines that to store Redness, Thickness, and Scaliness separately to maintain score integrity. The schema will need to be updated accordingly.
+> Weights sum to 1.0
 
-### 4.3 Proposed Database Columns
+### 3.2 Per-Region Inputs
 
-```sql
--- For each region prefix: Head, Ul (UpperLimbs), Trunk, Ll (LowerLimbs)
-{Region}Coverage  TINYINT  NOT NULL DEFAULT 0,  -- 0–6
-{Region}Redness   TINYINT  NOT NULL DEFAULT 0,  -- 0–4
-{Region}Thickness TINYINT  NOT NULL DEFAULT 0,  -- 0–4
-{Region}Scaliness TINYINT  NOT NULL DEFAULT 0,  -- 0–4
+For each region, the patient provides:
+
+| Input | Label | Scale |
+|---|---|---|
+| `Coverage` | How much of the region is affected? | 0 = None, 1 = < 10%, 2 = 10–30%, 3 = 30–50%, 4 = > 50% |
+| `Redness` | Redness/Erythema | 0 = None, 1 = Slight, 2 = Moderate, 3 = Marked, 4 = Very marked |
+| `Thickness` | Thickness/Induration | 0 = None, 1 = Slight, 2 = Moderate, 3 = Marked, 4 = Very marked |
+| `Scaliness` | Scaliness/Desquamation | 0 = None, 1 = Slight, 2 = Moderate, 3 = Marked, 4 = Very marked |
+
+### 3.3 Scoring Formula
+
+```
+SeverityScore(region) = Redness + Thickness + Scaliness   (0–12)
+
+RegionScore(region) = SeverityScore(region) × Coverage × RegionWeight
+
+SAPASI Total = Sum of RegionScore across all 4 regions
+
+Maximum possible SAPASI score = 72
 ```
 
-Total: 16 data columns + computed `TotalScore`.
+Example:
+```
+Head:         Redness=2, Thickness=1, Scaliness=2 → Severity=5. Coverage=2. Weight=0.1 → 5×2×0.1 = 1.0
+Upper Limbs:  Redness=3, Thickness=2, Scaliness=2 → Severity=7. Coverage=2. Weight=0.2 → 7×2×0.2 = 2.8
+Trunk:        Redness=1, Thickness=1, Scaliness=1 → Severity=3. Coverage=1. Weight=0.3 → 3×1×0.3 = 0.9
+Lower Limbs:  Redness=2, Thickness=2, Scaliness=1 → Severity=5. Coverage=3. Weight=0.4 → 5×3×0.4 = 6.0
+SAPASI Total = 1.0 + 2.8 + 0.9 + 6.0 = 10.7
+```
+
+### 3.4 Interpretation
+
+| Score | Severity |
+|---|---|
+| 0–10 | Mild |
+| 10–20 | Moderate |
+| 20+ | Severe |
 
 ---
 
-## 5. SAPASI Score Calculation
+## 4. Database Table
 
-```
-For each region:
-    AreaScore = Coverage score (converted to area index: 1=0.5, 2=1.5, 3=2.5, 4=3.5, 5=4.5, 6=5.5)
-    SeveritySum = Redness + Thickness + Scaliness
-    RegionScore = AreaScore × SeveritySum × WeightFactor
+See DSD-001 §4.5 for the `SapasiSubmissions` DDL.
 
-TotalSAPASI = Sum(RegionScore for all 4 regions)
-
-Range: 0 (no psoriasis) to 72 (theoretical maximum)
-```
-
-**Example:**
-```
-Head: Coverage=2 (area=1.5), R=2, T=1, S=1 → 1.5 × 4 × 0.1 = 0.6
-UL:   Coverage=1 (area=0.5), R=1, T=1, S=0 → 0.5 × 2 × 0.2 = 0.2
-Trunk: Coverage=3 (area=2.5), R=2, T=2, S=2 → 2.5 × 6 × 0.3 = 4.5
-LL:   Coverage=0 (area=0), all → 0
-TotalSAPASI = 0.6 + 0.2 + 4.5 + 0 = 5.3
-```
+Columns: `SubmissionId`, `Chid`, `PappFupId`, `SubmittedAt`, `HeadCoverage`, `HeadRedness`, `HeadThickness`, `HeadScaliness`, `UlCoverage`, `UlRedness`, `UlThickness`, `UlScaliness`, `TrunkCoverage`, `TrunkRedness`, `TrunkThickness`, `TrunkScaliness`, `LlCoverage`, `LlRedness`, `LlThickness`, `LlScaliness`, `TotalScore`, `FormStatus`.
 
 ---
 
-## 6. UX Requirements
+## 5. API Contract
 
-This is the most complex form in the application from a UX perspective.
-
-### 6.1 Body Diagram Interaction
-
-**Option A (Recommended): Shaded Silhouette + Slider**
-- Show a front + back body silhouette for each region.
-- A slider fills the silhouette progressively (0% → 100%) with a psoriasis-coloured shading.
-- The patient matches the fill level to their actual affected area.
-- This is accessible, intuitive, and does not require complex drawing interaction.
-
-**Option B (Advanced): Tappable Body Map**
-- The patient taps affected areas on an interactive body map.
-- The system calculates the percentage from tapped regions.
-- This is more accurate but significantly more complex to implement.
-- *Recommended for v2.*
-
-### 6.2 Severity Sliders
-- Each severity slider (Redness, Thickness, Scaliness) must have:
-  - Visual anchor images or colour gradients (e.g., skin tone progression for redness)
-  - Labels at each end: "None" and "Very Severe"
-  - Large touch targets (48px+ height)
-- Show all 3 severity sliders per region on one screen.
-
-### 6.3 Region Navigation
-- Use a **stepper/wizard pattern**: one region per step.
-- Show a body overview map with completed regions highlighted.
-- Allow the patient to go back and adjust a previous region before submitting.
-
-### 6.4 If No Psoriasis in a Region
-- If the patient sets coverage to 0, the severity sliders for that region are automatically set to 0 and greyed out.
-
----
-
-## 7. New API Contract (Proposed)
-
-**POST** `/api/forms/sapasi`
+**POST** `/api/forms/sapasi`  
+**Auth:** Bearer token required
 
 ```json
 {
   "pappFupId": 67,
-  "headCoverage": 2, "headRedness": 2, "headThickness": 1, "headScaliness": 1,
-  "ulCoverage": 1,   "ulRedness": 1,   "ulThickness": 1,   "ulScaliness": 0,
-  "trunkCoverage": 3,"trunkRedness": 2,"trunkThickness": 2,"trunkScaliness": 2,
-  "llCoverage": 0,   "llRedness": 0,   "llThickness": 0,   "llScaliness": 0
+  "head":        { "coverage": 2, "redness": 2, "thickness": 1, "scaliness": 2 },
+  "upperLimbs":  { "coverage": 2, "redness": 3, "thickness": 2, "scaliness": 2 },
+  "trunk":       { "coverage": 1, "redness": 1, "thickness": 1, "scaliness": 1 },
+  "lowerLimbs":  { "coverage": 3, "redness": 2, "thickness": 2, "scaliness": 1 }
 }
 ```
 
@@ -163,19 +125,26 @@ Response `201 Created`:
 ```json
 {
   "submissionId": 1005,
-  "patientId": 42,
-  "totalScore": 5.30,
-  "submittedAt": "2024-01-15T10:50:00Z"
+  "totalScore": 10.7,
+  "severityBand": "Moderate",
+  "submittedAt": "2024-01-15T11:00:00Z"
 }
 ```
 
+**Validation:**
+- All coverage and severity values must be 0–4.
+- All 4 regions required (no partial submission).
+- `totalScore` is computed server-side; do not accept from client.
+
 ---
 
-## 8. Open Questions
+## 6. UX Requirements (Known Constraints)
 
-| # | Question |
-|---|---|
-| OQ-SAPASI-01 | Does the client have a preferred UX model for the body diagram (shaded slider vs. tappable map)? |
-| OQ-SAPASI-02 | What SAPASI scoring formula should be used? (Fleischer 1994, or a variant validated by BADBIR?) |
-| OQ-SAPASI-03 | Should the SAPASI score be shown to the patient after submission? |
-| OQ-SAPASI-04 | Should coverage use the 7-point scale (0–6) or a simplified 5-point scale? |
+Regardless of which interaction model (Option A or B) is chosen:
+
+- All 4 regions must be completed before submission is enabled.
+- Each region must show its 4 inputs (coverage + redness + thickness + scaliness).
+- A running total score should be displayed as the patient fills in each region.
+- The final score and severity band are shown on the completion screen.
+- Accessibility: must work for patients with limited dexterity (minimum 44×44px touch targets; do not require precise drag operations on small areas).
+- The form should include brief instructions explaining what each rating means (e.g., a legend for the coverage percentages).

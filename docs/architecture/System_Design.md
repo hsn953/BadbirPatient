@@ -20,8 +20,10 @@
 | **FORM-004** | `docs/forms/FORM-004_DLQI.md` | DLQI dermatology quality of life |
 | **FORM-005** | `docs/forms/FORM-005_CAGE.md` | CAGE alcohol screening |
 | **FORM-006** | `docs/forms/FORM-006_PGA.md` | Patient Global Assessment |
-| **FORM-007** | `docs/forms/FORM-007_SAPASI.md` | SAPASI (new — no legacy equivalent) |
-| **FORM-008** | `docs/forms/FORM-008_Lifestyle_MedProbs.md` | Lifestyle & Medical Problems forms |
+| **FORM-007** | `docs/forms/FORM-007_SAPASI.md` | SAPASI — in v1; UX design decision pending |
+| **FORM-008** | `docs/forms/FORM-008_Lifestyle_MedProbs.md` | Lifestyle & Medical Problems forms (Baseline vs FUP split) |
+| **FORM-009** | `docs/forms/FORM-009_Eligibility_Screener.md` | Eligibility Screener (Pathway A registration) |
+| **TST-001** | `docs/testing/TST-001_Testing_Strategy.md` | SQLite testing strategy, test cases, infrastructure |
 | **DECISION-LOG** | `docs/progress/DECISION-LOG.md` | All architectural decisions with rationale |
 
 ---

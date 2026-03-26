@@ -56,18 +56,20 @@ The new system preserves this pattern, replacing the legacy integer user IDs wit
 
 ### 3.2 PRO Form Tables (Existing)
 
-| Table | Key Columns | Legacy Model |
-|---|---|---|
-| `bb_papp_patient_euroqol` | `form_id`, `chid`, `papp_fup_id`, `mobility`, `selfcare`, `usualacts`, `paindisc`, `anxdepr`, `comphealth`, `howyoufeel` | `PatientEuroQol` |
-| `bb_papp_patient_had` | `form_id`, `chid`, `papp_fup_id`, `q01`–`q14` | `PatientHad` |
-| `bb_papp_patient_haq` | `form_id`, `chid`, `papp_fup_id`, 30+ question fields | `PatientHaq` |
-| `bb_papp_patient_dlqi` | `form_id`, `chid`, `papp_fup_id`, `itchsore_score`...`total_score` | `PatientDlqi` |
-| `bb_papp_patient_cage` | `form_id`, `chid`, `papp_fup_id`, `cutdown`, `annoyed`, `guilty`, `earlymorning` | `PatientCage` |
-| `bb_papp_patient_pgascore` | `form_id`, `chid`, `papp_fup_id`, `pgascore` | `PatientPgascore` |
-| `bb_papp_patient_lifestyle` | `form_id`, `chid`, `papp_fup_id`, `currentlysmoke`, `drinkalcohol`... | `PatientLifestyle` |
-| `bb_papp_patient_med_problem_fup` | `form_id`, `chid`, `papp_fup_id`, `occupation`... | `PatientMedProblemFup` |
+| Table | Key Columns | Legacy Model | Notes |
+|---|---|---|---|
+| `bb_papp_patient_euroqol` | `form_id`, `chid`, `papp_fup_id`, `mobility`, `selfcare`, `usualacts`, `paindisc`, `anxdepr`, `comphealth`, `howyoufeel` | `PatientEuroQol` | EQ-5D-3L confirmed |
+| `bb_papp_patient_had` | `form_id`, `chid`, `papp_fup_id`, `q01`–`q14` | `PatientHad` | All 14 items confirmed |
+| `bb_papp_patient_haq` | `form_id`, `chid`, `papp_fup_id`, 30+ question fields | `PatientHaq` | All 8 categories confirmed |
+| `bb_papp_patient_dlqi` | `form_id`, `chid`, `papp_fup_id`, `itchsore_score`...`total_score` | `PatientDlqi` | See FORM-004 for legacy reversal |
+| `bb_papp_patient_cage` | `form_id`, `chid`, `papp_fup_id`, `cutdown`, `annoyed`, `guilty`, `earlymorning` | `PatientCage` | |
+| `bb_papp_patient_pgascore` | `form_id`, `chid`, `papp_fup_id`, `pgascore` | `PatientPgascore` | Values 1–5 (Clear–Severe) |
+| `bb_papp_patient_lifestyle` | `form_id`, `chid`, `papp_fup_id`, `currentlysmoke`, `drinkalcohol`, `ever_smoked`, `avg_cigs_per_day`, `age_started_smoking`, `age_stopped_smoking`, `currently_smoke`, `current_cigs_per_day`, `drink_alcohol`, `units_per_week`, `birth_town`, `birth_country`, `ethnicity`, `work_status`, `outdoor_occupation`, `lived_tropical` | `PatientLifestyle` | Baseline only |
+| `bb_papp_patient_med_problem_fup` | `form_id`, `chid`, `papp_fup_id`, `hospital_admissions`, `new_drugs`, `new_referrals`, `occupation`, `work_status`, `currently_smoke`, `current_cigs_per_day`, `drink_alcohol`, `units_per_week` | `PatientMedProblemFup` | FUP only |
 
-> **Note on EuroQol version:** The legacy schema stores 7 values (mobility, selfcare, usualacts, paindisc, anxdepr, comphealth, howyoufeel), consistent with **EQ-5D-3L + Comparative Health item**. The master requirements mention EQ-5D-5L. This discrepancy must be resolved — see OQ-01 in URD-001.
+> **EuroQol version confirmed:** EQ-5D-3L (3 levels). The 7 existing columns are correct. OQ-01 is closed.  
+> **SAPASI table:** No existing DB table — `SapasiSubmissions` is a new table created for v1 (see §4.5). SAPASI is in v1 scope; the UX interaction design is TBD (see ADR-010).  
+> **Actual table names:** Column and table names above are inferred from legacy code. Exact names will be confirmed from the SQLite DB file provided by the client.
 
 ---
 
@@ -142,7 +144,11 @@ CREATE INDEX [IX_SecurityAuditLog_EventType] ON [dbo].[SecurityAuditLog] ([Event
 CREATE INDEX [IX_SecurityAuditLog_Timestamp] ON [dbo].[SecurityAuditLog] ([Timestamp]);
 ```
 
-### 4.5 `SapasiSubmissions` (New Form — Legacy Has None)
+### 4.5 `SapasiSubmissions` (New Form — In v1 Scope, Legacy Has None)
+
+The SAPASI DB table is included in v1. The UX design decision (body map interaction) is deferred to the development sprint — the schema is independent of that choice.
+
+> **Note on column structure:** Each region stores Coverage (0–4) and three separate severity components: Redness, Thickness, and Scaliness (each 0–4). These are stored separately to preserve the individual ratings, not just the combined severity sum.
 
 ```sql
 CREATE TABLE [dbo].[SapasiSubmissions] (
@@ -151,23 +157,31 @@ CREATE TABLE [dbo].[SapasiSubmissions] (
     [PappFupId]       INT          NULL,
     [SubmittedAt]     DATETIME2    NOT NULL DEFAULT SYSUTCDATETIME(),
 
-    -- Head region (0–4 coverage × 0–4 severity)
-    [HeadCoverage]    TINYINT      NOT NULL DEFAULT 0,
-    [HeadSeverity]    TINYINT      NOT NULL DEFAULT 0,
+    -- Head region (body surface weight: 0.10)
+    [HeadCoverage]    TINYINT      NOT NULL DEFAULT 0,  -- 0=None 1=<10% 2=10-30% 3=30-50% 4=>50%
+    [HeadRedness]     TINYINT      NOT NULL DEFAULT 0,  -- 0–4
+    [HeadThickness]   TINYINT      NOT NULL DEFAULT 0,  -- 0–4
+    [HeadScaliness]   TINYINT      NOT NULL DEFAULT 0,  -- 0–4
 
-    -- Upper limbs
+    -- Upper Limbs (body surface weight: 0.20)
     [UlCoverage]      TINYINT      NOT NULL DEFAULT 0,
-    [UlSeverity]      TINYINT      NOT NULL DEFAULT 0,
+    [UlRedness]       TINYINT      NOT NULL DEFAULT 0,
+    [UlThickness]     TINYINT      NOT NULL DEFAULT 0,
+    [UlScaliness]     TINYINT      NOT NULL DEFAULT 0,
 
-    -- Trunk
+    -- Trunk (body surface weight: 0.30)
     [TrunkCoverage]   TINYINT      NOT NULL DEFAULT 0,
-    [TrunkSeverity]   TINYINT      NOT NULL DEFAULT 0,
+    [TrunkRedness]    TINYINT      NOT NULL DEFAULT 0,
+    [TrunkThickness]  TINYINT      NOT NULL DEFAULT 0,
+    [TrunkScaliness]  TINYINT      NOT NULL DEFAULT 0,
 
-    -- Lower limbs
+    -- Lower Limbs (body surface weight: 0.40)
     [LlCoverage]      TINYINT      NOT NULL DEFAULT 0,
-    [LlSeverity]      TINYINT      NOT NULL DEFAULT 0,
+    [LlRedness]       TINYINT      NOT NULL DEFAULT 0,
+    [LlThickness]     TINYINT      NOT NULL DEFAULT 0,
+    [LlScaliness]     TINYINT      NOT NULL DEFAULT 0,
 
-    -- Computed total score (stored for historical tracking)
+    -- Computed total score (server-side; stored for historical tracking)
     [TotalScore]      DECIMAL(5,2) NULL,
 
     [FormStatus]      TINYINT      NOT NULL DEFAULT 0,
@@ -181,8 +195,7 @@ CREATE TABLE [dbo].[SapasiSubmissions] (
 );
 ```
 
-> **SAPASI Score Formula:** TotalScore = Sum of (BodyAreaWeight × Coverage × Severity) across all 4 regions.  
-> Body area weights (% body surface): Head ≈ 10%, Upper Limbs ≈ 20%, Trunk ≈ 30%, Lower Limbs ≈ 40%.
+> **SAPASI Score Formula:** `TotalScore = Σ (RegionWeight × Coverage × (Redness + Thickness + Scaliness))` across all 4 regions. Max possible = 72. See FORM-007 for full formula with examples.
 
 ### 4.6 `PushTokens`
 

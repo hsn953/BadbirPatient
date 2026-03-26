@@ -172,3 +172,89 @@ Each entry includes:
 | PD-05 | Notification service provider: FCM / AWS SNS / other | Client | Before notification sprint |
 | PD-06 | HADS Q11–Q14 inclusion confirmation | Client | Before HADS implementation sprint |
 | PD-07 | NHS Login integration timeline and OIDC provider specs | Client / NHS Digital | Long-term planning |
+
+---
+
+## ADR-009: EQ-5D-3L Confirmed — OQ-01 Closed
+
+**Date:** 2026-03-26  
+**Status:** Decided  
+
+**Context:** OQ-01 asked whether the new system should use EQ-5D-3L or EQ-5D-5L. The actual paper forms (Baseline p.9, FUP p.9) confirm exactly 3 levels per dimension.
+
+**Decision:** Implement **EQ-5D-3L**. Existing legacy DB columns (`mobility`, `selfcare`, `usualacts`, `paindisc`, `anxdepr`) are correct. No schema change required for the EuroQol dimensions.
+
+**Consequences:** The Dolan (1997) England EQ-5D-3L value set coefficients must be obtained under the EuroQol licence.
+
+---
+
+## ADR-010: SAPASI UX Design Decision Deferred — Feature Is In v1 Scope
+
+**Date:** 2026-03-26  
+**Status:** Decided  
+
+**Context:** Initial interpretation of client guidance was that SAPASI was deferred entirely from v1. Client clarified: *"Just to confirm when I say defer SAPASI, I mean defer the real implementation questions how to show graphically etc close to the time we are developing — we still want to include SAPASI in the first product."*
+
+**Decision:** SAPASI **is in v1 scope**. The data model, DB table (`SapasiSubmissions`), API endpoint (`POST /api/forms/sapasi`), and scoring algorithm are all fixed and fully specified in FORM-007. The **only deferred decision** is the graphical UI interaction model (Option A: static silhouette + sliders vs. Option B: interactive tappable body map). This UX decision will be made at the SAPASI development sprint.
+
+**Consequences:**
+- FORM-007 is updated from "DEFERRED" to "In scope for v1 — UX design pending".
+- `SapasiSubmissions` table remains in DSD-001 §4.5.
+- `POST /api/forms/sapasi` remains in API-001.
+- SAPASI is included in form sequences in SRS-001 FR-DASH-02.
+- The API and scoring service can be built independently of the UI design decision.
+
+---
+
+## ADR-011: SQLite for Development and Testing
+
+**Date:** 2026-03-26  
+**Status:** Decided  
+
+**Context:** The client proposes providing a SQLite database with synthetic test data for use in development and automated testing. This allows development to proceed without connection to the production SQL Server environment.
+
+**Decision:** Use **EF Core with SQLite** for development/testing, switching to SQL Server for production. EF Core's provider abstraction makes this transparent — the same `DbContext` and LINQ queries work against both. See TST-001 for full testing strategy.
+
+**Key points:**
+- `BADBIR.Api.Tests` project will use an in-memory SQLite DB seeded from a test fixture.
+- Client will provide a `.db` SQLite file with synthetic data — stored in `tests/TestData/`.
+- Connection string switching: `"BadbirDb"` from `appsettings.Development.json` → SQLite path; production → SQL Server.
+- EF Core SQLite provider: `Microsoft.EntityFrameworkCore.Sqlite`.
+
+**Consequences:** Some SQL Server–specific features (e.g., `datetime2`, `rowversion`, full-text search, computed columns) require special handling in SQLite. Any such features are documented in TST-001.
+
+---
+
+## ADR-012: PGA Scale Correction (5-Level Categorical)
+
+**Date:** 2026-03-26  
+**Status:** Decided  
+
+**Context:** The previous documentation assumed PGA was a 0–10 numeric scale. The actual paper form (Baseline p.6 bottom, FUP p.6 top) uses a 5-level categorical scale.
+
+**Decision:** PGA is stored as integers 1–5: Clear=1, Almost clear=2, Mild=3, Moderate=4, Severe=5.
+
+**Consequences:** The legacy `pgascore INT?` column must be confirmed to use this mapping. The API response includes `pgaLabel` for display purposes.
+
+---
+
+## ADR-013: HADS Q11–Q14 Confirmed as Required — OQ-02a Closed
+
+**Date:** 2026-03-26  
+**Status:** Decided  
+
+**Context:** Previous documentation flagged uncertainty about whether Q11–Q14 were implemented in the legacy system. The actual paper forms confirm all 14 items.
+
+**Decision:** All 14 HADS items are implemented. Q11–Q14 DB fields (`q11restless`, `q12lookforward`, `q13panic`, `q14enjoybook`) must be present in the entity. The legacy NSwag DTO only showed Q1–Q10 — this was a limitation of what was decompiled, not the actual DB schema.
+
+**Pending decisions updated:**
+
+| ID | Status | Resolution |
+|---|---|---|
+| PD-01 EuroQol version | ✅ CLOSED | EQ-5D-3L confirmed |
+| PD-02 Encryption algorithm | 🔵 OPEN | Pending Clinician System code share |
+| PD-03 SAPASI UX | ✅ CLOSED | Deferred to v2 |
+| PD-04 Full DB DDL | 🔵 OPEN | SQLite DB forthcoming |
+| PD-05 Notification service | 🔵 OPEN | Pending |
+| PD-06 HADS Q11–Q14 | ✅ CLOSED | All 14 items confirmed |
+| PD-07 NHS Login | 🔵 OPEN | Long-term |
