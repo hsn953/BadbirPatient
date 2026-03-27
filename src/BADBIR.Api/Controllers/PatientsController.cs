@@ -1,5 +1,6 @@
 using BADBIR.Api.Data;
 using BADBIR.Api.Data.Entities;
+using BADBIR.Api.Services;
 using BADBIR.Shared.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -19,11 +20,13 @@ public class PatientsController : ControllerBase
 {
     private readonly BadbirDbContext _db;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IEncryptionService _enc;
 
-    public PatientsController(BadbirDbContext db, UserManager<ApplicationUser> userManager)
+    public PatientsController(BadbirDbContext db, UserManager<ApplicationUser> userManager, IEncryptionService enc)
     {
         _db = db;
         _userManager = userManager;
+        _enc = enc;
     }
 
     // GET api/patients/me
@@ -35,63 +38,78 @@ public class PatientsController : ControllerBase
         if (userId is null)
             return Unauthorized();
 
-        var patient = await _db.Patients
+        var user = await _db.Users
             .AsNoTracking()
-            .FirstOrDefaultAsync(p => p.UserId == userId && !p.IsDeleted);
+            .FirstOrDefaultAsync(u => u.Id == userId);
 
-        return patient is null
-            ? NotFound()
-            : Ok(MapToDto(patient));
+        if (user?.PatientId is null)
+            return NotFound();
+
+        var patient = await _db.BbPatients
+            .AsNoTracking()
+            .FirstOrDefaultAsync(p => p.Patientid == user.PatientId);
+
+        if (patient is null)
+            return NotFound();
+
+        _enc.DecryptPatient(patient);
+        return Ok(MapToDto(patient));
     }
 
-    // GET api/patients/{id}
-    /// <summary>Returns a patient profile by ID. Requires Clinician or Administrator role.</summary>
-    [HttpGet("{id:int}")]
+    // GET api/patients/{patientId}
+    /// <summary>Returns a patient profile by patientid. Requires Clinician or Administrator role.</summary>
+    [HttpGet("{patientId:int}")]
     [Authorize(Roles = "Clinician,Administrator")]
-    public async Task<ActionResult<PatientDto>> GetById(int id)
+    public async Task<ActionResult<PatientDto>> GetById(int patientId)
     {
-        var patient = await _db.Patients
+        var patient = await _db.BbPatients
             .AsNoTracking()
-            .FirstOrDefaultAsync(p => p.PatientId == id && !p.IsDeleted);
+            .FirstOrDefaultAsync(p => p.Patientid == patientId);
 
-        return patient is null ? NotFound() : Ok(MapToDto(patient));
+        if (patient is null)
+            return NotFound();
+
+        _enc.DecryptPatient(patient);
+        return Ok(MapToDto(patient));
     }
 
-    // GET api/patients/{id}/diagnoses
-    /// <summary>Returns diagnoses for a patient.</summary>
-    [HttpGet("{id:int}/diagnoses")]
+    // GET api/patients/{patientId}/cohort-history
+    /// <summary>Returns cohort history records for a patient. Requires Clinician or Administrator role.</summary>
+    [HttpGet("{patientId:int}/cohort-history")]
     [Authorize(Roles = "Clinician,Administrator")]
-    public async Task<ActionResult<IEnumerable<PatientDiagnosisDto>>> GetDiagnoses(int id)
+    public async Task<ActionResult<IEnumerable<CohortHistoryDto>>> GetCohortHistory(int patientId)
     {
-        var exists = await _db.Patients.AnyAsync(p => p.PatientId == id && !p.IsDeleted);
+        var exists = await _db.BbPatients.AnyAsync(p => p.Patientid == patientId);
         if (!exists)
             return NotFound();
 
-        var diagnoses = await _db.PatientDiagnoses
+        var history = await _db.BbPatientCohortHistories
             .AsNoTracking()
-            .Where(d => d.PatientId == id)
-            .Select(d => new PatientDiagnosisDto
+            .Where(h => h.Patientid == patientId)
+            .Select(h => new CohortHistoryDto
             {
-                DiagnosisId   = d.DiagnosisId,
-                DiagnosisCode = d.DiagnosisCode,
-                DiagnosisName = d.DiagnosisName,
-                DiagnosedDate = d.DiagnosedDate,
-                IsActive      = d.IsActive
+                Chid       = h.Chid,
+                Patientid  = h.Patientid,
+                Cohortid   = h.Cohortid,
+                Studyno    = h.Studyno,
+                Datefrom   = h.Datefrom
             })
             .ToListAsync();
 
-        return Ok(diagnoses);
+        return Ok(history);
     }
 
     // ── Mapping helper ────────────────────────────────────────────────────────
-    private static PatientDto MapToDto(Patient p) => new()
+    private static PatientDto MapToDto(BbPatient p) => new()
     {
-        PatientId   = p.PatientId,
-        NhsNumber   = p.NhsNumber,
-        FirstName   = p.FirstName,
-        LastName    = p.LastName,
-        DateOfBirth = p.DateOfBirth,
-        Gender      = p.Gender,
-        Ethnicity   = p.Ethnicity
+        Patientid    = p.Patientid,
+        Phrn         = p.Phrn,
+        Pnhs         = p.Pnhs,
+        Title        = p.Title,
+        Forenames    = p.Forenames,
+        Surname      = p.Surname,
+        Dateofbirth  = p.Dateofbirth,
+        Genderid     = p.Genderid,
+        Statusid     = p.Statusid
     };
 }

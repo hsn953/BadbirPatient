@@ -10,6 +10,7 @@
   <!-- Native .NET 10 OpenAPI – no Swashbuckle -->
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.5" />
   </ItemGroup>
 
   <!-- Identity & Authentication -->

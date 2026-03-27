@@ -1,6 +1,7 @@
 using System.Text;
 using BADBIR.Api.Data;
 using BADBIR.Api.Data.Entities;
+using BADBIR.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -9,10 +10,24 @@ using Microsoft.IdentityModel.Tokens;
 var builder = WebApplication.CreateBuilder(args);
 
 // ── 1. Database ──────────────────────────────────────────────────────────────
-builder.Services.AddDbContext<BadbirDbContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("BadbirDb"),
-        sql => sql.EnableRetryOnFailure()));
+// Use SQLite when the "Sqlite" connection string is present (dev / test),
+// otherwise default to SQL Server (staging / production).
+var sqliteConnStr = builder.Configuration.GetConnectionString("BadbirDbSqlite");
+var sqlServerConnStr = builder.Configuration.GetConnectionString("BadbirDb");
+
+if (!string.IsNullOrEmpty(sqliteConnStr))
+{
+    builder.Services.AddDbContext<BadbirDbContext>(options =>
+        options.UseSqlite(sqliteConnStr));
+}
+else
+{
+    builder.Services.AddDbContext<BadbirDbContext>(options =>
+        options.UseSqlServer(
+            sqlServerConnStr
+            ?? throw new InvalidOperationException("No database connection string configured."),
+            sql => sql.EnableRetryOnFailure()));
+}
 
 // ── 2. ASP.NET Core Identity ─────────────────────────────────────────────────
 builder.Services
@@ -52,10 +67,13 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
-// ── 4. Controllers ───────────────────────────────────────────────────────────
+// ── 4. Application Services ───────────────────────────────────────────────────
+builder.Services.AddScoped<IEncryptionService, EncryptionService>();
+
+// ── 5. Controllers ───────────────────────────────────────────────────────────
 builder.Services.AddControllers();
 
-// ── 5. Native .NET 10 OpenAPI (no Swashbuckle) ───────────────────────────────
+// ── 6. Native .NET 10 OpenAPI (no Swashbuckle) ───────────────────────────────
 builder.Services.AddOpenApi(options =>
 {
     options.AddDocumentTransformer((document, context, _) =>
@@ -69,7 +87,7 @@ builder.Services.AddOpenApi(options =>
     });
 });
 
-// ── 6. CORS ───────────────────────────────────────────────────────────────────
+// ── 7. CORS ───────────────────────────────────────────────────────────────────
 var allowedOrigins = builder.Configuration
     .GetSection("AllowedOrigins")
     .Get<string[]>() ?? [];
@@ -83,7 +101,7 @@ builder.Services.AddCors(options =>
 // ── Build ─────────────────────────────────────────────────────────────────────
 var app = builder.Build();
 
-// ── 7. Middleware pipeline ────────────────────────────────────────────────────
+// ── 8. Middleware pipeline ────────────────────────────────────────────────────
 if (app.Environment.IsDevelopment())
 {
     // Serves the OpenAPI JSON at /openapi/v1.json
@@ -95,7 +113,7 @@ app.UseCors("BadbirCorsPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 
-// ── 8. Route mapping ──────────────────────────────────────────────────────────
+// ── 9. Route mapping ──────────────────────────────────────────────────────────
 app.MapControllers();
 
 // MapIdentityApi provides built-in endpoints:
@@ -109,3 +127,4 @@ await app.RunAsync();
 
 // Needed for WebApplicationFactory in integration tests
 public partial class Program { }
+
