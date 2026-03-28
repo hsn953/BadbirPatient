@@ -1,11 +1,12 @@
 # ADR-017 – Architecture Discussion: Separate Patient Database vs Shared DB
 
 > **Document ID:** ADR-017  
-> **Type:** Architecture Discussion Record (pre-decision)  
-> **Status:** Under Discussion — awaiting stakeholder decision  
+> **Type:** Architecture Decision Record  
+> **Status:** Decided — Option B: Separate Patient Database with API integration, effective immediately  
 > **Date:** 2026-03-28  
-> **Author:** BADBIR Patient App development team  
-> **Audience:** Project leads (clinical + technical)
+> **Last Updated:** 2026-03-28 (v2 — decision confirmed, open questions resolved)  
+> **Author:** BADBIR development team (Patient App + Clinician System — same team)  
+> **Audience:** All developers; future maintainers
 
 ---
 
@@ -27,18 +28,19 @@ This document gives a full analysis of each topic and closes with a clear recomm
 
 ---
 
-## 2. Key Facts Established From the Real Database
+## 2. Key Facts Established From the Real Database and Team Clarifications
 
-Before analysing options, these observations from `badbir_synthetic.db` are critical:
+Before analysing options, these observations from `badbir_synthetic.db` and subsequent team discussion are on record:
 
-| Observation | Implication |
-|---|---|
-| `bbPatient` already has `Portal_IsRegistered` and `Portal_DateRegistered` columns | The Clinician DB was already modified for portal integration — precedent set |
-| `bbPatientQuestionnaireSourcelkp` has entry `2 = Patient (via Portal)` | The shared DB already has a code for patient-entered data — no schema change needed |
-| `bbPatientDLQI`, `bbPatientLifestyle`, `bbPatientCage`, `bbPatientPASIScores` exist in shared DB | These four forms can be promoted to the live shared DB |
-| **HADS, HAQ, EuroQol have no live tables in the shared DB** | These forms currently have nowhere to go after promotion — the papp holding tables may be the only home they ever need |
-| `createdbyname` in all shared tables is `VARCHAR(100)` | Can safely be set to `"PatientPortal"` with `createdbyid = 0`; patient's name never goes in audit columns |
-| `bbPatientStatuslkp` has `statusid = 6 = "Registered awaiting consent form"` | The correct holding-state status already exists in the shared lookup |
+| Observation | Implication | Status |
+|---|---|---|
+| `bbPatient` already has `Portal_IsRegistered` and `Portal_DateRegistered` columns | The Clinician DB was already modified for portal integration — precedent set | ✅ Confirmed |
+| `bbPatientQuestionnaireSourcelkp` has entry `2 = Patient (via Portal)` | The shared DB already has a code for patient-entered data — no schema change needed | ✅ Confirmed |
+| `bbPatientDLQI`, `bbPatientLifestyle`, `bbPatientCage`, `bbPatientPASIScores` exist in shared DB | These four forms can be promoted to the live Clinician DB | ✅ Confirmed |
+| **HADS, HAQ, EuroQol DO have live tables in the production Clinician DB** | All forms will be promoted. They were absent from the synthetic DB only because the synthetic dataset was a partial extract, not because the tables don't exist. No data is collected that is not required by ethics. | ✅ Resolved — OQ-07 closed |
+| `createdbyname` in all shared tables is `VARCHAR(100)` | Can safely be set to `"PatientPortal"` with `createdbyid = 0`; patient's name never goes in audit columns. This is the current practice and continues unchanged. | ✅ Confirmed — OQ-10 closed |
+| `bbPatientStatuslkp` has `statusid = 6 = "Registered awaiting consent form"` | The correct holding-state status already exists in the shared lookup | ✅ Confirmed |
+| Both Patient App and Clinician System are developed by the same small team | Clinician System API endpoint changes can be coordinated and delivered immediately without cross-team negotiation delays | ✅ Confirmed — OQ-08 closed |
 
 ---
 
@@ -58,9 +60,9 @@ Before analysing options, these observations from `badbir_synthetic.db` are crit
 │   │  bbPappPatientCage       │ 5min│  bbPatientLifestyle              │ │
 │   │  bbPappPatientHad        │ job │  bbPatientCage                   │ │
 │   │  bbPappPatientHaq        │     │  bbPatientPASIScores             │ │
-│   │  bbPappPatientEuroqol    │     │                                  │ │
-│   │  bbPappPatientSapasi     │     │  (HADS/HAQ/EuroQol: no table)    │ │
-│   │  bbPappPatientPgaScore   │     │                                  │ │
+│   │  bbPappPatientEuroqol    │     │  bbPatientHADS                   │ │
+│   │  bbPappPatientSapasi     │     │  bbPatientHAQ                    │ │
+│   │  bbPappPatientPgaScore   │     │  bbPatientEuroQol                │ │
 │   └──────────────────────────┘     └──────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────────────────┘
          ▲                                       ▲
@@ -111,8 +113,9 @@ Split into two SQL Server databases. The systems communicate via mutually-authen
 │                                │                         │  bbPatientLifestyle                │
 │  (Code-First, free to evolve)  │                         │  bbPatientCage                     │
 │                                │                         │  bbPatientPASIScores               │
-│                                │                         │  (Forms with no live table: HADS,  │
-│                                │                         │   HAQ, EuroQol stay in Patient DB) │
+│                                │                         │  bbPatientHADS                     │
+│                                │                         │  bbPatientHAQ                      │
+│                                │                         │  bbPatientEuroQol                  │
 └────────────────────────────────┘                         └────────────────────────────────────┘
          ▲                                                           ▲
          │                                                           │
@@ -141,45 +144,136 @@ Two variants:
 
 ### 5.3 Assessment
 
-| Criterion | Option A | Option B |
+| Criterion | Option A | **Option B (DECIDED)** |
 |---|---|---|
 | Complexity to implement | Low | Medium-High |
-| Identity data isolation | ❌ Same DB | ✅ Separate DB |
-| Research snapshot purity | ❌ Papp drafts in same DB | ✅ Only confirmed data in Clinician DB |
-| Resilience (one app down) | Partial | Better — HTTP retries, circuit breakers |
-| Docker deployment | ✅ Same DB service | ✅ Two DB services, or same service different DBs |
-| .NET version independence | N/A | ✅ Fully independent stacks |
+| Identity data isolation | ❌ Same DB | ✅ **Separate DB** |
+| Research snapshot purity | ❌ Papp drafts in same DB | ✅ **Only confirmed data in Clinician DB** |
+| Resilience (one app down) | Partial | **Better — HTTP retries, circuit breakers** |
+| Docker deployment | ✅ Same DB service | ✅ **Two DB services, or same service different DBs** |
+| .NET version independence | N/A | ✅ **Fully independent stacks** |
 | Cross-system transaction safety | ✅ Single DB atomic | ⚠️ Need eventual-consistency pattern or 2PC |
 | Requires Clinician System API changes | 1 endpoint (promote) | 3–4 new endpoints |
-| Data forms without live table (HADS/HAQ/EuroQol) | Stay in papp | Stay in Patient DB — never promoted to Clinician DB (this may be fine) |
-| Risk to existing live system | Low | Medium (new Clinician API surface) |
+| HADS/HAQ/EuroQol destination | Promoted to live via same-DB proc | ✅ **Promoted via API call → live Clinician DB** |
+| Risk to existing live system | Low | Medium — mitigated by same team ownership |
+| Team coordination overhead | N/A | ✅ **None — same team** |
 
 ---
 
-## 6. Deeper Analysis: The "Pure Research Snapshot" Argument
+## 6. The "Pure Research Snapshot" Argument — Decisive
 
-This is the strongest argument FOR Option B. Researchers take DB snapshots for analyses. Right now, even with the 5-minute sync job, a snapshot taken while a patient's data is in the holding area will include that unvalidated, possibly incorrect data in the same database.
+This is the strongest argument for Option B, and it is now decisive.
 
 With Option B, the Clinician DB snapshot will only ever contain:
 - Data entered by clinicians directly
-- Data promoted from the Patient Portal after clinician approval (`qSourceID = 2`)
+- Data promoted from the Patient Portal **after clinician approval** (`qSourceID = 2`)
 
-The Patient DB snapshot would contain drafts and works-in-progress — fine, since nobody analyses that.
+The Patient DB snapshot contains drafts, works-in-progress, and unconfirmed identity data — none of which researchers should analyse. This remains completely isolated.
 
-**However:** The current synthetic DB shows that HADS, HAQ, and EuroQol have no live tables at all. This raises the possibility that the Clinician System never intends to receive those forms from the patient portal at all, or stores them differently (perhaps in a broader survey responses table not shown in the synthetic DB). This needs to be clarified before committing to either option.
+**All forms (DLQI, Lifestyle, CAGE, PASIScores, HADS, HAQ, EuroQol) have corresponding live tables in the Clinician DB.** (The absence of HADS/HAQ/EuroQol in the synthetic dataset was a partial extract — those tables exist in production.) No data is collected that is not required by ethics approval. After clinician approval, all patient-submitted forms are promoted to the Clinician DB via the API-based promotion endpoint. The research snapshot stays pure.
 
 ---
 
-## 7. The Audit Column Problem
+## 7. The Audit Column Problem — Resolved
 
-All shared tables have `createdbyname VARCHAR(100)` and `createdbyid INTEGER`. Patient names are encrypted in `bbPatient`. If the Patient App uses the patient's username in audit columns, this creates a confidentiality breach (username → email address → identity).
+All shared tables have `createdbyname VARCHAR(100)` and `createdbyid INTEGER`. Patient names are encrypted in `bbPatient`. Using a patient's username in audit columns would create a confidentiality breach (username → email address → identity).
 
-**Correct approach (applies in ALL options):**
+**Agreed approach (confirmed — applies to all shared tables written by the Patient App):**
 - `createdbyid = 0`
 - `createdbyname = "PatientPortal"`
 - The fact that it was the patient who entered the data is captured by `qSourceID = 2 (Patient via Portal)` in the form tables that support it
 
-This is already correctly implemented in the current codebase.
+This is the same convention already in use in the legacy system and continues unchanged. No further information is needed in audit fields when filled by a patient. **OQ-10 is closed.**
+
+---
+
+## 7a. Private Inter-Service Endpoints
+
+The Patient App API and Clinician System API must communicate over private endpoints that are **not publicly accessible**. Several layers of protection are appropriate and can be combined:
+
+### 7a.1 Docker Compose / Internal Network (University On-Premise)
+
+Within a Docker Compose deployment, services on the same `docker network` can reach each other by service name without routing traffic through the internet or the public port mappings:
+
+```yaml
+services:
+  badbir-patient-api:
+    networks:
+      - internal
+      - public
+
+  badbir-clinician-api:
+    networks:
+      - internal     # only reachable internally
+      # NOT on public network
+
+networks:
+  internal:
+    internal: true   # no external routing
+  public:
+    driver: bridge
+```
+
+With this configuration, `http://badbir-clinician-api/api/internal/...` is only reachable from within the Docker network. External internet traffic cannot reach it.
+
+### 7a.2 Service Account JWT + Private Route Prefix
+
+All inter-service calls use a **service-account JWT** (not a patient-facing token):
+- The Clinician System holds a long-lived service JWT signed by the Patient App's Identity server
+- The Patient App holds a long-lived service JWT signed by the Clinician System
+- These tokens carry `role: "InternalService"` (or `"ClinicianSystem"`)
+- Endpoints under `/api/internal/` or `/api/service/` require this role — they return `401` to any patient-facing token
+
+### 7a.3 Shared API Key (Simple Fallback)
+
+For simplicity during early development (before full JWT service accounts), a shared API key in a custom header is acceptable:
+
+```
+X-Internal-Api-Key: <secret-from-environment>
+```
+
+Both sides validate this key. The key is stored in environment variables / Docker secrets — never in source code.
+
+### 7a.4 IP Allowlisting (Defence in Depth)
+
+As an additional layer on IIS or nginx, the `/api/internal/*` route can be restricted to the IP address of the Clinician System server. This is a last-resort measure — the primary authentication is still the service JWT / API key.
+
+### 7a.5 mTLS (Future / Cloud)
+
+When deployed to AWS or Azure, mutual TLS (mTLS) client certificates provide the strongest inter-service guarantee. This is deferred to cloud deployment but the `IClinicianSystemClient` interface is designed to accommodate it.
+
+---
+
+## 7b. QR Code Integration
+
+Both the Patient App and the Clinician System rely on a QR code facility. This enables the following flows:
+
+### 7b.1 Clinician-Generated QR → Patient Scans to Register
+
+1. Clinician navigates to a patient record in the Clinician System and clicks "Generate Patient Portal QR"
+2. The Clinician System calls `POST /api/internal/patients/{patientId}/portal-qr` on the Patient API
+3. The Patient API returns a **signed, time-limited token** encoded as a QR code (or returns a URL which the Clinician System renders as QR)
+4. The clinician shows the QR code on-screen or prints it for the patient
+5. The patient scans the QR code with the Patient App (or browser)
+6. The Patient App decodes the token, pre-fills the patient's study ID / clinic, and navigates to the registration or link-account flow
+7. The token is single-use and expires after 24 hours
+
+This flow removes the manual entry of Study ID or CHI number during patient self-registration when the clinician is present — improving accuracy and reducing friction.
+
+### 7b.2 Patient QR → Clinician Scans to Verify
+
+1. A logged-in patient opens the Patient App and requests their "My QR Code"
+2. The Patient App calls `GET /api/patients/me/portal-qr` to get a display token
+3. The patient holds up their phone; the clinician scans it with the Clinician System
+4. The Clinician System calls `POST /api/internal/verify-portal-qr` on the Patient API to resolve the token to a patient record
+5. The Clinician System uses this to quickly pull up the correct patient record without typing
+
+### 7b.3 QR Token Security Requirements
+
+- Tokens must be signed (HMAC-SHA256 or JWT with `purpose: "portal-qr"` claim)
+- Tokens expire: 24 hours for clinician-generated, 10 minutes for patient-display
+- Tokens are single-use where initiating a registration flow (patient-registration QRs) — redeemable only once
+- QR content is a URL: `https://patient.badbir.org/qr/{token}` — so a camera app with no Patient App installed can still open the web version
 
 ---
 
@@ -213,52 +307,78 @@ services:
 
 **True separation (Option B, different instances):** Each app has its own SQL Server container. Maximum isolation. Cross-system calls go over HTTPS. No shared DB password. Different failure domains. This is the ideal Docker-native architecture. The cost is that the Patient API needs HTTP resilience (Polly retry, circuit breakers) for Clinician System calls.
 
-**Recommendation for Docker:** Structure the code NOW to support Option B even if you deploy Option A initially. This means:
-- `BadbirDbContext` for Patient App tables (code-first, fully owned)
-- `ClinicianReadDbContext` for read-only access to shared bbPatient* tables (database-first, never migrated)
-- `IClinicianSystemClient` interface with a `ClinicianSystemHttpClient` implementation and a future `ClinicianSystemDirectDbClient` fallback
-
-The interface lets you swap between "call the API" and "query the DB" without changing business logic.
+**Recommendation for Docker (now decided — Option B from day one):** Structure the code with full separation:
+- `PatientDbContext` (code-first) → `BadbirPatient` database
+- `IClinicianSystemClient` interface → implemented as `ClinicianSystemHttpClient` (HTTP calls, no direct DB)
+- Public Docker ports expose only patient-facing and public API routes
+- Internal Docker network handles all `/api/internal/*` traffic between services
 
 ---
 
-## 9. My Recommendation
+## 9. Decision
 
-### Short term (v1 — deliver working product now)
+### Option B — Separate Patient Database with API Integration — Effective Immediately
 
-**Stay with Option A with clean separation in code.**
+**This is the decided architecture.** It is not a future migration — it is the target for the current development sprint.
 
 Rationale:
-1. The Clinician System team needs to agree to new API endpoints. That conversation hasn't happened yet and will take time.
-2. The promotion endpoint (`POST /api/admin/patients/{id}/promote`) is already designed and coded.
-3. The Identity tables (AspNetUsers) should be in a **separate SQL Server database** from day one, even in v1. This costs almost nothing (different database name in the connection string, EF Core handles it) but separates patient identity data from clinical data cleanly. On the same SQL Server instance is fine — different logical databases.
+1. **Same-team advantage**: The Patient App and Clinician System are developed by the same small team with the same team lead. There is no cross-team coordination overhead for new Clinician System endpoints. This removes the main risk that previously argued for "Option A first".
+2. **Research snapshot purity**: All seven forms (DLQI, Lifestyle, CAGE, PASI, HADS, HAQ, EuroQol) have live tables in the Clinician DB. With Option B, the Clinician DB snapshot is always authoritative and always clean — patient-submitted drafts never appear in it.
+3. **Identity isolation is correct from day one**: ASP.NET Core Identity tables (AspNetUsers, email, phone numbers) should never be in the same database as validated clinical research data. Separating them now costs nothing and avoids a migration later.
+4. **Docker-ready**: The architecture aligns naturally with containerised deployment — two services, two databases, internal network for service-to-service calls. No shared DB passwords, no shared DB connection.
+5. **Eventual consistency is manageable**: The forms are not real-time financial transactions. Appropriate retry logic (Polly) and idempotent promotion endpoints handle the distributed transaction problem adequately for this use case.
 
-### Medium term (v1.1 — after v1 is live)
+### What Happens Now
 
-**Migrate to Option B (separate Patient DB, API integration).**
+1. **Patient DB (`BadbirPatient`)** — new, code-first, fully owned by Patient App
+   - ASP.NET Core Identity (AspNetUsers etc.)
+   - All papp holding tables (bbPappPatient*)
+   - PatientPortalConfig and app-specific tables
+   - QR code tokens table
+   - `PendingClinicianActions` coordination table
 
-The Clinician System will need:
-- `POST /api/patient-portal/verify-identity` — encrypted patient identity match (replaces the stored proc)
-- `GET /api/patient-portal/patients/{patientId}/fup-schedule` — follow-up windows visible in the Patient App
-- `POST /api/patient-portal/patients/{patientId}/promote` — trigger data promotion (or Patient App calls this when clinician approves via Patient App UI)
+2. **Clinician DB (existing, `BADBIR`)** — read by Patient App via API only, never by direct EF Core connection
+   - All live form tables (bbPatientDLQI, bbPatientHADS etc.)
+   - bbPatient, bbPatientCohortHistory, bbPatientCohortTracking
+   - All lookup tables
 
-These are modest, well-scoped endpoints. The conversation with the Clinician System team should happen during v1 development so v1.1 is ready to go.
+3. **Inter-service communication** (private endpoints, service-account JWT, internal Docker network):
+   - Patient App → Clinician System: `POST /api/internal/patients/verify-identity`
+   - Patient App → Clinician System: `GET /api/internal/patients/{patientId}/fup-schedule`
+   - Clinician System → Patient App: `POST /api/internal/patients/{patientId}/promote`
+   - Clinician System → Patient App: `POST /api/internal/patients/{patientId}/reject`
+   - Clinician System ↔ Patient App: QR code generation and validation endpoints
 
-### Long term (v2 — cloud deployment)
+See **INT-001** for the complete Clinician System integration requirements and API contracts.
 
-**Full microservice separation.** Patient service (own DB, own identity provider), Clinician service (own DB), forms data promoted via an event bus (Azure Service Bus or equivalent). Research snapshots are point-in-time exports from the Clinician DB only.
+### Code Structure Required Right Now
+
+```csharp
+// Patient App owns this context entirely (Code-First)
+class PatientDbContext : DbContext { ... }  // → BadbirPatient DB
+
+// Patient App reads Clinician DB only via this interface — never directly
+interface IClinicianSystemClient {
+    Task<VerifyIdentityResult> VerifyPatientIdentityAsync(VerifyIdentityRequest request);
+    Task<FupScheduleResult> GetFupScheduleAsync(int chid);
+    Task PromotePatientDataAsync(int chid, PromoteRequest request);
+}
+
+// Implementation: HTTP calls to Clinician System API (production)
+class ClinicianSystemHttpClient : IClinicianSystemClient { ... }
+```
+
+The `IClinicianSystemClient` interface ensures the code does not have a hard dependency on the HTTP implementation. In tests, it can be mocked. In the future, an alternative implementation (e.g., direct DB read for emergency fallback) can be swapped in without changing business logic.
 
 ---
 
-## 10. Important Finding: Missing Live Tables for HADS, HAQ, EuroQol
+## 10. Finding Resolved: All Forms Have Live Tables in the Clinician DB
 
-The `badbir_synthetic.db` database does **not contain live tables** for HADS, HAQ, or EuroQol submissions. This means one of:
+The `badbir_synthetic.db` provided for development did **not** include tables for HADS, HAQ, or EuroQol. This was a partial extract of the production DB, not a complete representation.
 
-1. Those tables exist in the production Clinician DB but were not included in the synthetic dataset (most likely)
-2. The Clinician System never stores these forms from the Patient Portal — they remain as patient-held records only
-3. They exist in a broader survey/questionnaire table not shown in the schema provided
+**Confirmed by the project lead:** All forms collected by the Patient App have a corresponding live table in the Clinician DB. No data is collected that is not required by ethics approval. The live table schemas for HADS, HAQ, and EuroQol will be provided when the complete schema is shared. This does not block development — the papp holding tables are the source of truth until promotion occurs.
 
-**This needs to be clarified.** If interpretation (1) is correct, the live table schemas should be obtained from the client and matching entity classes need to be added. If interpretation (2) is correct, the papp holding tables for HADS, HAQ, and EuroQol are the final destination and the Patient DB becomes the authoritative source for those forms.
+**OQ-07 is closed.**
 
 ---
 
@@ -382,31 +502,36 @@ Open `docs/mockups/index.html` in any browser — they are self-contained with n
 
 ## 14. Summary Table: Decision Points
 
-| Decision | Short-term v1 | Long-term v2 |
+| Decision | **Decided** |
+|---|---|
+| Architecture option | **Option B — Separate Patient DB + API integration, effective immediately** |
+| Identity DB | **Separate SQL Server database (`BadbirPatient`)** — Patient App owns it entirely, code-first |
+| Papp holding tables | **In Patient DB** (`BadbirPatient`) — never in Clinician DB |
+| Promotion mechanism | **API endpoint** — Clinician System calls `POST /api/internal/patients/{id}/promote` on Patient App |
+| Patient identity verification | **Clinician System `POST /api/internal/patients/verify-identity` endpoint** — replaces stored proc with elevated permissions |
+| HADS/HAQ/EuroQol destination | **All forms promoted to live Clinician DB** — confirmed, all tables exist |
+| Audit columns (createdbyid / createdbyname) | **`0 / "PatientPortal"`** — confirmed, matches existing practice |
+| Docker DB structure | Two logical databases on same SQL Server instance (dev/v1), then separate SQL Server instances (v2/cloud) |
+| Inter-service endpoint security | **Service-account JWT + internal Docker network + optional API key header** |
+| QR code facility | **Both apps implement QR generation/validation** — Clinician System generates; Patient App validates and vice versa |
+| Consent/patient inbox (Clinician System) | **Required** — holding-stage inbox for new patient registrations in both main pathways |
+| Mobile app sequence | **Android first, iOS second** |
+| Version display | **On login screen and About screen** — `v{Major}.{Minor}.{Patch} (Build N)` |
+| Clinician System team coordination | **No overhead** — same team |
+
+---
+
+## 15. Open Questions — All Resolved
+
+| OQ | Question | Resolution |
 |---|---|---|
-| Identity DB | Separate logical DB (`BadbirPatient`) on same SQL Server | Keep separate — no change needed |
-| Papp holding tables | Same DB as identity (Patient DB) | Keep in Patient DB |
-| Promotion mechanism | API endpoint (replaces SQL Agent job) | API endpoint via inter-system HTTP call |
-| Patient identity verification | Direct DB read via `ClinicianReadDbContext` OR stored proc | Clinician System `verify-identity` API endpoint |
-| HADS/HAQ/EuroQol live destination | **Needs clarification from client** | TBD based on clarification |
-| Docker DB structure | One SQL Server, two logical DBs | Two SQL Server instances (true separation) |
-| Mobile app sequence | Android first, iOS second | N/A |
-| Version display | On login screen and About screen | N/A |
+| OQ-07 | Do HADS, HAQ, EuroQol have live tables in the Clinician DB? | ✅ Yes — confirmed. Absent from synthetic DB was a partial extract. All ethics-approved forms have live tables. |
+| OQ-08 | Is the Clinician System team willing to expose integration API endpoints? | ✅ Yes — same team, changes can be done right away. |
+| OQ-09 | Separate SQL Server database from day one, or same instance different DB? | ✅ Separate logical database (`BadbirPatient`) on same SQL Server instance. True instance separation can come later with Docker. |
+| OQ-10 | What `createdbyid` / `createdbyname` value when Patient App writes to shared tables? | ✅ `0` / `"PatientPortal"` — matches existing practice, confirmed to continue unchanged. |
+
+No outstanding questions remain. Development can proceed on Option B immediately.
 
 ---
 
-## 15. Questions That Need Client Answers Before Proceeding
-
-Before finalising architecture:
-
-1. **OQ-07 (NEW): Do HADS, HAQ, and EuroQol have live tables in the production Clinician DB?** If yes, please provide their schemas. If no, the Patient DB becomes the only store for these forms — which is fine, but needs to be confirmed.
-
-2. **OQ-08 (NEW): Is the Clinician System team willing to expose a `verify-patient-identity` API endpoint?** Or should we keep using the stored procedure / direct DB read for v1?
-
-3. **OQ-09 (NEW): Should the Patient DB be a completely separate SQL Server database from day one,** or should we start with a separate logical database on the same instance and migrate later?
-
-4. **OQ-10 (NEW): What is the agreed `createdbyid` value to use when the Patient App writes to shared tables?** We suggest `0` with `createdbyname = "PatientPortal"`. Confirm this is acceptable to the clinical data team.
-
----
-
-*This document captures the architectural discussion. Once the above questions are answered and a direction is agreed, this ADR will be updated to "Decided" status and the relevant code changes (if any) will follow.*
+*This ADR is now in "Decided" status. v2 of this document reflects the confirmed direction as of 2026-03-28.*

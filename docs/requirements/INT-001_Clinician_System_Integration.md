@@ -2,18 +2,20 @@
 ## BADBIR Patient Application ↔ Clinician System
 
 > **Document ID:** INT-001  
-> **Version:** 0.1 (Draft)  
-> **Status:** In Review  
-> **Last Updated:** 2026-03-26  
-> **Audience:** BADBIR Clinician System development team AND Patient App development team  
+> **Version:** 0.2  
+> **Status:** Updated — reflects Option B (separate Patient DB, API integration) decision  
+> **Last Updated:** 2026-03-28  
+> **Audience:** BADBIR development team (Patient App + Clinician System — same team)
+
+> **Architecture Decision:** See ADR-017 for the full rationale. Option B (separate Patient DB + inter-system API) is the decided architecture. Both applications are developed by the same team. The Clinician System integration endpoints listed in this document are to be built alongside the Patient App.
 
 ---
 
 ## 1. Purpose & Scope
 
-This document specifies the integration requirements that the **BADBIR Clinician System** must implement to work seamlessly with the new **BADBIR Patient Application**. It defines the API contracts, data flows, consent workflow, and shared database conventions that both systems must agree on.
+This document specifies the integration requirements for the **BADBIR Patient Application ↔ Clinician System** boundary. It defines the API contracts, data flows, consent workflow, QR code integration, and private endpoint security for both systems.
 
-> **Why this document exists:** The two systems share a single SQL Server database but are developed and deployed independently. This document is the integration contract between the two teams. Any changes to the shared schema or API surface defined here require agreement from both teams before implementation.
+> **Why this document exists:** The Patient App and the Clinician System each own their own SQL Server database. They communicate exclusively via authenticated API calls — there is no shared database connection. This document is the integration contract. Both systems are developed by the same team, so both sides of every endpoint are specified here together.
 
 ---
 
@@ -22,24 +24,249 @@ This document specifies the integration requirements that the **BADBIR Clinician
 ### 2.1 System Boundary
 
 ```
-┌──────────────────────────┐         Shared SQL Server DB         ┌────────────────────────────────────┐
-│   BADBIR Patient App     │ ──────────────────────────────────── │   BADBIR Clinician System          │
-│                          │                                       │                                    │
-│  BADBIR.Api (.NET 10)    │          papp_* tables               │  BadbirWebApp (.NET 6/8)            │
-│  BADBIR.Web (Blazor)     │ ─── writes patient form data ──────► │  Clinical data entry               │
-│  BADBIR.Mobile (MAUI)    │                                       │  Clinician dashboard               │
-│                          │◄── reads lookup tables (drugs, ────── │  Patient management                │
-│                          │    workstatus, patientstatus etc.)    │  Consent approval inbox            │
-└──────────────────────────┘                                       └────────────────────────────────────┘
++----------------------------+     HTTPS (private network)     +------------------------------------+
+|   BADBIR Patient App       |<------------------------------>|   BADBIR Clinician System          |
+|                            |                                 |                                    |
+|  BADBIR.Api (.NET 10)      |  POST /internal/verify-identity|  BadbirWebApp (.NET 6/8 or later)  |
+|  BADBIR.Web (Blazor)       |  GET  /internal/fup-schedule   |  Clinical data entry               |
+|  BADBIR.Mobile (MAUI)      |  POST /internal/promote        |  Clinician dashboard               |
+|                            |  POST/GET /internal/qr         |  Patient management                |
+|  Patient DB (BadbirPatient)|                                 |  Consent approval inbox            |
+|  - AspNetUsers (Identity)  |                                 |  Clinician DB (BADBIR)             |
+|  - bbPappPatient* tables   |                                 |  - bbPatient, bbPatientCohort*     |
+|  - QR code tokens          |                                 |  - bbPatientDLQI, HADS, HAQ etc.   |
+|  - PendingClinicianActions |                                 |  - All lookup tables               |
++----------------------------+                                 +------------------------------------+
 ```
 
 ### 2.2 Integration Approach
 
-Both systems share the same SQL Server database. The Patient App writes to **holding tables** (prefixed `bb_papp_`). The Clinician System:
-1. Reads patient registrations from the holding area
-2. Confirms patient eligibility, diagnosis, and drug assignment
-3. Triggers data promotion from holding tables to live tables
-4. Manages the follow-up schedule (assigning `papp_fup_id` values)
+**There is no shared database connection.** Each application owns its own SQL Server database. They communicate via mutually-authenticated HTTPS API calls on a private network (Docker internal network on-premise; VPN/mTLS in cloud deployment).
+
+The **Patient App** (owns `BadbirPatient` DB):
+1. Writes patient-submitted forms to its own holding tables (`bbPappPatient*`)
+2. Calls the Clinician System to **verify patient identity** during registration
+3. Calls the Clinician System to **retrieve follow-up schedules**
+4. Exposes **promotion endpoints** for the Clinician System to call after approving a patient
+
+The **Clinician System** (owns `BADBIR` DB):
+1. Maintains the **patient inbox** — holding-state patients awaiting clinician review
+2. Calls the Patient App to **promote** approved data to the live Clinician DB
+3. Calls the Patient App to **reject** a patient registration with a reason code
+4. **Generates and validates QR codes** for clinic use
+5. Manages the follow-up schedule and assigns `FupId` values
+
+---
+
+## 2a. Clinician System API Endpoints (New — to be built)
+
+These endpoints are implemented in the **Clinician System** and called by the **Patient App**. All endpoints are on the private internal route and require a service-account JWT.
+
+### 2a.1 Patient Identity Verification
+
+Replaces the legacy stored procedure with elevated DB permissions.
+
+```
+POST /api/internal/patients/verify-identity
+Authorization: Bearer <patient-app-service-token>
+Content-Type: application/json
+
+{
+  "encryptedSurname": "<AES-CBC Base64>",
+  "encryptedForenames": "<AES-CBC Base64>",
+  "dateOfBirth": "1985-04-12",
+  "encryptedNhsNumber": "<AES-CBC Base64>",    // pnhs
+  "encryptedChiNumber": "<AES-CBC Base64>"     // phrn — null if not applicable
+}
+
+Response 200 OK (match found):
+{
+  "matched": true,
+  "patientId": 12345,
+  "chid": 67890,
+  "statusId": 6,
+  "statusText": "Registered awaiting consent form"
+}
+
+Response 404 Not Found (no match):
+{
+  "matched": false
+}
+```
+
+> **Security note:** The Clinician System performs the decryption internally. It NEVER returns PII fields back to the Patient App. Only `patientId`, `chid`, and status are returned.
+
+### 2a.2 Follow-Up Schedule
+
+```
+GET /api/internal/patients/{chid}/fup-schedule
+Authorization: Bearer <patient-app-service-token>
+
+Response 200 OK:
+{
+  "chid": 67890,
+  "followUps": [
+    {
+      "fupId": 1,
+      "fupNumber": 0,
+      "dueDate": "2024-01-10",
+      "editWindowFrom": "2023-12-29",
+      "editWindowTo": "2024-02-21",
+      "fupStatus": 0,
+      "formsRequired": ["lifestyle", "dlqi", "euroqol", "hads", "haq", "sapasi", "pga", "cage"]
+    },
+    {
+      "fupId": 2,
+      "fupNumber": 1,
+      "dueDate": "2024-07-10",
+      "editWindowFrom": "2024-06-29",
+      "editWindowTo": "2024-08-21",
+      "fupStatus": 0,
+      "formsRequired": ["pga", "dlqi", "euroqol", "hads", "haq", "sapasi", "cage"]
+    }
+  ]
+}
+```
+
+### 2a.3 QR Code — Clinician Generates for Patient
+
+```
+POST /api/internal/patients/{patientId}/portal-qr
+Authorization: Bearer <patient-app-service-token>
+
+Response 200 OK:
+{
+  "qrToken": "<signed JWT>",
+  "qrUrl": "https://patient.badbir.org/qr/<token>",
+  "expiresAt": "2024-01-11T11:00:00Z"
+}
+```
+
+The Patient App (not the Clinician System) generates this token — the Clinician System calls the Patient App to get it. See Section 2b for the full QR flow.
+
+---
+
+## 2b. Patient App API Endpoints (New — inter-service, private)
+
+These endpoints are implemented in the **Patient App** and called by the **Clinician System**. All require service-account JWT.
+
+### 2b.1 Promote Patient Data
+
+```
+POST /api/internal/patients/{chid}/promote
+Authorization: Bearer <clinician-system-service-token>
+Content-Type: application/json
+
+{
+  "clinicianId": 42,
+  "cohort": "Biologic",
+  "drugId": 15,
+  "drugStartDate": "2024-01-10",
+  "consentDate": "2024-01-10",
+  "consentType": "InPerson",
+  "pasi": 14.2,
+  "dlqi": 15,
+  "fupId": 1
+}
+
+Response 200 OK:
+{
+  "chid": 67890,
+  "promotedAt": "2024-01-10T11:30:00Z",
+  "formsPromoted": ["lifestyle", "dlqi", "euroqol", "hads", "haq", "sapasi", "pga", "cage"],
+  "patientStatus": "Active"
+}
+```
+
+### 2b.2 Reject Patient Registration
+
+```
+POST /api/internal/patients/{chid}/reject
+Authorization: Bearer <clinician-system-service-token>
+Content-Type: application/json
+
+{
+  "clinicianId": 42,
+  "reasonCode": "NotEligible",
+  "reasonText": "Psoriasis diagnosis not confirmed"
+}
+
+Response 200 OK:
+{
+  "chid": 67890,
+  "rejectedAt": "2024-01-10T11:30:00Z",
+  "patientNotified": true
+}
+```
+
+### 2b.3 Get Pending Registrations (for Clinician System inbox)
+
+```
+GET /api/internal/registrations/pending?clinicId={clinicId}
+Authorization: Bearer <clinician-system-service-token>
+
+Response 200 OK:
+{
+  "pending": [
+    {
+      "chid": 67890,
+      "submittedAt": "2024-01-08T09:00:00Z",
+      "expiresAt": "2024-01-22T09:00:00Z",
+      "daysRemaining": 14,
+      "formsSubmitted": ["lifestyle", "dlqi", "euroqol"],
+      "formsOutstanding": ["hads", "haq", "sapasi", "pga"],
+      "clinicId": 5
+    }
+  ]
+}
+```
+
+### 2b.4 Generate Portal QR Code (for Clinician to Show Patient)
+
+```
+POST /api/internal/qr/generate
+Authorization: Bearer <clinician-system-service-token>
+Content-Type: application/json
+
+{
+  "patientId": 12345,
+  "purpose": "registration",    // or "link-account"
+  "expiryHours": 24
+}
+
+Response 200 OK:
+{
+  "token": "<signed JWT>",
+  "qrUrl": "https://patient.badbir.org/qr/<token>",
+  "expiresAt": "2024-01-11T11:00:00Z"
+}
+```
+
+### 2b.5 Validate Patient-Presented QR Code (Patient shows phone to clinician)
+
+```
+POST /api/internal/qr/validate
+Authorization: Bearer <clinician-system-service-token>
+Content-Type: application/json
+
+{
+  "token": "<signed JWT from patient's screen>"
+}
+
+Response 200 OK:
+{
+  "valid": true,
+  "patientUserId": "abc123",
+  "displayStudyNumber": "B00123",
+  "expiresAt": "2024-01-10T11:10:00Z"
+}
+
+Response 400 Bad Request:
+{
+  "valid": false,
+  "reason": "Expired"   // or "AlreadyUsed", "InvalidSignature"
+}
+```
 
 ---
 
@@ -143,16 +370,29 @@ The Clinician System must implement an **inbox / task list** for each clinician/
 
 ### 4.2 Notification Trigger
 
-When a patient completes their baseline forms, the Patient API must:
-1. Set `PatientHolding.FormStatus = FormsComplete`
-2. Insert a row into `PendingClinicianActions` (new table — see §7)
-3. Send a notification email to the clinician team contact for this patient's clinic
+When a patient completes their baseline forms, the Patient API:
+1. Sets the internal `PatientHolding.FormStatus = FormsComplete`
+2. Inserts a row into the `PendingClinicianActions` table in the Patient DB
+3. Sends a notification email to the clinician team contact for this patient's clinic
+4. **Calls a Clinician System webhook endpoint** (`POST /api/internal/webhooks/patient-registration-ready`) to push a notification in real time
 
-The Clinician System must then pick up this notification via one of:
-- **Option A (Recommended):** Polling the `PendingClinicianActions` table, or
-- **Option B:** Receiving a webhook POST from the Patient API to a Clinician System endpoint
+The Clinician System endpoint for receiving this notification:
+```
+POST /api/internal/webhooks/patient-registration-ready
+Authorization: Bearer <patient-app-service-token>
 
-See ADR-014 for the data promotion mechanism recommendation.
+{
+  "chid": 67890,
+  "submittedAt": "2024-01-08T09:00:00Z",
+  "expiresAt": "2024-01-22T09:00:00Z",
+  "clinicId": 5,
+  "formsSubmitted": ["lifestyle", "dlqi", "euroqol", "hads", "haq", "sapasi", "pga", "cage"]
+}
+
+Response 202 Accepted
+```
+
+If the Clinician System is unavailable, the Patient App retries with exponential backoff. The Clinician System can also poll `GET /api/internal/registrations/pending` as a fallback (see Section 2b.3).
 
 ---
 
@@ -169,14 +409,12 @@ The legacy system used a **5-minute SQL Agent scheduled job** that scanned the `
 - Difficult to audit which rows were promoted when and by whom
 - Cannot be tested without a running SQL Agent
 
-### 5.2 Recommended New Approach
+### 5.2 Decided Approach — API-Triggered Promotion
 
-See **ADR-014** in the DECISION-LOG for the full decision record. The recommended approach is:
-
-**Option A (v1) — API-Triggered Promotion:** Replace the scheduled job with a direct API call. When the clinician clicks "Confirm Patient" in the Clinician System, it calls the Patient API:
+See **ADR-017** for the full architectural decision. The SQL Agent job is replaced by a direct API call. When the clinician clicks "Confirm Patient" in the Clinician System, it calls the Patient App's internal promote endpoint:
 
 ```
-POST /api/admin/patients/{chid}/promote
+POST /api/internal/patients/{chid}/promote
 Authorization: Bearer <clinician-system-service-token>
 
 {
@@ -209,11 +447,11 @@ This call:
 5. Sends confirmation notification to the patient via the push notification / email service
 6. Returns success or a structured error
 
-**Option B (v2 — recommended long-term):** Remove the physical separation between holding and live tables. Add a `DataStatus` column to each form table: `0 = Pending, 1 = Active, 2 = Rejected`. The Patient App writes with `DataStatus = 0`. The clinician approval action updates to `DataStatus = 1`. No data copying required.
+**Note on DataStatus columns:** The papp holding tables already have a `DataStatus` column (`0=Holding, 1=Approved, 2=Rejected`). These tables live in the Patient DB. On promotion, form data is pushed to the corresponding live table in the Clinician DB via API. The holding table row's DataStatus is then updated to `1=Approved`. This gives a complete audit trail in the Patient DB of what was submitted and when it was accepted.
 
-### 5.3 Shared Table: PendingClinicianActions (New)
+### 5.3 PendingClinicianActions (Patient DB — new)
 
-A new table is required to track which clinician actions are pending:
+This table lives in the Patient DB (`BadbirPatient`), not in the Clinician DB. It tracks which actions are pending and is read by the Clinician System via the `GET /api/internal/registrations/pending` endpoint. The Patient App owns the schema.
 
 ```sql
 CREATE TABLE [PendingClinicianActions] (
@@ -274,7 +512,11 @@ Response 200:
 
 ## 7. Shared Lookup Tables
 
-The following tables are managed by the Clinician System and read (not written to) by the Patient App. They must be populated before the Patient App goes live.
+The following tables are managed by the Clinician System. Under Option B, the Patient App no longer has a direct DB connection to the Clinician DB — lookup data is either:
+1. **Exposed as read-only API endpoints** by the Clinician System (e.g., `GET /api/internal/lookups/drugs`), OR
+2. **Cached as a local copy** in the Patient DB, refreshed periodically on a schedule
+
+The Clinician System must provide these lookup values before the Patient App goes live.
 
 | Table | Patient App usage |
 |---|---|
@@ -294,21 +536,57 @@ The following tables are managed by the Clinician System and read (not written t
 
 ### 8.1 Service-to-Service Authentication
 
-API calls between the Clinician System and Patient API use a dedicated service account JWT token:
+All inter-system API calls use a dedicated service-account JWT, not patient-facing tokens:
 
 | Property | Value |
 |---|---|
 | Token type | JWT Bearer |
-| Scope / claim | `role: ClinicianSystem` |
-| Token lifetime | 24 hours (non-interactive service) |
-| Token endpoint | `POST /api/auth/service-token` |
-| Secret | Shared symmetric key stored in environment variables |
+| Scope / claim | `role: InternalService` (or `role: ClinicianSystem` / `role: PatientApp` to distinguish direction) |
+| Token lifetime | 24 hours (non-interactive) |
+| Token endpoint | `POST /api/auth/service-token` (on each system's API) |
+| Secret | Shared symmetric key stored in environment variables / Docker secrets — never in source code |
 
-> **Security note:** The Clinician System must NOT use patient-facing JWT tokens for service-to-service calls. A dedicated service account with the `ClinicianSystem` role bypasses patient-facing rate limits and uses a separate audit trail.
+> **Security note:** Service tokens are never issued to patient-facing clients. They carry separate audit trail entries. Patient-facing endpoints (e.g. `/api/forms/*`, `/api/auth/*`) always reject `InternalService` tokens — and vice versa.
 
-### 8.2 IP Allowlisting
+### 8.2 Private Internal Route Prefix
 
-In Phase 1 (IIS), the `/api/admin/*` and `/api/service/*` endpoints are additionally protected by IP allowlisting at the IIS/firewall level — only the Clinician System server's IP is permitted. This is documented in SED-001.
+All inter-system endpoints are prefixed `/api/internal/`. These routes:
+- Require `role: InternalService` claim — return `403` to any patient-facing or public token
+- Are not documented in the public OpenAPI spec
+- Should be excluded from public-facing rate limiting middleware
+- In IIS, can be additionally protected by URL rewrite rules that block external IPs
+
+### 8.3 IP Allowlisting (Defence in Depth)
+
+In Phase 1 (IIS on-premise), the `/api/internal/*` routes are additionally protected at the IIS/firewall level — only the Clinician System server's IP is permitted to reach these routes on the Patient App, and vice versa. This is documented in SED-001.
+
+### 8.4 Docker Internal Network (Phase 2)
+
+In Docker deployment, both services are placed on a shared `internal` Docker network with `internal: true` (no external routing). The `/api/internal/*` routes are only reachable within this network. The public Docker port mappings expose only the patient-facing and public API routes.
+
+```yaml
+networks:
+  internal:
+    internal: true   # not routable from outside Docker
+  public:
+    driver: bridge
+
+services:
+  badbir-patient-api:
+    networks: [internal, public]
+  badbir-clinician-api:
+    networks: [internal, public]
+```
+
+### 8.5 Shared API Key Header (Simple Fallback)
+
+During early development, before full service-account JWT infrastructure is wired up, a shared API key in a custom header is acceptable:
+
+```
+X-Internal-Api-Key: <value from environment variable>
+```
+
+Both sides validate this header for `/api/internal/*` routes. The key is stored in environment variables. This must be replaced by JWT service accounts before staging deployment.
 
 ---
 
@@ -331,39 +609,82 @@ Encrypted fields in shared tables:
 
 ---
 
+## 9a. QR Code Integration
+
+QR codes are a first-class feature relied on by both systems. They eliminate manual entry errors during patient registration and speed up clinic workflows.
+
+### 9a.1 Clinician-Generated QR (most common flow)
+
+1. Clinician navigates to a patient record in the Clinician System and clicks **"Generate Patient Portal QR"**
+2. The Clinician System calls `POST /api/internal/qr/generate` on the Patient App (see Section 2b.4)
+3. The Patient App returns a **signed, time-limited URL** (`https://patient.badbir.org/qr/{token}`)
+4. The Clinician System displays this as a QR code on screen (or prints it)
+5. The patient scans the QR code with the Patient App (or browser)
+6. The Patient App verifies the token signature, extracts the `patientId` and `purpose`, and navigates the patient to the appropriate flow (registration, link-account, etc.)
+7. The token is single-use and expires after 24 hours
+
+This flow supports both main registration pathways:
+- **Pathway A (self-registration):** Patient scans the QR code at clinic after completing the eligibility screener. The QR pre-fills their study ID / clinic and skips manual data entry.
+- **Pathway B (clinician-registered):** Clinician registers the patient first; generates a QR so the existing patient can link their mobile app account to the record.
+
+### 9a.2 Patient QR → Clinician Scans (identity at a glance)
+
+1. A logged-in patient opens the Patient App → "Show My QR"
+2. The Patient App generates a short-lived signed token (10 minutes) and displays it as QR
+3. The clinician scans the QR with the Clinician System (or a camera that opens the Clinician System link)
+4. The Clinician System calls `POST /api/internal/qr/validate` on the Patient App (see Section 2b.5)
+5. The Patient App returns `{ valid: true, displayStudyNumber: "B00123" }`
+6. The Clinician System immediately opens the matching patient record
+
+### 9a.3 QR Token Security
+
+| Property | Value |
+|---|---|
+| Format | Signed JWT with `purpose` claim |
+| Signature | HMAC-SHA256 using the service-to-service shared key |
+| Patient QR expiry | 10 minutes (display only) |
+| Clinician-generated QR expiry | 24 hours |
+| Registration QRs | Single-use (redeemed only once; second use returns 400) |
+| QR content | URL: `https://patient.badbir.org/qr/{token}` (works with any camera app) |
+
+---
+
 ## 10. Clinician System Requirements Summary
 
 This section lists the formal integration requirements that the Clinician System team must implement:
 
 | ID | Requirement | Priority | Notes |
 |---|---|---|---|
-| INT-01 | Patient registration inbox showing holding-state patients | Must Have | New feature |
-| INT-02 | New registration notification (email or in-system) | Must Have | Triggered by Patient API |
+| INT-01 | Patient registration inbox showing holding-state patients (polls `GET /api/internal/registrations/pending` or receives webhook) | Must Have | New feature |
+| INT-02 | New registration notification — receive `POST /api/internal/webhooks/patient-registration-ready` from Patient App | Must Have | Real-time push |
 | INT-03 | 14-day countdown display per pending patient | Must Have | Legal obligation |
-| INT-04 | Patient detail view showing submitted baseline forms | Must Have | For review before confirmation |
+| INT-04 | Patient detail view showing submitted baseline forms (fetched from Patient App via API) | Must Have | For review before confirmation |
 | INT-05 | Consent confirmation workflow with mandatory fields (C-01 to C-08) | Must Have | Gate for promotion |
-| INT-06 | `POST /api/admin/patients/{chid}/promote` call on confirmation | Must Have | Replaces SQL Agent job |
-| INT-07 | Drug and cohort assignment at confirmation | Must Have | Feeds live table |
+| INT-06 | Call `POST /api/internal/patients/{chid}/promote` on Patient App on confirmation | Must Have | Replaces SQL Agent job |
+| INT-07 | Drug and cohort assignment at confirmation | Must Have | Feeds live Clinician DB table |
 | INT-08 | Clinician PASI + DLQI recording at baseline (separate from patient SAPASI) | Must Have | Separate columns |
-| INT-09 | Expired record handling (14-day expiry) | Must Have | GDPR data minimisation |
-| INT-10 | Reject workflow with reason code | Must Have | Patient notified on rejection |
-| INT-11 | Populate `PendingClinicianActions` table entries | Must Have | Shared coordination table |
-| INT-12 | Read-only view of patient follow-up history from Patient App | Should Have | Via `GET /api/patients/{chid}/followups` |
-| INT-13 | Follow-up scheduling (`BbPappPatientCohortTracking` inserts) | Must Have | Existing responsibility |
+| INT-09 | Expired record handling (14-day expiry) — call `POST /api/internal/patients/{chid}/reject` with reason `Expired` | Must Have | GDPR data minimisation |
+| INT-10 | Reject workflow — call `POST /api/internal/patients/{chid}/reject` with reason code | Must Have | Patient notified on rejection |
+| INT-11 | Expose `POST /api/internal/patients/verify-identity` endpoint | Must Have | Replaces stored proc with elevated DB permissions |
+| INT-12 | Expose `GET /api/internal/patients/{chid}/fup-schedule` endpoint | Must Have | Patient App reads follow-up schedule |
+| INT-13 | Follow-up scheduling — write `BbPatientCohortTracking` entries in Clinician DB; notify Patient App | Must Have | Existing responsibility |
 | INT-14 | Shared lookup table maintenance (drugs, workstatus, etc.) | Must Have | Pre-existing responsibility |
-| INT-15 | Service account JWT for API calls | Must Have | Security boundary |
-| INT-16 | NHS Login integration (Phase 2 only) | Could Have | Long-term |
+| INT-15 | Service-account JWT for all `/api/internal/*` calls | Must Have | Security boundary |
+| INT-16 | QR code generation — call `POST /api/internal/qr/generate` on Patient App | Must Have | Both apps use QR codes |
+| INT-17 | QR code validation — call `POST /api/internal/qr/validate` on Patient App when scanning patient phone | Must Have | Both apps use QR codes |
+| INT-18 | Expose webhook `POST /api/internal/webhooks/patient-registration-ready` to receive notifications | Must Have | Push notification from Patient App |
+| INT-19 | NHS Login integration (Phase 2 only) | Could Have | Long-term |
 
 ---
 
 ## 11. Open Integration Questions
 
-| # | Question | Impact |
-|---|---|---|
-| IQ-01 | Will the Clinician System call the Patient API, or will the Patient API webhook the Clinician System? | Architecture decision |
-| IQ-02 | Which team owns `PendingClinicianActions` — schema creation and maintenance? | Shared schema governance |
-| IQ-03 | How will service account credentials be provisioned and rotated? | Security operations |
-| IQ-04 | Is there an existing clinic assignment mechanism in the Clinician System for self-registered patients? | Registration UX |
-| IQ-05 | Should patients be able to see their own submitted form responses in the Patient App? | UX requirement |
-| IQ-06 | How does the Clinician System handle patients who change clinics between follow-ups? | Data integrity |
-| IQ-07 | What is the notification channel preference — email vs. in-app push? | Infrastructure dependency |
+| # | Question | Impact | Status |
+|---|---|---|---|
+| IQ-01 | Will the Clinician System call the Patient API, or will the Patient API webhook the Clinician System? | Architecture decision | ✅ **Both.** Patient App webhooks Clinician System when registration is ready. Clinician System calls Patient App to promote/reject. |
+| IQ-02 | Which team owns `PendingClinicianActions` — schema creation and maintenance? | Shared schema governance | ✅ **Patient App owns it** — it lives in the Patient DB (`BadbirPatient`). Same team, no conflict. |
+| IQ-03 | How will service account credentials be provisioned and rotated? | Security operations | Open — recommendation: environment variables / Docker secrets in v1; vault rotation in v2. |
+| IQ-04 | Is there an existing clinic assignment mechanism in the Clinician System for self-registered patients? | Registration UX | Open — the Patient App's registration step should capture clinic ID or let the clinician assign it during the inbox review. |
+| IQ-05 | Should patients be able to see their own submitted form responses in the Patient App? | UX requirement | Open — suggested: yes, read-only view of own submissions. Helps patients track progress. |
+| IQ-06 | How does the Clinician System handle patients who change clinics between follow-ups? | Data integrity | Open — existing Clinician System logic governs this; Patient App follows the `centreidcurrent` from `BbPatientCohortTracking`. |
+| IQ-07 | What is the notification channel preference — email vs. in-app push? | Infrastructure dependency | Open — v1: email. v2: push notifications via APNs/FCM. Both are planned. |

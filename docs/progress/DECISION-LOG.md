@@ -415,3 +415,52 @@ The Patient App API writes with `DataStatus = 0`. The promotion action performs 
 - FORM-003 (HADS spec) is updated to note the pay-per-form licence model
 - The `HadsSubmissions` table definition in DSD-001 must include the `IsCountable` field
 - Incomplete/abandoned HADS sessions (forms abandoned mid-completion) must not be counted
+
+---
+
+## ADR-017: Separate Patient Database with API Integration — Decided
+
+**Date:** 2026-03-28  
+**Status:** Decided
+
+**Context:** The legacy system had the Patient App (papp portal) sharing a SQL Server database with the Clinician System. Patient data went into `bb_papp_*` holding tables and a 5-minute SQL Agent job copied it to live tables. A stored procedure with elevated permissions handled patient identity verification. The project lead requested an architectural analysis of whether to separate the Patient database and communicate via API calls instead.
+
+**Decision:** **Option B — Separate Patient Database with API integration, effective immediately.**
+
+- The Patient App owns its own SQL Server database (`BadbirPatient`), managed code-first by EF Core
+- The Clinician System retains the existing `BADBIR` database (database-first, no EF migrations)
+- The two systems communicate exclusively via authenticated HTTPS API calls on a private network
+- No shared database connection exists between the applications
+- Identity tables (AspNetUsers) live only in the Patient DB — never in the Clinician DB
+- Unvalidated patient-submitted drafts never appear in Clinician DB snapshots used for research
+
+**Alternatives Considered:**
+- Single shared DB with API-triggered promotion (Option A) — rejected: leaves identity data in clinical DB; research snapshots include unvalidated drafts; does not scale cleanly in Docker
+- Phase Option B in later — rejected: same team develops both systems; no coordination overhead; better to build correctly from the start
+
+**Key Facts That Informed This Decision:**
+- Patient App and Clinician System are developed by the same small team — no cross-team negotiation needed
+- All forms (DLQI, Lifestyle, CAGE, PASI, HADS, HAQ, EuroQol) have live tables in the Clinician DB
+- Audit columns: `createdbyid=0` / `createdbyname="PatientPortal"` — same as existing practice, confirmed to continue
+- Docker deployment aligns naturally with two separate DB services
+
+**New Clinician System Endpoints Required (same team — to be built concurrently):**
+- `POST /api/internal/patients/verify-identity` — replaces stored procedure with elevated permissions
+- `GET /api/internal/patients/{chid}/fup-schedule` — follow-up schedule for Patient App
+- `POST /api/internal/webhooks/patient-registration-ready` — webhook to receive from Patient App
+- `GET /api/internal/lookups/{type}` — serve lookup table data to Patient App
+
+**New Patient App Endpoints Required (internal/service-facing):**
+- `POST /api/internal/patients/{chid}/promote` — Clinician System calls to promote approved data
+- `POST /api/internal/patients/{chid}/reject` — Clinician System calls to reject with reason
+- `GET /api/internal/registrations/pending` — pending registrations for Clinician System inbox
+- `POST /api/internal/qr/generate` — generate signed QR token for clinic use
+- `POST /api/internal/qr/validate` — validate patient-presented QR code
+
+**Consequences:**
+- `BadbirDbContext` is code-first, owns all Patient DB tables
+- There is NO `ClinicianReadDbContext` — Clinician DB is accessed only via `IClinicianSystemClient` HTTP abstraction
+- All inter-service routes are under `/api/internal/` and require `role: InternalService` JWT claim
+- Docker Compose uses `internal: true` network for inter-service calls; public routes exposed separately
+- See INT-001 for the full integration API contract
+- See ADR-017 for the complete architectural discussion and rationale
