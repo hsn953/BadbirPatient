@@ -378,3 +378,261 @@ public class HadsResultClassificationTests
     }
 }
 
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Clinician System Stub tests
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// <summary>
+/// Tests for <see cref="StubClinicianSystemClient"/>.
+/// Verifies that the stub returns <c>true</c> (AlwaysTrue) or <c>false</c>
+/// (AlwaysFalse) based on configuration, allowing both registration paths to
+/// be exercised without a real Clinician System.
+/// </summary>
+public class StubClinicianSystemClientTests
+{
+    private static IConfiguration BuildConfig(string stubMode) =>
+        new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ClinicianSystem:StubMode"] = stubMode
+            })
+            .Build();
+
+    [Fact]
+    public async Task VerifyIdentity_AlwaysTrue_ReturnsTrue()
+    {
+        var client = new StubClinicianSystemClient(BuildConfig("AlwaysTrue"));
+        var result = await client.VerifyIdentityAsync(
+            new DateOnly(1985, 4, 12), "JD", "1234567890", null);
+        Assert.True(result);
+    }
+
+    [Fact]
+    public async Task VerifyIdentity_AlwaysFalse_ReturnsFalse()
+    {
+        var client = new StubClinicianSystemClient(BuildConfig("AlwaysFalse"));
+        var result = await client.VerifyIdentityAsync(
+            new DateOnly(1985, 4, 12), "JD", "1234567890", null);
+        Assert.False(result);
+    }
+
+    [Fact]
+    public async Task VerifyIdentity_DefaultMode_ReturnsTrue()
+    {
+        // When ClinicianSystem:StubMode is absent, defaults to AlwaysTrue
+        var client = new StubClinicianSystemClient(
+            new ConfigurationBuilder().Build());
+        var result = await client.VerifyIdentityAsync(
+            new DateOnly(1990, 1, 1), "AB", null, "0101901234");
+        Assert.True(result);
+    }
+
+    [Fact]
+    public async Task VerifyIdentity_AlwaysFalse_CaseInsensitive_ReturnsFalse()
+    {
+        var client = new StubClinicianSystemClient(BuildConfig("alwaysfalse"));
+        var result = await client.VerifyIdentityAsync(
+            new DateOnly(1990, 1, 1), "AB", null, "0101901234");
+        Assert.False(result);
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SAPASI score calculation tests
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// <summary>
+/// Validates the SAPASI scoring formula:
+///   RegionScore = (Erythema + Induration + Desquamation) × Coverage × RegionWeight
+///   SAPASI Total = Head(0.1) + Trunk(0.3) + UpperLimbs(0.2) + LowerLimbs(0.4)
+/// </summary>
+public class SapasiScoreCalculationTests
+{
+    // ── Formula replication (mirrors FormsController.ComputeSapasiScore) ──────
+
+    private static float ComputeSapasiScore(PappSapasiSubmitDto dto)
+    {
+        static float Region(int? coverage, int? e, int? i, int? d, float w)
+            => ((e ?? 0) + (i ?? 0) + (d ?? 0)) * (coverage ?? 0) * w;
+
+        return Region(dto.HeadCoverage, dto.HeadErythema, dto.HeadInduration, dto.HeadDesquamation, 0.1f)
+             + Region(dto.TrunkCoverage, dto.TrunkErythema, dto.TrunkInduration, dto.TrunkDesquamation, 0.3f)
+             + Region(dto.UpperLimbsCoverage, dto.UpperLimbsErythema, dto.UpperLimbsInduration, dto.UpperLimbsDesquamation, 0.2f)
+             + Region(dto.LowerLimbsCoverage, dto.LowerLimbsErythema, dto.LowerLimbsInduration, dto.LowerLimbsDesquamation, 0.4f);
+    }
+
+    [Fact]
+    public void SapasiScore_AllZero_ReturnsZero()
+    {
+        var dto = new PappSapasiSubmitDto(); // all null — treated as 0
+        Assert.Equal(0f, ComputeSapasiScore(dto));
+    }
+
+    [Fact]
+    public void SapasiScore_SpecExample_IsCorrect()
+    {
+        // From FORM-007 spec example:
+        // Head:         R=2,T=1,S=2 → Severity=5. Coverage=2. Weight=0.1 → 1.0
+        // UpperLimbs:   R=3,T=2,S=2 → Severity=7. Coverage=2. Weight=0.2 → 2.8
+        // Trunk:        R=1,T=1,S=1 → Severity=3. Coverage=1. Weight=0.3 → 0.9
+        // LowerLimbs:   R=2,T=2,S=1 → Severity=5. Coverage=3. Weight=0.4 → 6.0
+        // Total = 1.0 + 2.8 + 0.9 + 6.0 = 10.7
+        var dto = new PappSapasiSubmitDto
+        {
+            HeadCoverage = 2, HeadErythema = 2, HeadInduration = 1, HeadDesquamation = 2,
+            TrunkCoverage = 1, TrunkErythema = 1, TrunkInduration = 1, TrunkDesquamation = 1,
+            UpperLimbsCoverage = 2, UpperLimbsErythema = 3, UpperLimbsInduration = 2, UpperLimbsDesquamation = 2,
+            LowerLimbsCoverage = 3, LowerLimbsErythema = 2, LowerLimbsInduration = 2, LowerLimbsDesquamation = 1,
+        };
+        var score = ComputeSapasiScore(dto);
+        Assert.Equal(10.7f, score, precision: 1);
+    }
+
+    [Fact]
+    public void SapasiScore_AllMax_Returns48()
+    {
+        // Max: all 4 severity items = 4, all coverage = 4, weights sum to 1.0
+        // → (4+4+4) × 4 × 1.0 = 48
+        var dto = new PappSapasiSubmitDto
+        {
+            HeadCoverage = 4, HeadErythema = 4, HeadInduration = 4, HeadDesquamation = 4,
+            TrunkCoverage = 4, TrunkErythema = 4, TrunkInduration = 4, TrunkDesquamation = 4,
+            UpperLimbsCoverage = 4, UpperLimbsErythema = 4, UpperLimbsInduration = 4, UpperLimbsDesquamation = 4,
+            LowerLimbsCoverage = 4, LowerLimbsErythema = 4, LowerLimbsInduration = 4, LowerLimbsDesquamation = 4,
+        };
+        Assert.Equal(48f, ComputeSapasiScore(dto), precision: 1);
+    }
+
+    [Fact]
+    public void SapasiScore_HeadOnly_IsCorrect()
+    {
+        // Head: coverage=3, E=2, I=1, D=1 → (2+1+1)×3×0.1 = 1.2
+        var dto = new PappSapasiSubmitDto
+        {
+            HeadCoverage = 3, HeadErythema = 2, HeadInduration = 1, HeadDesquamation = 1
+        };
+        Assert.Equal(1.2f, ComputeSapasiScore(dto), precision: 2);
+    }
+
+    [Fact]
+    public void SapasiScore_NullFieldsInRegion_TreatedAsZero()
+    {
+        // Trunk with coverage=2, E=null, I=3, D=null → (0+3+0)×2×0.3 = 1.8
+        var dto = new PappSapasiSubmitDto
+        {
+            TrunkCoverage = 2, TrunkInduration = 3
+        };
+        Assert.Equal(1.8f, ComputeSapasiScore(dto), precision: 2);
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Input validation range tests
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// <summary>
+/// Verifies that DataAnnotations Range attributes on form submit DTOs
+/// produce the expected validation errors for out-of-range values.
+/// </summary>
+public class FormDtoValidationTests
+{
+    private static IList<System.ComponentModel.DataAnnotations.ValidationResult> Validate(object dto)
+    {
+        var results = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
+        var context = new System.ComponentModel.DataAnnotations.ValidationContext(dto);
+        System.ComponentModel.DataAnnotations.Validator.TryValidateObject(dto, context, results, validateAllProperties: true);
+        return results;
+    }
+
+    [Fact]
+    public void EuroqolSubmitDto_MobilityOutOfRange_FailsValidation()
+    {
+        var dto = new PappEuroqolSubmitDto { Mobility = 0 }; // must be 1–3
+        var errors = Validate(dto);
+        Assert.Contains(errors, e => e.MemberNames.Contains("Mobility"));
+    }
+
+    [Fact]
+    public void EuroqolSubmitDto_VasOutOfRange_FailsValidation()
+    {
+        var dto = new PappEuroqolSubmitDto { Howyoufeel = 101 }; // must be 0–100
+        var errors = Validate(dto);
+        Assert.Contains(errors, e => e.MemberNames.Contains("Howyoufeel"));
+    }
+
+    [Fact]
+    public void EuroqolSubmitDto_ValidValues_PassesValidation()
+    {
+        var dto = new PappEuroqolSubmitDto
+        {
+            Mobility = 1, Selfcare = 2, Usualacts = 3,
+            Paindisc = 1, Anxdepr = 2, Comphealth = 3, Howyoufeel = 75
+        };
+        Assert.Empty(Validate(dto));
+    }
+
+    [Fact]
+    public void HadSubmitDto_ItemOutOfRange_FailsValidation()
+    {
+        var dto = new PappHadSubmitDto { Q01tense = 4 }; // must be 0–3
+        var errors = Validate(dto);
+        Assert.Contains(errors, e => e.MemberNames.Contains("Q01tense"));
+    }
+
+    [Fact]
+    public void HadSubmitDto_NullItems_PassesValidation()
+    {
+        // All items null (paper-based blank) should pass
+        var dto = new PappHadSubmitDto();
+        Assert.Empty(Validate(dto));
+    }
+
+    [Fact]
+    public void HaqSubmitDto_ItemOutOfRange_FailsValidation()
+    {
+        var dto = new PappHaqSubmitDto { Dressself = 4 }; // must be 0–3
+        var errors = Validate(dto);
+        Assert.Contains(errors, e => e.MemberNames.Contains("Dressself"));
+    }
+
+    [Fact]
+    public void DlqiSubmitDto_ItemOutOfRange_FailsValidation()
+    {
+        var dto = new PappDlqiSubmitDto { ItchsoreScore = 4 }; // must be 0–3
+        var errors = Validate(dto);
+        Assert.Contains(errors, e => e.MemberNames.Contains("ItchsoreScore"));
+    }
+
+    [Fact]
+    public void SapasiSubmitDto_CoverageOutOfRange_FailsValidation()
+    {
+        var dto = new PappSapasiSubmitDto { HeadCoverage = 5 }; // must be 0–4
+        var errors = Validate(dto);
+        Assert.Contains(errors, e => e.MemberNames.Contains("HeadCoverage"));
+    }
+
+    [Fact]
+    public void SapasiSubmitDto_SeverityOutOfRange_FailsValidation()
+    {
+        var dto = new PappSapasiSubmitDto { TrunkErythema = -1 }; // must be 0–4
+        var errors = Validate(dto);
+        Assert.Contains(errors, e => e.MemberNames.Contains("TrunkErythema"));
+    }
+
+    [Fact]
+    public void SapasiSubmitDto_AllNull_PassesValidation()
+    {
+        // All null (paper-based blank) should pass
+        var dto = new PappSapasiSubmitDto();
+        Assert.Empty(Validate(dto));
+    }
+
+    [Fact]
+    public void PgaSubmitDto_ScoreOutOfRange_FailsValidation()
+    {
+        var dto = new PappPgaSubmitDto { Pgascore = 6 }; // must be 1–5
+        var errors = Validate(dto);
+        Assert.Contains(errors, e => e.MemberNames.Contains("Pgascore"));
+    }
+}

@@ -69,6 +69,7 @@ builder.Services.AddAuthorization();
 
 // ── 4. Application Services ───────────────────────────────────────────────────
 builder.Services.AddScoped<IEncryptionService, EncryptionService>();
+builder.Services.AddScoped<IClinicianSystemClient, StubClinicianSystemClient>();
 
 // ── 5. Controllers ───────────────────────────────────────────────────────────
 builder.Services.AddControllers();
@@ -119,7 +120,8 @@ app.MapControllers();
 // MapIdentityApi provides built-in endpoints:
 //   POST /register, /login, /refresh, /confirmEmail, /resendConfirmationEmail
 //   GET  /manage/info   POST /manage/info, /manage/2fa
-app.MapGroup("api/auth")
+// Routed under /api/identity so our custom AuthController owns /api/auth/register and /api/auth/login.
+app.MapGroup("api/identity")
    .MapIdentityApi<ApplicationUser>()
    .RequireCors("BadbirCorsPolicy");
 

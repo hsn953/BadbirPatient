@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace BADBIR.Shared.DTOs;
 
 // ── Patient ───────────────────────────────────────────────────────────────────
@@ -73,17 +75,43 @@ public class RejectRequestDto
 public class PappDlqiSubmitDto
 {
     public string? Diagnosis { get; set; }
-    public int? ItchsoreScore { get; set; }
-    public int? EmbscScore { get; set; }
-    public int? ShophgScore { get; set; }
-    public int? ClothesScore { get; set; }
-    public int? SocleisScore { get; set; }
-    public int? SportScore { get; set; }
-    public int? WorkstudScore { get; set; }
-    public int? WorkstudnoScore { get; set; }
-    public int? PartcrfScore { get; set; }
-    public int? SexdifScore { get; set; }
-    public int? TreatmentScore { get; set; }
+
+    /// <summary>Itchy/sore/painful — 0=Not at all, 1=A little, 2=A lot, 3=Very much.</summary>
+    [Range(0, 3)] public int? ItchsoreScore { get; set; }
+
+    /// <summary>Embarrassed/self-conscious — 0=Not at all … 3=Very much.</summary>
+    [Range(0, 3)] public int? EmbscScore { get; set; }
+
+    /// <summary>Shopping/home — 0=Not at all … 3=Very much.</summary>
+    [Range(0, 3)] public int? ShophgScore { get; set; }
+
+    /// <summary>Clothes — 0=Not at all … 3=Very much.</summary>
+    [Range(0, 3)] public int? ClothesScore { get; set; }
+
+    /// <summary>Social/leisure — 0=Not at all … 3=Very much.</summary>
+    [Range(0, 3)] public int? SocleisScore { get; set; }
+
+    /// <summary>Sport — 0=Not at all … 3=Very much.</summary>
+    [Range(0, 3)] public int? SportScore { get; set; }
+
+    /// <summary>Work/study prevented — 0=No, 1=Yes.</summary>
+    [Range(0, 1)] public int? WorkstudScore { get; set; }
+
+    /// <summary>Work/study problem (shown when Q7a=No) — 0=Not at all, 1=A little, 2=A lot.</summary>
+    [Range(0, 2)] public int? WorkstudnoScore { get; set; }
+
+    /// <summary>Partner/family problems — 0=Not at all … 3=Very much.</summary>
+    [Range(0, 3)] public int? PartcrfScore { get; set; }
+
+    /// <summary>Sexual difficulties — 0=Not at all … 3=Very much.</summary>
+    [Range(0, 3)] public int? SexdifScore { get; set; }
+
+    /// <summary>Treatment problem — 0=Not at all … 3=Very much.</summary>
+    [Range(0, 3)] public int? TreatmentScore { get; set; }
+
+    /// <summary>
+    /// Set to <c>true</c> if the patient explicitly skips Q7 (work/study question N/A).
+    /// </summary>
     public bool SkipBreakup { get; set; }
 }
 
@@ -142,6 +170,12 @@ public class PappCageSubmitDto
     public bool? Annoyed { get; set; }
     public bool? Guilty { get; set; }
     public bool? Earlymorning { get; set; }
+
+    /// <summary>
+    /// Set to <c>true</c> if the patient explicitly skips or declines this section.
+    /// All four question fields will be stored as null.
+    /// </summary>
+    public bool SkipForm { get; set; }
 }
 
 public class PappCageDto : PappCageSubmitDto
@@ -152,16 +186,32 @@ public class PappCageDto : PappCageSubmitDto
 
 public class PappEuroqolSubmitDto
 {
-    /// <summary>1=No problems, 2=Some problems, 3=Extreme problems</summary>
-    public int? Mobility { get; set; }
-    public int? Selfcare { get; set; }
-    public int? Usualacts { get; set; }
-    public int? Paindisc { get; set; }
-    public int? Anxdepr { get; set; }
-    /// <summary>Composite health index (derived from profile).</summary>
-    public int? Comphealth { get; set; }
-    /// <summary>VAS 0–100.</summary>
-    public int? Howyoufeel { get; set; }
+    /// <summary>Mobility — 1=No problems, 2=Some problems, 3=Extreme problems.</summary>
+    [Range(1, 3)] public int? Mobility { get; set; }
+
+    /// <summary>Self-care — 1=No problems, 2=Some problems, 3=Extreme problems.</summary>
+    [Range(1, 3)] public int? Selfcare { get; set; }
+
+    /// <summary>Usual activities — 1=No problems, 2=Some problems, 3=Extreme problems.</summary>
+    [Range(1, 3)] public int? Usualacts { get; set; }
+
+    /// <summary>Pain/Discomfort — 1=No pain, 2=Moderate, 3=Extreme.</summary>
+    [Range(1, 3)] public int? Paindisc { get; set; }
+
+    /// <summary>Anxiety/Depression — 1=Not, 2=Moderately, 3=Extremely.</summary>
+    [Range(1, 3)] public int? Anxdepr { get; set; }
+
+    /// <summary>Comparative health vs past 12 months — 1=Better, 2=Same, 3=Worse.</summary>
+    [Range(1, 3)] public int? Comphealth { get; set; }
+
+    /// <summary>VAS "How you feel today" (0–100).</summary>
+    [Range(0, 100)] public int? Howyoufeel { get; set; }
+
+    /// <summary>
+    /// Set to <c>true</c> if the patient explicitly skips or declines this form.
+    /// All scored fields will be stored as null.
+    /// </summary>
+    public bool SkipForm { get; set; }
 }
 
 public class PappEuroqolDto : PappEuroqolSubmitDto
@@ -172,22 +222,29 @@ public class PappEuroqolDto : PappEuroqolSubmitDto
 
 public class PappHadSubmitDto
 {
-    // Anxiety items (odd questions)
-    public int? Q01tense { get; set; }
-    public int? Q03frightened { get; set; }
-    public int? Q05worry { get; set; }
-    public int? Q07relaxed { get; set; }
-    public int? Q09butterflies { get; set; }
-    public int? Q11restless { get; set; }
-    public int? Q13panic { get; set; }
-    // Depression items (even questions)
-    public int? Q02enjoy { get; set; }
-    public int? Q04laugh { get; set; }
-    public int? Q06cheerful { get; set; }
-    public int? Q08slowed { get; set; }
-    public int? Q10appearence { get; set; }
-    public int? Q12enjoyment { get; set; }
-    public int? Q14goodbook { get; set; }
+    // ── Anxiety items (odd questions) — each 0–3 ────────────────────────────
+    [Range(0, 3)] public int? Q01tense { get; set; }
+    [Range(0, 3)] public int? Q03frightened { get; set; }
+    [Range(0, 3)] public int? Q05worry { get; set; }
+    [Range(0, 3)] public int? Q07relaxed { get; set; }
+    [Range(0, 3)] public int? Q09butterflies { get; set; }
+    [Range(0, 3)] public int? Q11restless { get; set; }
+    [Range(0, 3)] public int? Q13panic { get; set; }
+
+    // ── Depression items (even questions) — each 0–3 ────────────────────────
+    [Range(0, 3)] public int? Q02enjoy { get; set; }
+    [Range(0, 3)] public int? Q04laugh { get; set; }
+    [Range(0, 3)] public int? Q06cheerful { get; set; }
+    [Range(0, 3)] public int? Q08slowed { get; set; }
+    [Range(0, 3)] public int? Q10appearence { get; set; }
+    [Range(0, 3)] public int? Q12enjoyment { get; set; }
+    [Range(0, 3)] public int? Q14goodbook { get; set; }
+
+    /// <summary>
+    /// Set to <c>true</c> if the patient explicitly skips or declines this form.
+    /// All question fields will be stored as null.
+    /// </summary>
+    public bool SkipForm { get; set; }
 }
 
 public class PappHadDto : PappHadSubmitDto
@@ -205,50 +262,60 @@ public class PappHadDto : PappHadSubmitDto
 
 public class PappHaqSubmitDto
 {
+    /// <summary>Set to <c>true</c> if clinical data is missing — requires <see cref="Missingdatadetails"/>.</summary>
     public bool? Missingdata { get; set; }
     public string? Missingdatadetails { get; set; }
-    // Category 1: Dressing & Grooming
-    public int? Dressself { get; set; }
-    public int? Shampoo { get; set; }
-    // Category 2: Arising
-    public int? Standchair { get; set; }
-    public int? Bed { get; set; }
-    // Category 3: Eating
-    public int? Cutmeat { get; set; }
-    public int? Liftglass { get; set; }
-    public int? Openmilk { get; set; }
-    // Category 4: Walking
-    public int? Walkflat { get; set; }
-    public int? Climbsteps { get; set; }
-    // Category 5: Hygiene
-    public int? Washdry { get; set; }
-    public int? Bath { get; set; }
-    public int? Toilet { get; set; }
-    // Category 6: Reach
-    public int? Reachabove { get; set; }
-    public int? Bend { get; set; }
-    // Category 7: Grip
-    public int? Cardoor { get; set; }
-    public int? Openjar { get; set; }
-    public int? Turntap { get; set; }
-    // Category 8: Activities
-    public int? Shop { get; set; }
-    public int? Getincar { get; set; }
-    public int? Housework { get; set; }
-    // Aids & Devices
-    public int? Cane { get; set; }
-    public int? Crutches { get; set; }
-    public int? Walker { get; set; }
-    public int? Wheelchair { get; set; }
-    public int? Specialutensils { get; set; }
-    public int? Specialchair { get; set; }
-    public int? Dressing { get; set; }
+
+    // ── Category 1: Dressing &amp; Grooming — each 0=Without difficulty … 3=Unable ──
+    [Range(0, 3)] public int? Dressself { get; set; }
+    [Range(0, 3)] public int? Shampoo { get; set; }
+
+    // ── Category 2: Arising ──────────────────────────────────────────────────
+    [Range(0, 3)] public int? Standchair { get; set; }
+    [Range(0, 3)] public int? Bed { get; set; }
+
+    // ── Category 3: Eating ───────────────────────────────────────────────────
+    [Range(0, 3)] public int? Cutmeat { get; set; }
+    [Range(0, 3)] public int? Liftglass { get; set; }
+    [Range(0, 3)] public int? Openmilk { get; set; }
+
+    // ── Category 4: Walking ──────────────────────────────────────────────────
+    [Range(0, 3)] public int? Walkflat { get; set; }
+    [Range(0, 3)] public int? Climbsteps { get; set; }
+
+    // ── Category 5: Hygiene ──────────────────────────────────────────────────
+    [Range(0, 3)] public int? Washdry { get; set; }
+    [Range(0, 3)] public int? Bath { get; set; }
+    [Range(0, 3)] public int? Toilet { get; set; }
+
+    // ── Category 6: Reach ────────────────────────────────────────────────────
+    [Range(0, 3)] public int? Reachabove { get; set; }
+    [Range(0, 3)] public int? Bend { get; set; }
+
+    // ── Category 7: Grip ─────────────────────────────────────────────────────
+    [Range(0, 3)] public int? Cardoor { get; set; }
+    [Range(0, 3)] public int? Openjar { get; set; }
+    [Range(0, 3)] public int? Turntap { get; set; }
+
+    // ── Category 8: Activities ───────────────────────────────────────────────
+    [Range(0, 3)] public int? Shop { get; set; }
+    [Range(0, 3)] public int? Getincar { get; set; }
+    [Range(0, 3)] public int? Housework { get; set; }
+
+    // ── Aids &amp; Devices (0=None, 1=Used) ────────────────────────────────────
+    [Range(0, 1)] public int? Cane { get; set; }
+    [Range(0, 1)] public int? Crutches { get; set; }
+    [Range(0, 1)] public int? Walker { get; set; }
+    [Range(0, 1)] public int? Wheelchair { get; set; }
+    [Range(0, 1)] public int? Specialutensils { get; set; }
+    [Range(0, 1)] public int? Specialchair { get; set; }
+    [Range(0, 1)] public int? Dressing { get; set; }
     public string? Dressingdetails { get; set; }
-    public int? Loolift { get; set; }
-    public int? Bathseat { get; set; }
-    public int? Bathrail { get; set; }
-    public int? Longreach { get; set; }
-    public int? Jaropener { get; set; }
+    [Range(0, 1)] public int? Loolift { get; set; }
+    [Range(0, 1)] public int? Bathseat { get; set; }
+    [Range(0, 1)] public int? Bathrail { get; set; }
+    [Range(0, 1)] public int? Longreach { get; set; }
+    [Range(0, 1)] public int? Jaropener { get; set; }
     public string? Deviceother { get; set; }
 }
 
@@ -271,13 +338,81 @@ public class PappHaqDto : PappHaqSubmitDto
 
 public class PappPgaSubmitDto
 {
-    /// <summary>1=Clear, 2=Almost clear, 3=Mild, 4=Moderate, 5=Severe.</summary>
-    public int? Pgascore { get; set; }
+    /// <summary>Patient-reported global assessment — 1=Clear, 2=Almost clear, 3=Mild, 4=Moderate, 5=Severe.</summary>
+    [Range(1, 5)] public int? Pgascore { get; set; }
+
+    /// <summary>
+    /// Set to <c>true</c> if the patient explicitly skips or declines this form.
+    /// </summary>
+    public bool SkipForm { get; set; }
 }
 
 public class PappPgaDto : PappPgaSubmitDto
 {
     public int PappFupId { get; set; }
+    public DateTime? DateScored { get; set; }
+}
+
+// ── SAPASI ────────────────────────────────────────────────────────────────────
+
+/// <summary>
+/// SAPASI (Self-Administered PASI) submission DTO.
+///
+/// Each body region requires:
+/// <list type="bullet">
+///   <item>Coverage band: 0=None, 1=&lt;10%, 2=10–30%, 3=30–50%, 4=&gt;50%.</item>
+///   <item>Erythema (redness): 0=None … 4=Very marked.</item>
+///   <item>Induration (thickness): 0=None … 4=Very marked.</item>
+///   <item>Desquamation (scaliness): 0=None … 4=Very marked.</item>
+/// </list>
+///
+/// All fields are nullable — patients may leave any region blank.
+/// </summary>
+public class PappSapasiSubmitDto
+{
+    // ── Head (weight = 0.1) ──────────────────────────────────────────────────
+    /// <summary>Coverage band 0–4.</summary>
+    [Range(0, 4)] public int? HeadCoverage { get; set; }
+    [Range(0, 4)] public int? HeadErythema { get; set; }
+    [Range(0, 4)] public int? HeadInduration { get; set; }
+    [Range(0, 4)] public int? HeadDesquamation { get; set; }
+
+    // ── Trunk (weight = 0.3) ─────────────────────────────────────────────────
+    [Range(0, 4)] public int? TrunkCoverage { get; set; }
+    [Range(0, 4)] public int? TrunkErythema { get; set; }
+    [Range(0, 4)] public int? TrunkInduration { get; set; }
+    [Range(0, 4)] public int? TrunkDesquamation { get; set; }
+
+    // ── Upper Limbs (weight = 0.2) ───────────────────────────────────────────
+    [Range(0, 4)] public int? UpperLimbsCoverage { get; set; }
+    [Range(0, 4)] public int? UpperLimbsErythema { get; set; }
+    [Range(0, 4)] public int? UpperLimbsInduration { get; set; }
+    [Range(0, 4)] public int? UpperLimbsDesquamation { get; set; }
+
+    // ── Lower Limbs (weight = 0.4) ───────────────────────────────────────────
+    [Range(0, 4)] public int? LowerLimbsCoverage { get; set; }
+    [Range(0, 4)] public int? LowerLimbsErythema { get; set; }
+    [Range(0, 4)] public int? LowerLimbsInduration { get; set; }
+    [Range(0, 4)] public int? LowerLimbsDesquamation { get; set; }
+
+    /// <summary>
+    /// Set to <c>true</c> if the patient explicitly skips or declines this form.
+    /// </summary>
+    public bool SkipForm { get; set; }
+}
+
+/// <summary>SAPASI read DTO — includes the server-calculated total score.</summary>
+public class PappSapasiDto : PappSapasiSubmitDto
+{
+    public int PappSapasiId { get; set; }
+    public int PappFupId { get; set; }
+
+    /// <summary>
+    /// SAPASI total score = Σ(Severity × Coverage × RegionWeight) across 4 regions.
+    /// Range: 0–48 for coverage bands 0–4 and severity items 0–4.
+    /// </summary>
+    public float? SapasiScore { get; set; }
+
     public DateTime? DateScored { get; set; }
 }
 

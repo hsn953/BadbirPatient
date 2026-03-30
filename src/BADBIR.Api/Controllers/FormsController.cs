@@ -155,10 +155,10 @@ public class FormsController : ControllerBase
             var entity = new BbPappPatientCage
             {
                 PappFupId    = pappFupId.Value,
-                Cutdown      = dto.Cutdown,
-                Annoyed      = dto.Annoyed,
-                Guilty       = dto.Guilty,
-                Earlymorning = dto.Earlymorning,
+                Cutdown      = dto.SkipForm ? null : dto.Cutdown,
+                Annoyed      = dto.SkipForm ? null : dto.Annoyed,
+                Guilty       = dto.SkipForm ? null : dto.Guilty,
+                Earlymorning = dto.SkipForm ? null : dto.Earlymorning,
                 Datecomp     = DateTime.UtcNow,
                 DataStatus   = 0,
                 Createdbyid  = 0, Createdbyname = "PatientPortal", Createddate = DateTime.UtcNow,
@@ -169,10 +169,10 @@ public class FormsController : ControllerBase
             return CreatedAtAction(nameof(GetCage), MapCage(entity));
         }
 
-        existing.Cutdown = dto.Cutdown;
-        existing.Annoyed = dto.Annoyed;
-        existing.Guilty  = dto.Guilty;
-        existing.Earlymorning = dto.Earlymorning;
+        existing.Cutdown = dto.SkipForm ? null : dto.Cutdown;
+        existing.Annoyed = dto.SkipForm ? null : dto.Annoyed;
+        existing.Guilty  = dto.SkipForm ? null : dto.Guilty;
+        existing.Earlymorning = dto.SkipForm ? null : dto.Earlymorning;
         existing.Lastupdateddate = DateTime.UtcNow;
         await _db.SaveChangesAsync();
         return Ok(MapCage(existing));
@@ -211,13 +211,13 @@ public class FormsController : ControllerBase
             var entity = new BbPappPatientEuroqol
             {
                 PappFupId    = pappFupId.Value,
-                Mobility     = dto.Mobility,
-                Selfcare     = dto.Selfcare,
-                Usualacts    = dto.Usualacts,
-                Paindisc     = dto.Paindisc,
-                Anxdepr      = dto.Anxdepr,
-                Comphealth   = dto.Comphealth,
-                Howyoufeel   = dto.Howyoufeel,
+                Mobility     = dto.SkipForm ? null : dto.Mobility,
+                Selfcare     = dto.SkipForm ? null : dto.Selfcare,
+                Usualacts    = dto.SkipForm ? null : dto.Usualacts,
+                Paindisc     = dto.SkipForm ? null : dto.Paindisc,
+                Anxdepr      = dto.SkipForm ? null : dto.Anxdepr,
+                Comphealth   = dto.SkipForm ? null : dto.Comphealth,
+                Howyoufeel   = dto.SkipForm ? null : dto.Howyoufeel,
                 DateCompleted = DateTime.UtcNow,
                 DataStatus   = 0,
                 Createdbyid  = 0, Createdbyname = "PatientPortal", Createddate = DateTime.UtcNow,
@@ -228,13 +228,13 @@ public class FormsController : ControllerBase
             return CreatedAtAction(nameof(GetEuroqol), MapEuroqol(entity));
         }
 
-        existing.Mobility   = dto.Mobility;
-        existing.Selfcare   = dto.Selfcare;
-        existing.Usualacts  = dto.Usualacts;
-        existing.Paindisc   = dto.Paindisc;
-        existing.Anxdepr    = dto.Anxdepr;
-        existing.Comphealth = dto.Comphealth;
-        existing.Howyoufeel = dto.Howyoufeel;
+        existing.Mobility   = dto.SkipForm ? null : dto.Mobility;
+        existing.Selfcare   = dto.SkipForm ? null : dto.Selfcare;
+        existing.Usualacts  = dto.SkipForm ? null : dto.Usualacts;
+        existing.Paindisc   = dto.SkipForm ? null : dto.Paindisc;
+        existing.Anxdepr    = dto.SkipForm ? null : dto.Anxdepr;
+        existing.Comphealth = dto.SkipForm ? null : dto.Comphealth;
+        existing.Howyoufeel = dto.SkipForm ? null : dto.Howyoufeel;
         existing.Lastupdateddate = DateTime.UtcNow;
         await _db.SaveChangesAsync();
         return Ok(MapEuroqol(existing));
@@ -265,12 +265,13 @@ public class FormsController : ControllerBase
         var pappFupId = await GetCurrentPappFupIdAsync();
         if (pappFupId is null) return Forbid();
 
-        var anxietyScore    = (dto.Q01tense ?? 0) + (dto.Q03frightened ?? 0) + (dto.Q05worry ?? 0) +
+        // When SkipForm=true, nullify all items and mark as non-countable
+        int? anxietyScore    = dto.SkipForm ? null : (dto.Q01tense ?? 0) + (dto.Q03frightened ?? 0) + (dto.Q05worry ?? 0) +
                               (dto.Q07relaxed ?? 0) + (dto.Q09butterflies ?? 0) + (dto.Q11restless ?? 0) + (dto.Q13panic ?? 0);
-        var depressionScore = (dto.Q02enjoy ?? 0) + (dto.Q04laugh ?? 0) + (dto.Q06cheerful ?? 0) +
+        int? depressionScore = dto.SkipForm ? null : (dto.Q02enjoy ?? 0) + (dto.Q04laugh ?? 0) + (dto.Q06cheerful ?? 0) +
                               (dto.Q08slowed ?? 0) + (dto.Q10appearence ?? 0) + (dto.Q12enjoyment ?? 0) + (dto.Q14goodbook ?? 0);
 
-        bool allAnswered = new[] { dto.Q01tense, dto.Q02enjoy, dto.Q03frightened, dto.Q04laugh,
+        bool allAnswered = !dto.SkipForm && new[] { dto.Q01tense, dto.Q02enjoy, dto.Q03frightened, dto.Q04laugh,
                                    dto.Q05worry, dto.Q06cheerful, dto.Q07relaxed, dto.Q08slowed,
                                    dto.Q09butterflies, dto.Q10appearence, dto.Q11restless, dto.Q12enjoyment,
                                    dto.Q13panic, dto.Q14goodbook }
@@ -284,17 +285,17 @@ public class FormsController : ControllerBase
             var entity = new BbPappPatientHad
             {
                 PappFupId        = pappFupId.Value,
-                Q01tense         = dto.Q01tense,   Q02enjoy      = dto.Q02enjoy,
-                Q03frightened    = dto.Q03frightened, Q04laugh    = dto.Q04laugh,
-                Q05worry         = dto.Q05worry,   Q06cheerful   = dto.Q06cheerful,
-                Q07relaxed       = dto.Q07relaxed, Q08slowed     = dto.Q08slowed,
-                Q09butterflies   = dto.Q09butterflies, Q10appearence = dto.Q10appearence,
-                Q11restless      = dto.Q11restless, Q12enjoyment  = dto.Q12enjoyment,
-                Q13panic         = dto.Q13panic,   Q14goodbook   = dto.Q14goodbook,
+                Q01tense         = dto.SkipForm ? null : dto.Q01tense,   Q02enjoy      = dto.SkipForm ? null : dto.Q02enjoy,
+                Q03frightened    = dto.SkipForm ? null : dto.Q03frightened, Q04laugh    = dto.SkipForm ? null : dto.Q04laugh,
+                Q05worry         = dto.SkipForm ? null : dto.Q05worry,   Q06cheerful   = dto.SkipForm ? null : dto.Q06cheerful,
+                Q07relaxed       = dto.SkipForm ? null : dto.Q07relaxed, Q08slowed     = dto.SkipForm ? null : dto.Q08slowed,
+                Q09butterflies   = dto.SkipForm ? null : dto.Q09butterflies, Q10appearence = dto.SkipForm ? null : dto.Q10appearence,
+                Q11restless      = dto.SkipForm ? null : dto.Q11restless, Q12enjoyment  = dto.SkipForm ? null : dto.Q12enjoyment,
+                Q13panic         = dto.SkipForm ? null : dto.Q13panic,   Q14goodbook   = dto.SkipForm ? null : dto.Q14goodbook,
                 ScoreAnxiety     = anxietyScore,
-                ResultAnxiety    = HadsResult(anxietyScore),
+                ResultAnxiety    = anxietyScore.HasValue ? HadsResult(anxietyScore.Value) : null,
                 ScoreDepression  = depressionScore,
-                ResultDepression = HadsResult(depressionScore),
+                ResultDepression = depressionScore.HasValue ? HadsResult(depressionScore.Value) : null,
                 DateScored       = DateTime.UtcNow,
                 IsCountable      = allAnswered,
                 DataStatus       = 0,
@@ -306,17 +307,17 @@ public class FormsController : ControllerBase
             return CreatedAtAction(nameof(GetHads), MapHad(entity));
         }
 
-        existing.Q01tense = dto.Q01tense; existing.Q02enjoy = dto.Q02enjoy;
-        existing.Q03frightened = dto.Q03frightened; existing.Q04laugh = dto.Q04laugh;
-        existing.Q05worry = dto.Q05worry; existing.Q06cheerful = dto.Q06cheerful;
-        existing.Q07relaxed = dto.Q07relaxed; existing.Q08slowed = dto.Q08slowed;
-        existing.Q09butterflies = dto.Q09butterflies; existing.Q10appearence = dto.Q10appearence;
-        existing.Q11restless = dto.Q11restless; existing.Q12enjoyment = dto.Q12enjoyment;
-        existing.Q13panic = dto.Q13panic; existing.Q14goodbook = dto.Q14goodbook;
+        existing.Q01tense = dto.SkipForm ? null : dto.Q01tense; existing.Q02enjoy = dto.SkipForm ? null : dto.Q02enjoy;
+        existing.Q03frightened = dto.SkipForm ? null : dto.Q03frightened; existing.Q04laugh = dto.SkipForm ? null : dto.Q04laugh;
+        existing.Q05worry = dto.SkipForm ? null : dto.Q05worry; existing.Q06cheerful = dto.SkipForm ? null : dto.Q06cheerful;
+        existing.Q07relaxed = dto.SkipForm ? null : dto.Q07relaxed; existing.Q08slowed = dto.SkipForm ? null : dto.Q08slowed;
+        existing.Q09butterflies = dto.SkipForm ? null : dto.Q09butterflies; existing.Q10appearence = dto.SkipForm ? null : dto.Q10appearence;
+        existing.Q11restless = dto.SkipForm ? null : dto.Q11restless; existing.Q12enjoyment = dto.SkipForm ? null : dto.Q12enjoyment;
+        existing.Q13panic = dto.SkipForm ? null : dto.Q13panic; existing.Q14goodbook = dto.SkipForm ? null : dto.Q14goodbook;
         existing.ScoreAnxiety = anxietyScore;
-        existing.ResultAnxiety = HadsResult(anxietyScore);
+        existing.ResultAnxiety = anxietyScore.HasValue ? HadsResult(anxietyScore.Value) : null;
         existing.ScoreDepression = depressionScore;
-        existing.ResultDepression = HadsResult(depressionScore);
+        existing.ResultDepression = depressionScore.HasValue ? HadsResult(depressionScore.Value) : null;
         existing.IsCountable = allAnswered;
         existing.Lastupdateddate = DateTime.UtcNow;
         await _db.SaveChangesAsync();
@@ -404,8 +405,10 @@ public class FormsController : ControllerBase
         var pappFupId = await GetCurrentPappFupIdAsync();
         if (pappFupId is null) return Forbid();
 
-        if (dto.Pgascore < 1 || dto.Pgascore > 5)
+        if (!dto.SkipForm && dto.Pgascore is not null && (dto.Pgascore < 1 || dto.Pgascore > 5))
             return BadRequest("PGA score must be between 1 (Clear) and 5 (Severe).");
+
+        var pgascore = dto.SkipForm ? null : dto.Pgascore;
 
         var existing = await _db.PappPgaScores
             .FirstOrDefaultAsync(p => p.PappFupId == pappFupId && p.DataStatus == 0);
@@ -415,7 +418,7 @@ public class FormsController : ControllerBase
             var entity = new BbPappPatientPgaScore
             {
                 PappFupId   = pappFupId.Value,
-                Pgascore    = dto.Pgascore,
+                Pgascore    = pgascore,
                 DateScored  = DateTime.UtcNow,
                 DataStatus  = 0,
                 Createdbyid = 0, Createdbyname = "PatientPortal", Createddate = DateTime.UtcNow,
@@ -426,10 +429,67 @@ public class FormsController : ControllerBase
             return CreatedAtAction(nameof(GetPga), new PappPgaDto { PappFupId = entity.PappFupId, Pgascore = entity.Pgascore, DateScored = entity.DateScored });
         }
 
-        existing.Pgascore = dto.Pgascore;
+        existing.Pgascore = pgascore;
         existing.Lastupdateddate = DateTime.UtcNow;
         await _db.SaveChangesAsync();
         return Ok(new PappPgaDto { PappFupId = existing.PappFupId, Pgascore = existing.Pgascore, DateScored = existing.DateScored });
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // SAPASI
+    // ─────────────────────────────────────────────────────────────────────────
+
+    // GET api/forms/sapasi
+    /// <summary>Returns the SAPASI holding record for the caller's current papp visit.</summary>
+    [HttpGet("sapasi")]
+    public async Task<ActionResult<PappSapasiDto>> GetSapasi()
+    {
+        var pappFupId = await GetCurrentPappFupIdAsync();
+        if (pappFupId is null) return Forbid();
+
+        var sapasi = await _db.PappSapasis
+            .AsNoTracking()
+            .FirstOrDefaultAsync(s => s.PappFupId == pappFupId && s.DataStatus == 0);
+
+        return sapasi is null ? NotFound() : Ok(MapSapasi(sapasi));
+    }
+
+    // POST api/forms/sapasi
+    /// <summary>
+    /// Saves or updates the SAPASI form in the papp holding table.
+    ///
+    /// The server calculates the SAPASI total score from the four region scores:
+    ///   RegionScore = (Erythema + Induration + Desquamation) × Coverage × RegionWeight
+    ///   SAPASI Total = Head + Trunk + UpperLimbs + LowerLimbs
+    ///   Weights: Head=0.1, Trunk=0.3, UpperLimbs=0.2, LowerLimbs=0.4
+    ///   Max score ≈ 48 (using coverage bands 0–4 and severity items 0–4).
+    ///
+    /// Patients may leave any region fields null (paper-based blank equivalent).
+    /// Setting <c>SkipForm = true</c> records an explicit patient skip and stores
+    /// all fields as null with a zero score.
+    /// </summary>
+    [HttpPost("sapasi")]
+    public async Task<ActionResult<PappSapasiDto>> SaveSapasi(PappSapasiSubmitDto dto)
+    {
+        var pappFupId = await GetCurrentPappFupIdAsync();
+        if (pappFupId is null) return Forbid();
+
+        var score = dto.SkipForm ? 0f : ComputeSapasiScore(dto);
+
+        var existing = await _db.PappSapasis
+            .FirstOrDefaultAsync(s => s.PappFupId == pappFupId && s.DataStatus == 0);
+
+        if (existing is null)
+        {
+            var entity = BuildSapasiEntity(dto, pappFupId.Value, score);
+            _db.PappSapasis.Add(entity);
+            await _db.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetSapasi), MapSapasi(entity));
+        }
+
+        UpdateSapasiFromDto(existing, dto, score);
+        await _db.SaveChangesAsync();
+        return Ok(MapSapasi(existing));
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -661,5 +721,101 @@ public class FormsController : ControllerBase
         Dressgroom = h.Dressgroom, Rising = h.Rising, Eating = h.Eating, Walking = h.Walking,
         Hygiene = h.Hygiene, Reach = h.Reach, Gripping = h.Gripping, Errands = h.Errands,
         Haqscore = h.Haqscore
+    };
+
+    // ── SAPASI helpers ────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// SAPASI total = Σ RegionScore where
+    ///   RegionScore = (Erythema + Induration + Desquamation) × Coverage × RegionWeight
+    ///
+    /// Weights: Head=0.1, Trunk=0.3, UpperLimbs=0.2, LowerLimbs=0.4
+    /// Any null field in a region is treated as 0 (patient left it blank).
+    /// </summary>
+    private static float ComputeSapasiScore(PappSapasiSubmitDto dto)
+    {
+        static float RegionScore(int? coverage, int? e, int? i, int? d, float weight)
+        {
+            var severity = (e ?? 0) + (i ?? 0) + (d ?? 0);
+            return severity * (coverage ?? 0) * weight;
+        }
+
+        return RegionScore(dto.HeadCoverage,       dto.HeadErythema,       dto.HeadInduration,       dto.HeadDesquamation,       0.1f)
+             + RegionScore(dto.TrunkCoverage,      dto.TrunkErythema,      dto.TrunkInduration,      dto.TrunkDesquamation,      0.3f)
+             + RegionScore(dto.UpperLimbsCoverage, dto.UpperLimbsErythema, dto.UpperLimbsInduration, dto.UpperLimbsDesquamation, 0.2f)
+             + RegionScore(dto.LowerLimbsCoverage, dto.LowerLimbsErythema, dto.LowerLimbsInduration, dto.LowerLimbsDesquamation, 0.4f);
+    }
+
+    private static BbPappPatientSapasi BuildSapasiEntity(PappSapasiSubmitDto dto, int pappFupId, float score) => new()
+    {
+        PappFupId            = pappFupId,
+        // Store coverage bands in the HeadArea / TrunkArea / … fields (float, 0–4)
+        HeadArea             = dto.SkipForm ? null : dto.HeadCoverage,
+        HeadErythema         = dto.SkipForm ? null : dto.HeadErythema,
+        HeadInduration       = dto.SkipForm ? null : dto.HeadInduration,
+        HeadDesquamation     = dto.SkipForm ? null : dto.HeadDesquamation,
+        TrunkArea            = dto.SkipForm ? null : dto.TrunkCoverage,
+        TrunkErythema        = dto.SkipForm ? null : dto.TrunkErythema,
+        TrunkInduration      = dto.SkipForm ? null : dto.TrunkInduration,
+        TrunkDesquamation    = dto.SkipForm ? null : dto.TrunkDesquamation,
+        UpperLimbsArea       = dto.SkipForm ? null : dto.UpperLimbsCoverage,
+        UpperLimbsErythema   = dto.SkipForm ? null : dto.UpperLimbsErythema,
+        UpperLimbsInduration = dto.SkipForm ? null : dto.UpperLimbsInduration,
+        UpperLimbsDesquamation = dto.SkipForm ? null : dto.UpperLimbsDesquamation,
+        LowerLimbsArea       = dto.SkipForm ? null : dto.LowerLimbsCoverage,
+        LowerLimbsErythema   = dto.SkipForm ? null : dto.LowerLimbsErythema,
+        LowerLimbsInduration = dto.SkipForm ? null : dto.LowerLimbsInduration,
+        LowerLimbsDesquamation = dto.SkipForm ? null : dto.LowerLimbsDesquamation,
+        SapasiScore          = score,
+        DateScored           = DateTime.UtcNow,
+        DataStatus           = 0,
+        Createdbyid = 0, Createdbyname = "PatientPortal", Createddate = DateTime.UtcNow,
+        Lastupdatedbyid = 0, Lastupdatedbyname = "PatientPortal", Lastupdateddate = DateTime.UtcNow
+    };
+
+    private static void UpdateSapasiFromDto(BbPappPatientSapasi existing, PappSapasiSubmitDto dto, float score)
+    {
+        existing.HeadArea             = dto.SkipForm ? null : dto.HeadCoverage;
+        existing.HeadErythema         = dto.SkipForm ? null : dto.HeadErythema;
+        existing.HeadInduration       = dto.SkipForm ? null : dto.HeadInduration;
+        existing.HeadDesquamation     = dto.SkipForm ? null : dto.HeadDesquamation;
+        existing.TrunkArea            = dto.SkipForm ? null : dto.TrunkCoverage;
+        existing.TrunkErythema        = dto.SkipForm ? null : dto.TrunkErythema;
+        existing.TrunkInduration      = dto.SkipForm ? null : dto.TrunkInduration;
+        existing.TrunkDesquamation    = dto.SkipForm ? null : dto.TrunkDesquamation;
+        existing.UpperLimbsArea       = dto.SkipForm ? null : dto.UpperLimbsCoverage;
+        existing.UpperLimbsErythema   = dto.SkipForm ? null : dto.UpperLimbsErythema;
+        existing.UpperLimbsInduration = dto.SkipForm ? null : dto.UpperLimbsInduration;
+        existing.UpperLimbsDesquamation = dto.SkipForm ? null : dto.UpperLimbsDesquamation;
+        existing.LowerLimbsArea       = dto.SkipForm ? null : dto.LowerLimbsCoverage;
+        existing.LowerLimbsErythema   = dto.SkipForm ? null : dto.LowerLimbsErythema;
+        existing.LowerLimbsInduration = dto.SkipForm ? null : dto.LowerLimbsInduration;
+        existing.LowerLimbsDesquamation = dto.SkipForm ? null : dto.LowerLimbsDesquamation;
+        existing.SapasiScore          = score;
+        existing.Lastupdateddate      = DateTime.UtcNow;
+    }
+
+    private static PappSapasiDto MapSapasi(BbPappPatientSapasi s) => new()
+    {
+        PappSapasiId           = s.PappSapasiId,
+        PappFupId              = s.PappFupId,
+        HeadCoverage           = (int?)s.HeadArea,
+        HeadErythema           = s.HeadErythema,
+        HeadInduration         = s.HeadInduration,
+        HeadDesquamation       = s.HeadDesquamation,
+        TrunkCoverage          = (int?)s.TrunkArea,
+        TrunkErythema          = s.TrunkErythema,
+        TrunkInduration        = s.TrunkInduration,
+        TrunkDesquamation      = s.TrunkDesquamation,
+        UpperLimbsCoverage     = (int?)s.UpperLimbsArea,
+        UpperLimbsErythema     = s.UpperLimbsErythema,
+        UpperLimbsInduration   = s.UpperLimbsInduration,
+        UpperLimbsDesquamation = s.UpperLimbsDesquamation,
+        LowerLimbsCoverage     = (int?)s.LowerLimbsArea,
+        LowerLimbsErythema     = s.LowerLimbsErythema,
+        LowerLimbsInduration   = s.LowerLimbsInduration,
+        LowerLimbsDesquamation = s.LowerLimbsDesquamation,
+        SapasiScore            = s.SapasiScore,
+        DateScored             = s.DateScored
     };
 }
