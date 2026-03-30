@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="bbPatientApp.Views.RegisterPageStep1"
+             Title="Step 1 of 3"
+             Shell.PresentationMode="Animated"
+             Shell.TabBarIsVisible="false"
+             >
+    <ContentPage.Content>
+        <ScrollView Padding="5">
+
+            <StackLayout Padding="10" >
+                
+                <Label Text="Confirm Identity" Style="{StaticResource TitleLabel}" />
+
+                <Label Text="To help us confirm your identity, please provide the following information" Style="{StaticResource BodyLabel}"  />
+
+                <StackLayout Orientation="Vertical" HorizontalOptions="Start" RadioButtonGroup.GroupName="whichID"  Margin="15">
+                    <RadioButton x:Name="rb1" Content="BADBIR Study Number" IsChecked="True"  />
+                    <RadioButton x:Name="rb2" Content="NHS Number" /> 
+                    <RadioButton x:Name="rb3" Content="CHI Number (Scotland)" />
+                    <Entry Placeholder="Number" MaxLength="11" x:Name="PatientNumber" TextTransform="Uppercase"/>
+                </StackLayout>
+                <StackLayout Orientation="Vertical"  Margin="15">
+
+                    <Label Text="Date of birth"/>
+                    <DatePicker x:Name="DateOfBirth" HorizontalOptions="FillAndExpand" TextColor="{StaticResource BADBIRPurple}" Format="dd/MM/yyyy" />
+
+                </StackLayout>
+                <StackLayout Orientation="Vertical"  Margin="15">
+
+                    <StackLayout Orientation="Horizontal"  Margin="10" >
+                        <StackLayout Orientation="Horizontal" >
+                            <Label Text="First Initial:" VerticalOptions="Center" />
+                            <Entry x:Name="FirstInitial" WidthRequest="50" MaxLength="1" TextTransform="Uppercase" Keyboard="Chat" PlaceholderColor="{StaticResource BADBIRPurple}" Placeholder=""  />
+                        </StackLayout>
+                        <StackLayout Orientation="Horizontal">
+                                <Label Text="Last Initial:" VerticalOptions="Center" Margin="10,0,0,0" />
+                            <Entry x:Name="LastInitial" WidthRequest="50" MaxLength="1" TextTransform="Uppercase" Keyboard="Chat" PlaceholderColor="{StaticResource BADBIRPurple}" Placeholder="" />
+                            </StackLayout>
+                        </StackLayout>
+
+                    </StackLayout>
+
+
+                    <Button Text="Proceed to Step 2..." Style="{StaticResource PrimaryButtonPurple}" Clicked="RegisterStep2Button_Clicked" />
+                </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

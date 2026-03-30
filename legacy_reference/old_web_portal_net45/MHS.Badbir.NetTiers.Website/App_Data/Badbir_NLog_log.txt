@@ -1,0 +1,257 @@
+﻿2020-03-17 11:33:32.3363|ERROR|ASP.global_asax|
+
+*************************
+Error caught in BADBIR Application
+Error in: http://localhost:2005/Centre/BbPatientSummary.aspx
+
+Error Message:Object reference not set to an instance of an object.
+
+Stack Trace:   at Centre_BbPatientSummary.Page_Load(Object sender, EventArgs e) in c:\Work\BadbirSrc\Branches\HassanDev\MHS.Badbir.NetTiers.Website\Centre\BbPatientSummary.aspx.cs:line 84
+   at System.Web.Util.CalliEventHandlerDelegateProxy.Callback(Object sender, EventArgs e)
+   at System.Web.UI.Control.OnLoad(EventArgs e)
+   at System.Web.UI.Control.LoadRecursive()
+   at System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+
+--End of stack trace--
+
+
+
+
+
+User: hassan.ali
+
+IP address: ::1
+
+2020-03-17 12:09:05.6304|WARN|ASP.global_asax|404 in http%3a%2f%2flocalhost%3a2005%2fCentre%2fBbPatientdrugbiologicFup.aspx%3fFupId%3d334279
+2020-03-17 12:09:12.0952|WARN|ASP.global_asax|404 in http%3a%2f%2flocalhost%3a2005%2fCentre%2fBbPatientdrugbiologicFup.aspx%3fFupId%3d334279
+2020-03-17 12:09:26.5536|WARN|ASP.global_asax|404 in http%3a%2f%2flocalhost%3a2005%2fCentre%2fBbPatientdrugbiologicFup.aspx%3fFupId%3d334279
+2020-03-17 12:09:35.8294|WARN|ASP.global_asax|404 in http%3a%2f%2flocalhost%3a2005%2fCentre%2fBbPatientdrugbiologicFup.aspx%3fFupId%3d334276
+2020-03-17 12:10:57.1665|WARN|ASP.global_asax|404 in http%3a%2f%2flocalhost%3a2005%2fCentre%2fBbPatientdrugbiologicFup.aspx%3fFupId%3d334279
+2020-03-20 09:41:59.4803|ERROR|ASP.global_asax|
+
+*************************
+Error caught in BADBIR Application
+Error in: http://localhost:2005/Centre/BbPatientPasiScoresEdit.aspx?Fupid=353817
+
+Error Message:c:\Work\BadbirSrc\Branches\HassanDev\MHS.Badbir.NetTiers.Website\UserControls\BbPatientPasiScoresFields.ascx(6): error CS0103: The name 'pasiAttendanceLi' does not exist in the current context
+
+Stack Trace:   at System.Web.Compilation.BuildManager.CompileWebFile(VirtualPath virtualPath)
+   at System.Web.Compilation.BuildManager.GetVPathBuildResultInternal(VirtualPath virtualPath, Boolean noBuild, Boolean allowCrossApp, Boolean allowBuildInPrecompile, Boolean throwIfNotFound, Boolean ensureIsUpToDate)
+   at System.Web.Compilation.BuildManager.GetVPathBuildResultWithNoAssert(HttpContext context, VirtualPath virtualPath, Boolean noBuild, Boolean allowCrossApp, Boolean allowBuildInPrecompile, Boolean throwIfNotFound, Boolean ensureIsUpToDate)
+   at System.Web.UI.TemplateControl.LoadControl(VirtualPath virtualPath)
+   at System.Web.UI.TemplateControl.LoadControl(String virtualPath)
+   at MHS.Badbir.NetTiers.Web.UI.FormUtilBase.LoadBindableTemplate(TemplateControl control, String path) in C:\Work\BadbirSrc\Branches\HassanDev\MHS.Badbir.NetTiers.Web\UI\FormUtilBase.generated.cs:line 1037
+   at MHS.Badbir.NetTiers.Web.UI.MultiBindableTemplate..ctor(TemplateControl control, String[] paths) in C:\Work\BadbirSrc\Branches\HassanDev\MHS.Badbir.NetTiers.Web\UI\MultiBindableTemplate.cs:line 49
+   at MHS.Badbir.NetTiers.Web.UI.MultiFormView.InitTemplate(TemplateType type) in C:\Work\BadbirSrc\Branches\HassanDev\MHS.Badbir.NetTiers.Web\UI\MultiFormView.cs:line 231
+   at MHS.Badbir.NetTiers.Web.UI.MultiFormView.InitTemplates() in C:\Work\BadbirSrc\Branches\HassanDev\MHS.Badbir.NetTiers.Web\UI\MultiFormView.cs:line 209
+   at MHS.Badbir.NetTiers.Web.UI.MultiFormView.OnInit(EventArgs e) in C:\Work\BadbirSrc\Branches\HassanDev\MHS.Badbir.NetTiers.Web\UI\MultiFormView.cs:line 196
+   at System.Web.UI.Adapters.ControlAdapter.OnInit(EventArgs e)
+   at CSSFriendly.CompositeDataBoundControlAdapter.OnInit(EventArgs e) in D:\Badbir\CSSFriendly\CompositeDataBoundControlAdapter.cs:line 94
+   at System.Web.UI.Control.InitRecursive(Control namingContainer)
+   at System.Web.UI.Control.InitRecursive(Control namingContainer)
+   at System.Web.UI.Control.InitRecursive(Control namingContainer)
+   at System.Web.UI.Control.InitRecursive(Control namingContainer)
+   at System.Web.UI.Control.InitRecursive(Control namingContainer)
+   at System.Web.UI.Control.InitRecursive(Control namingContainer)
+   at System.Web.UI.Control.InitRecursive(Control namingContainer)
+   at System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   at System.Web.UI.Page.ProcessRequest(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   at System.Web.UI.Page.ProcessRequest()
+   at System.Web.UI.Page.ProcessRequestWithNoAssert(HttpContext context)
+   at System.Web.UI.Page.ProcessRequest(HttpContext context)
+   at ASP.centre_bbpatientpasiscoresedit_aspx.ProcessRequest(HttpContext context) in c:\Users\mdehsha4\AppData\Local\Temp\Temporary ASP.NET Files\vs\ddf009db\d374b2f1\App_Web_k4l1ur4d.14.cs:line 0
+   at System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   at System.Web.HttpApplication.ExecuteStepImpl(IExecutionStep step)
+   at System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+
+--End of stack trace--
+
+
+
+
+
+User: hassan.ali
+
+IP address: ::1
+
+2020-03-20 10:32:48.9375|ERROR|ASP.global_asax|
+
+*************************
+Error caught in BADBIR Application
+Error in: http://localhost:2005/Centre/BbPatientPasiScoresEdit.aspx?Fupid=467062
+
+Error Message:Object reference not set to an instance of an object.
+
+Stack Trace:   at BbPatientPasiScoresEdit.Page_Load(Object sender, EventArgs e) in c:\Work\BadbirSrc\Branches\HassanDev\MHS.Badbir.NetTiers.Website\Centre\BbPatientPasiScoresEdit.aspx.cs:line 35
+   at System.Web.Util.CalliEventHandlerDelegateProxy.Callback(Object sender, EventArgs e)
+   at System.Web.UI.Control.OnLoad(EventArgs e)
+   at System.Web.UI.Control.LoadRecursive()
+   at System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+
+--End of stack trace--
+
+
+
+
+
+User: hassan.ali
+
+IP address: ::1
+
+2020-03-20 10:32:52.0766|ERROR|ASP.global_asax|
+
+*************************
+Error caught in BADBIR Application
+Error in: http://localhost:2005/Centre/BbPatientPasiScoresEdit.aspx?Fupid=467062
+
+Error Message:Object reference not set to an instance of an object.
+
+Stack Trace:   at BbPatientPasiScoresEdit.Page_Load(Object sender, EventArgs e) in c:\Work\BadbirSrc\Branches\HassanDev\MHS.Badbir.NetTiers.Website\Centre\BbPatientPasiScoresEdit.aspx.cs:line 35
+   at System.Web.Util.CalliEventHandlerDelegateProxy.Callback(Object sender, EventArgs e)
+   at System.Web.UI.Control.OnLoad(EventArgs e)
+   at System.Web.UI.Control.LoadRecursive()
+   at System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+
+--End of stack trace--
+
+
+
+
+
+User: hassan.ali
+
+IP address: ::1
+
+2020-03-20 10:34:48.1672|ERROR|ASP.global_asax|
+
+*************************
+Error caught in BADBIR Application
+Error in: http://localhost:2005/Centre/BbPatientPasiScoresEdit.aspx
+
+Error Message:Object reference not set to an instance of an object.
+
+Stack Trace:   at BbPatientPasiScoresEdit.Page_Load(Object sender, EventArgs e) in c:\Work\BadbirSrc\Branches\HassanDev\MHS.Badbir.NetTiers.Website\Centre\BbPatientPasiScoresEdit.aspx.cs:line 35
+   at System.Web.Util.CalliEventHandlerDelegateProxy.Callback(Object sender, EventArgs e)
+   at System.Web.UI.Control.OnLoad(EventArgs e)
+   at System.Web.UI.Control.LoadRecursive()
+   at System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+
+--End of stack trace--
+
+
+
+
+
+User: hassan.ali
+
+IP address: ::1
+
+2020-03-20 10:38:38.6252|ERROR|ASP.global_asax|
+
+*************************
+Error caught in BADBIR Application
+Error in: http://localhost:2005/Centre/BbPatientPasiScoresEdit.aspx?Fupid=467062
+
+Error Message:The DataSourceID of 'dataFupid' must be the ID of a control of type IDataSource.  A control with ID 'FupIdBbPatientCohortTrackingDataSource' could not be found.
+
+Stack Trace:   at System.Web.UI.WebControls.DataBoundControl.GetDataSource()
+   at System.Web.UI.WebControls.DataBoundControl.ConnectToDataSourceView()
+   at System.Web.UI.WebControls.DataBoundControl.GetData()
+   at System.Web.UI.WebControls.ListControl.OnDataBinding(EventArgs e)
+   at MHS.Badbir.NetTiers.Web.UI.EntityDropDownList.OnDataBinding(EventArgs e) in C:\Work\BadbirSrc\Branches\HassanDev\MHS.Badbir.NetTiers.Web\UI\EntityDropDownList.cs:line 282
+   at System.Web.UI.WebControls.ListControl.PerformSelect()
+   at System.Web.UI.WebControls.BaseDataBoundControl.DataBind()
+   at System.Web.UI.Control.DataBindChildren()
+   at System.Web.UI.Control.DataBind(Boolean raiseOnDataBinding)
+   at System.Web.UI.Control.DataBind()
+   at System.Web.UI.Control.DataBindChildren()
+   at System.Web.UI.Control.DataBind(Boolean raiseOnDataBinding)
+   at System.Web.UI.Control.DataBind()
+   at System.Web.UI.Control.DataBindChildren()
+   at System.Web.UI.Control.DataBind(Boolean raiseOnDataBinding)
+   at System.Web.UI.Control.DataBind()
+   at System.Web.UI.Control.DataBindChildren()
+   at System.Web.UI.Control.DataBind(Boolean raiseOnDataBinding)
+   at System.Web.UI.Control.DataBind()
+   at System.Web.UI.Control.DataBindChildren()
+   at System.Web.UI.Control.DataBind(Boolean raiseOnDataBinding)
+   at System.Web.UI.WebControls.FormView.CreateChildControls(IEnumerable dataSource, Boolean dataBinding)
+   at System.Web.UI.WebControls.CompositeDataBoundControl.PerformDataBinding(IEnumerable data)
+   at System.Web.UI.WebControls.FormView.PerformDataBinding(IEnumerable data)
+   at System.Web.UI.WebControls.Adapters.DataBoundControlAdapter.PerformDataBinding(IEnumerable data)
+   at System.Web.UI.WebControls.FormView.EnsureDataBound()
+   at System.Web.UI.WebControls.CompositeDataBoundControl.CreateChildControls()
+   at System.Web.UI.Adapters.ControlAdapter.CreateChildControls()
+   at System.Web.UI.Control.EnsureChildControls()
+   at System.Web.UI.Control.FindControl(String id, Int32 pathOffset)
+   at System.Web.UI.Control.FindControl(String id)
+   at MHS.Badbir.NetTiers.Web.UI.FormUtilBase.HideButton(Control parent, String buttonId) in C:\Work\BadbirSrc\Branches\HassanDev\MHS.Badbir.NetTiers.Web\UI\FormUtilBase.generated.cs:line 1095
+   at MHS.Badbir.NetTiers.Web.UI.FormUtilBase.SetDefaultMode(FormView formView, String requestParameterName) in C:\Work\BadbirSrc\Branches\HassanDev\MHS.Badbir.NetTiers.Web\UI\FormUtilBase.generated.cs:line 141
+   at BbPatientPasiScoresEdit.Page_Load(Object sender, EventArgs e) in c:\Work\BadbirSrc\Branches\HassanDev\MHS.Badbir.NetTiers.Website\Centre\BbPatientPasiScoresEdit.aspx.cs:line 26
+   at System.Web.Util.CalliEventHandlerDelegateProxy.Callback(Object sender, EventArgs e)
+   at System.Web.UI.Control.OnLoad(EventArgs e)
+   at System.Web.UI.Control.LoadRecursive()
+   at System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+
+--End of stack trace--
+
+
+
+
+
+User: hassan.ali
+
+IP address: ::1
+
+2020-03-20 10:48:31.1887|ERROR|ASP.global_asax|
+
+*************************
+Error caught in BADBIR Application
+Error in: http://localhost:2005/Centre/BbPatientDiseaseSeverityEdit.aspx?FupId=467061
+
+Error Message:DataBinding: '[PasiAttendanceSource' is not a valid indexed expression.
+
+Stack Trace:   at System.Web.UI.DataBinder.GetIndexedPropertyValue(Object container, String expr)
+   at System.Web.UI.DataBinder.Eval(Object container, String[] expressionParts)
+   at System.Web.UI.DataBinder.Eval(Object container, String expression)
+   at System.Web.UI.WebControls.BoundField.GetValue(Control controlContainer)
+   at System.Web.UI.WebControls.BoundField.OnDataBindField(Object sender, EventArgs e)
+   at System.Web.UI.Control.OnDataBinding(EventArgs e)
+   at System.Web.UI.Control.DataBind(Boolean raiseOnDataBinding)
+   at System.Web.UI.Control.DataBind()
+   at System.Web.UI.Control.DataBindChildren()
+   at System.Web.UI.Control.DataBind(Boolean raiseOnDataBinding)
+   at System.Web.UI.Control.DataBind()
+   at System.Web.UI.WebControls.GridView.CreateRow(Int32 rowIndex, Int32 dataSourceIndex, DataControlRowType rowType, DataControlRowState rowState, Boolean dataBind, Object dataItem, DataControlField[] fields, TableRowCollection rows, PagedDataSource pagedDataSource)
+   at System.Web.UI.WebControls.GridView.CreateChildControls(IEnumerable dataSource, Boolean dataBinding)
+   at System.Web.UI.WebControls.CompositeDataBoundControl.PerformDataBinding(IEnumerable data)
+   at System.Web.UI.WebControls.GridView.PerformDataBinding(IEnumerable data)
+   at System.Web.UI.WebControls.DataBoundControl.OnDataSourceViewSelectCallback(IEnumerable data)
+   at System.Web.UI.DataSourceView.Select(DataSourceSelectArguments arguments, DataSourceViewSelectCallback callback)
+   at System.Web.UI.WebControls.DataBoundControl.PerformSelect()
+   at System.Web.UI.WebControls.BaseDataBoundControl.DataBind()
+   at System.Web.UI.WebControls.GridView.DataBind()
+   at System.Web.UI.WebControls.BaseDataBoundControl.EnsureDataBound()
+   at System.Web.UI.WebControls.CompositeDataBoundControl.CreateChildControls()
+   at System.Web.UI.Adapters.ControlAdapter.CreateChildControls()
+   at System.Web.UI.Control.EnsureChildControls()
+   at System.Web.UI.WebControls.CompositeDataBoundControl.get_Controls()
+   at MasterPages_bbPatientFollowUp.ChangeControlStatus(Control parent, Boolean status) in c:\Work\BadbirSrc\Branches\HassanDev\MHS.Badbir.NetTiers.Website\MasterPages\bbPatientFollowUp.master.cs:line 358
+   at MasterPages_bbPatientFollowUp.ChangeControlStatus(Control parent, Boolean status) in c:\Work\BadbirSrc\Branches\HassanDev\MHS.Badbir.NetTiers.Website\MasterPages\bbPatientFollowUp.master.cs:line 421
+   at MasterPages_bbPatientFollowUp.Page_Load(Object sender, EventArgs e) in c:\Work\BadbirSrc\Branches\HassanDev\MHS.Badbir.NetTiers.Website\MasterPages\bbPatientFollowUp.master.cs:line 289
+   at System.Web.Util.CalliEventHandlerDelegateProxy.Callback(Object sender, EventArgs e)
+   at System.Web.UI.Control.OnLoad(EventArgs e)
+   at System.Web.UI.Control.LoadRecursive()
+   at System.Web.UI.Control.LoadRecursive()
+   at System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+
+--End of stack trace--
+
+
+
+
+
+User: hassan.ali
+
+IP address: ::1
+

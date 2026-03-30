@@ -1,0 +1,516 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns:viewmodels="clr-namespace:bbPatientApp.ViewModels" 
+             xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+             x:Class="bbPatientApp.Views.PQ_Haq"
+             Title="HAQ">
+    <ContentPage.BindingContext>
+        <viewmodels:HaqViewModel/>
+    </ContentPage.BindingContext>
+
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout Style="{StaticResource MainOuterStackLayout}">
+        
+                <Label Text="Health Assessment Questionnaire (HAQ)"   Style="{StaticResource TitleLabel}"></Label>
+                <Label Text="It is only applicable if you've had a diagosis of Inflammatory Arthritis by a rheumatologist. " Style="{StaticResource BodyLabel}"/>
+                <Label Text="This questionnaire contains Eight sections." Style="{StaticResource BodyLabel}"/>
+
+                <Grid Style="{StaticResource HAQGridRowA}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <BoxView  WidthRequest="5" CornerRadius="5" HorizontalOptions="Start" VerticalOptions="FillAndExpand"  BackgroundColor="{StaticResource BADBIRPurple}" Margin="0" />
+                    <xct:Expander Grid.Column="1" Padding="5" VerticalOptions="StartAndExpand" >
+                        <xct:Expander.Header >
+                            <StackLayout Orientation="Vertical" >
+                                <Label Text="Section 1"  TextColor="DarkGray" TextTransform="Uppercase"  FontSize="Small"  />
+                                <Label Text="DRESSING and GROOMING" TextColor="{StaticResource BADBIRPurple}" TextTransform="Uppercase" Padding="0,0,0,15" FontSize="Medium" />
+                                </StackLayout>
+                        </xct:Expander.Header>
+                        <Grid VerticalOptions="StartAndExpand" HorizontalOptions="FillAndExpand">
+                            <StackLayout Orientation="Vertical" VerticalOptions="StartAndExpand">
+                                <Label Text="Are you able to:" Style="{StaticResource BodyLabel}" FontAttributes="Bold" Margin="0" />
+                                <StackLayout Orientation="Vertical">    
+                                    <Label Text="a. Dress yourself, including tying shoelaces and doing buttons?" Style="{StaticResource BodyLabel}" Margin="0"  />
+                                    <StackLayout RadioButtonGroup.GroupName="data1_1" RadioButtonGroup.SelectedValue="{Binding HAQDAO.Dressself}">
+                                        <RadioButton Content="Without any difficulty" Value="0" />
+                                        <RadioButton Content="With some difficulty" Value="1" />
+                                        <RadioButton Content="With much difficulty" Value="2" />
+                                        <RadioButton Content="Unable to do" Value="3" />
+                                    </StackLayout>
+                                </StackLayout>
+                                <Line Style="{StaticResource QuestionSpacerV}"/>
+                                <StackLayout Orientation="Vertical">
+                                    <Label Text="b. Shampoo your hair?" Style="{StaticResource BodyLabel}" Margin="0" />
+                                    <StackLayout RadioButtonGroup.GroupName="data1_2" RadioButtonGroup.SelectedValue="{Binding HAQDAO.Shampoo}">
+                                        <RadioButton Content="Without any difficulty" Value="0" />
+                                        <RadioButton Content="With some difficulty" Value="1" />
+                                        <RadioButton Content="With much difficulty" Value="2" />
+                                        <RadioButton Content="Unable to do" Value="3" />
+                                    </StackLayout>
+                                </StackLayout>
+                                <Line Style="{StaticResource QuestionSpacerV}"/>
+                            </StackLayout>
+                        </Grid>
+                    </xct:Expander>
+                </Grid>
+
+
+                <Grid Style="{StaticResource HAQGridRowB}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <BoxView  WidthRequest="5" CornerRadius="5" HorizontalOptions="Start" VerticalOptions="FillAndExpand"  BackgroundColor="{StaticResource BADBIRPurple}" Margin="0" />
+                    <xct:Expander Grid.Column="1" Padding="5" VerticalOptions="StartAndExpand" >
+                        <xct:Expander.Header >
+                            <StackLayout Orientation="Vertical" >
+                                <Label Text="Section 2"  TextColor="DarkGray" TextTransform="Uppercase"  FontSize="Small"  />
+                                <Label Text="Rising" TextColor="{StaticResource BADBIRPurple}" TextTransform="Uppercase" Padding="0,0,0,15" FontSize="Medium" />
+                            </StackLayout>
+                        </xct:Expander.Header>
+                        <Grid VerticalOptions="StartAndExpand" HorizontalOptions="FillAndExpand">
+                            <StackLayout Orientation="Vertical" VerticalOptions="StartAndExpand">
+                                <Label Text="Are you able to:" Style="{StaticResource BodyLabel}" FontAttributes="Bold" Margin="0" />
+                                <StackLayout Orientation="Vertical">
+                                    <Label Text="a. Stand up from an armless straight chair?" Style="{StaticResource BodyLabel}" Margin="0"  />
+                                    <StackLayout RadioButtonGroup.GroupName="data2_1" RadioButtonGroup.SelectedValue="{Binding HAQDAO.Standchair}">
+                                        <RadioButton Content="Without any difficulty" Value="0" />
+                                        <RadioButton Content="With some difficulty" Value="1" />
+                                        <RadioButton Content="With much difficulty" Value="2" />
+                                        <RadioButton Content="Unable to do" Value="3" />
+                                    </StackLayout>
+                                </StackLayout>
+                                <Line Style="{StaticResource QuestionSpacerV}"/>
+                                <StackLayout Orientation="Vertical">
+                                    <Label Text="b. Get in and out of bed?" Style="{StaticResource BodyLabel}" Margin="0" />
+                                    <StackLayout RadioButtonGroup.GroupName="data2_2" RadioButtonGroup.SelectedValue="{Binding HAQDAO.Bed}">
+                                        <RadioButton Content="Without any difficulty" Value="0" />
+                                        <RadioButton Content="With some difficulty" Value="1" />
+                                        <RadioButton Content="With much difficulty" Value="2" />
+                                        <RadioButton Content="Unable to do" Value="3" />
+                                    </StackLayout>
+                                </StackLayout>
+                                <Line Style="{StaticResource QuestionSpacerV}"/>
+                            </StackLayout>
+                        </Grid>
+                    </xct:Expander>
+                </Grid>
+
+
+
+                <Grid Style="{StaticResource HAQGridRowA}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <BoxView  WidthRequest="5" CornerRadius="5" HorizontalOptions="Start" VerticalOptions="FillAndExpand"  BackgroundColor="{StaticResource BADBIRPurple}" Margin="0" />
+                    <xct:Expander Grid.Column="1" Padding="5" VerticalOptions="StartAndExpand" >
+                        <xct:Expander.Header >
+                            <StackLayout Orientation="Vertical" >
+                                <Label Text="Section 3"  TextColor="DarkGray" TextTransform="Uppercase"  FontSize="Small"  />
+                                <Label Text="Eating" TextColor="{StaticResource BADBIRPurple}" TextTransform="Uppercase" Padding="0,0,0,15" FontSize="Medium" />
+                            </StackLayout>
+                        </xct:Expander.Header>
+                        <Grid VerticalOptions="StartAndExpand" HorizontalOptions="FillAndExpand">
+                            <StackLayout Orientation="Vertical" VerticalOptions="StartAndExpand">
+                                <Label Text="Are you able to:" Style="{StaticResource BodyLabel}" FontAttributes="Bold" Margin="0" />
+                                <StackLayout Orientation="Vertical">
+                                    <Label Text="a. Cut your meat?" Style="{StaticResource BodyLabel}" Margin="0"  />
+                                    <StackLayout RadioButtonGroup.GroupName="data3_1" RadioButtonGroup.SelectedValue="{Binding HAQDAO.Cutmeat}">
+                                        <RadioButton Content="Without any difficulty" Value="0" />
+                                        <RadioButton Content="With some difficulty" Value="1" />
+                                        <RadioButton Content="With much difficulty" Value="2" />
+                                        <RadioButton Content="Unable to do" Value="3" />
+                                    </StackLayout>
+                                </StackLayout>
+                                <Line Style="{StaticResource QuestionSpacerV}"/>
+                                <StackLayout Orientation="Vertical">
+                                    <Label Text="b. Lift a full cup or glass to your mouth?" Style="{StaticResource BodyLabel}" Margin="0" />
+                                    <StackLayout RadioButtonGroup.GroupName="data3_2" RadioButtonGroup.SelectedValue="{Binding HAQDAO.Liftglass}">
+                                        <RadioButton Content="Without any difficulty" Value="0" />
+                                        <RadioButton Content="With some difficulty" Value="1" />
+                                        <RadioButton Content="With much difficulty" Value="2" />
+                                        <RadioButton Content="Unable to do" Value="3" />
+                                    </StackLayout>
+                                </StackLayout>
+                                <Line Style="{StaticResource QuestionSpacerV}"/>
+                                <StackLayout Orientation="Vertical">
+                                    <Label Text="c. Open a new carton of milk (or soap powder)?" Style="{StaticResource BodyLabel}" Margin="0" />
+                                    <StackLayout RadioButtonGroup.GroupName="data3_3" RadioButtonGroup.SelectedValue="{Binding HAQDAO.Openmilk}">
+                                        <RadioButton Content="Without any difficulty" Value="0" />
+                                        <RadioButton Content="With some difficulty" Value="1" />
+                                        <RadioButton Content="With much difficulty" Value="2" />
+                                        <RadioButton Content="Unable to do" Value="3" />
+                                    </StackLayout>
+                                </StackLayout>
+                                <Line Style="{StaticResource QuestionSpacerV}"/>
+                            </StackLayout>
+                        </Grid>
+                    </xct:Expander>
+                </Grid>
+
+
+                <Grid Style="{StaticResource HAQGridRowB}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <BoxView  WidthRequest="5" CornerRadius="5" HorizontalOptions="Start" VerticalOptions="FillAndExpand"  BackgroundColor="{StaticResource BADBIRPurple}" Margin="0" />
+                    <xct:Expander Grid.Column="1" Padding="5" VerticalOptions="StartAndExpand" >
+                        <xct:Expander.Header >
+                            <StackLayout Orientation="Vertical" >
+                                <Label Text="Section 4"  TextColor="DarkGray" TextTransform="Uppercase"  FontSize="Small"  />
+                                <Label Text="Walking" TextColor="{StaticResource BADBIRPurple}" TextTransform="Uppercase" Padding="0,0,0,15" FontSize="Medium" />
+                            </StackLayout>
+                        </xct:Expander.Header>
+                        <Grid VerticalOptions="StartAndExpand" HorizontalOptions="FillAndExpand">
+                            <StackLayout Orientation="Vertical" VerticalOptions="StartAndExpand">
+                                <Label Text="Are you able to:" Style="{StaticResource BodyLabel}" FontAttributes="Bold" Margin="0" />
+                                <StackLayout Orientation="Vertical">
+                                    <Label Text="a. Walk outdoors on flat ground?" Style="{StaticResource BodyLabel}" Margin="0"  />
+                                    <StackLayout RadioButtonGroup.GroupName="data4_1" RadioButtonGroup.SelectedValue="{Binding HAQDAO.Walkflat}">
+                                        <RadioButton Content="Without any difficulty" Value="0" />
+                                        <RadioButton Content="With some difficulty" Value="1" />
+                                        <RadioButton Content="With much difficulty" Value="2" />
+                                        <RadioButton Content="Unable to do" Value="3" />
+                                    </StackLayout>
+                                </StackLayout>
+                                <Line Style="{StaticResource QuestionSpacerV}"/>
+                                <StackLayout Orientation="Vertical">
+                                    <Label Text="b. Climb up five steps?" Style="{StaticResource BodyLabel}" Margin="0" />
+                                    <StackLayout RadioButtonGroup.GroupName="data4_2" RadioButtonGroup.SelectedValue="{Binding HAQDAO.Climbsteps}">
+                                        <RadioButton Content="Without any difficulty" Value="0" />
+                                        <RadioButton Content="With some difficulty" Value="1" />
+                                        <RadioButton Content="With much difficulty" Value="2" />
+                                        <RadioButton Content="Unable to do" Value="3" />
+                                    </StackLayout>
+                                </StackLayout>
+                                <Line Style="{StaticResource QuestionSpacerV}"/>
+                                <StackLayout Orientation="Vertical" >
+                                    <Label Text="Please tick any AIDS or DEVICES that you usually use for any of these activities:" Style="{StaticResource BodyLabel}" Margin="0" Padding="0" />
+                                    <Grid  ColumnDefinitions="Auto, Auto, *" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" VerticalOptions="Start" RowSpacing="-7" ColumnSpacing="-10">
+                                        <CheckBox IsChecked="{Binding HAQDAO.Cane}" Grid.Column="0" Grid.Row="0"/>
+                                        <Label Text="Cane" Style="{StaticResource BodyLabel}" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" />
+                                        
+                                        <CheckBox IsChecked="{Binding HAQDAO.Walker}" Grid.Column="0" Grid.Row="1" />
+                                        <Label Text="Walking Frame (W)" Style="{StaticResource BodyLabel}" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2"/>
+
+                                        <CheckBox IsChecked="{Binding HAQDAO.Specialutensils}" Grid.Column="0" Grid.Row="2" />
+                                        <Label Text="Built-up or special utensils (E)" Style="{StaticResource BodyLabel}" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2"/>
+
+                                        <CheckBox IsChecked="{Binding HAQDAO.Crutches}" Grid.Column="0" Grid.Row="3" />
+                                        <Label Text="Crutches (W)" Style="{StaticResource BodyLabel}" Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="2"/>
+
+                                        <CheckBox IsChecked="{Binding HAQDAO.Wheelchair}" Grid.Column="0" Grid.Row="4" />
+                                        <Label Text="Wheelchair (W)" Style="{StaticResource BodyLabel}" Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="2"/>
+
+                                        <CheckBox IsChecked="{Binding HAQDAO.Specialchair}" Grid.Column="0" Grid.Row="5" />
+                                        <Label Text="Special or built-up chair (A)" Style="{StaticResource BodyLabel}" Grid.Column="1" Grid.Row="5" Grid.ColumnSpan="2"/>
+
+                                        <CheckBox IsChecked="{Binding HAQDAO.Dressing}" Grid.Column="0" Grid.Row="6" />
+                                        <Label Text="Devices used for dressing (button hooks, zipper pull, shoe horn)" Style="{StaticResource BodyLabel}" Grid.Column="1" Grid.Row="6" Grid.ColumnSpan="2"/>
+
+                                        <Label Text="Other" Style="{StaticResource BodyLabel}" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="7" Padding="0,0,10,0" />
+                                        <Entry Text="{Binding HAQDAO.Dressingdetails}" Placeholder="Type here" Grid.Column="2" Grid.Row="7" />
+
+                                    </Grid>
+                                </StackLayout>
+                                <Line Style="{StaticResource QuestionSpacerV}"/>
+                                <StackLayout Orientation="Vertical" >
+                                    <Label Text="Please tick any categories for which you usually need help from another person:" Style="{StaticResource BodyLabel}" Margin="0" Padding="0" />
+                                    <Grid  ColumnDefinitions="Auto, Auto, *" RowDefinitions="Auto,Auto,Auto,Auto" VerticalOptions="Start" RowSpacing="-7" ColumnSpacing="-10">
+                                        <CheckBox IsChecked="{Binding HAQDAO.Dressgroom}" Grid.Column="0" Grid.Row="0"/>
+                                        <Label Text="Dressing and Grooming" Style="{StaticResource BodyLabel}" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" />
+
+                                        <CheckBox IsChecked="{Binding HAQDAO.Eating}" Grid.Column="0" Grid.Row="1" />
+                                        <Label Text="Eating" Style="{StaticResource BodyLabel}" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2"/>
+
+                                        <CheckBox IsChecked="{Binding HAQDAO.Rising}" Grid.Column="0" Grid.Row="2" />
+                                        <Label Text="Rising" Style="{StaticResource BodyLabel}" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2"/>
+
+                                        <CheckBox IsChecked="{Binding HAQDAO.Walking}" Grid.Column="0" Grid.Row="3" />
+                                        <Label Text="Walking" Style="{StaticResource BodyLabel}" Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="2"/>
+
+                                    </Grid>
+                                </StackLayout>
+
+                                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                            </StackLayout>
+                        </Grid>
+                    </xct:Expander>
+                </Grid>
+
+
+
+                <Grid Style="{StaticResource HAQGridRowA}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <BoxView  WidthRequest="5" CornerRadius="5" HorizontalOptions="Start" VerticalOptions="FillAndExpand"  BackgroundColor="{StaticResource BADBIRPurple}" Margin="0" />
+                    <xct:Expander Grid.Column="1" Padding="5" VerticalOptions="StartAndExpand" >
+                        <xct:Expander.Header >
+                            <StackLayout Orientation="Vertical" >
+                                <Label Text="Section 5"  TextColor="DarkGray" TextTransform="Uppercase"  FontSize="Small"  />
+                                <Label Text="Hygiene" TextColor="{StaticResource BADBIRPurple}" TextTransform="Uppercase" Padding="0,0,0,15" FontSize="Medium" />
+                            </StackLayout>
+                        </xct:Expander.Header>
+                        <Grid VerticalOptions="StartAndExpand" HorizontalOptions="FillAndExpand">
+                            <StackLayout Orientation="Vertical" VerticalOptions="StartAndExpand">
+                                <Label Text="Are you able to:" Style="{StaticResource BodyLabel}" FontAttributes="Bold" Margin="0" />
+                                <StackLayout Orientation="Vertical">
+                                    <Label Text="a. Wash and dry your entire body?" Style="{StaticResource BodyLabel}" Margin="0"  />
+                                    <StackLayout RadioButtonGroup.GroupName="data5_1" RadioButtonGroup.SelectedValue="{Binding HAQDAO.Washdry}">
+                                        <RadioButton Content="Without any difficulty" Value="0" />
+                                        <RadioButton Content="With some difficulty" Value="1" />
+                                        <RadioButton Content="With much difficulty" Value="2" />
+                                        <RadioButton Content="Unable to do" Value="3" />
+                                    </StackLayout>
+                                </StackLayout>
+                                <Line Style="{StaticResource QuestionSpacerV}"/>
+                                <StackLayout Orientation="Vertical">
+                                    <Label Text="b. Take a bath?" Style="{StaticResource BodyLabel}" Margin="0" />
+                                    <StackLayout RadioButtonGroup.GroupName="data5_2" RadioButtonGroup.SelectedValue="{Binding HAQDAO.Bath}">
+                                        <RadioButton Content="Without any difficulty" Value="0" />
+                                        <RadioButton Content="With some difficulty" Value="1" />
+                                        <RadioButton Content="With much difficulty" Value="2" />
+                                        <RadioButton Content="Unable to do" Value="3" />
+                                    </StackLayout>
+                                </StackLayout>
+                                <Line Style="{StaticResource QuestionSpacerV}"/>
+                                <StackLayout Orientation="Vertical">
+                                    <Label Text="c. Get on and off the toilet?" Style="{StaticResource BodyLabel}" Margin="0" />
+                                    <StackLayout RadioButtonGroup.GroupName="data5_3" RadioButtonGroup.SelectedValue="{Binding HAQDAO.Toilet}">
+                                        <RadioButton Content="Without any difficulty" Value="0" />
+                                        <RadioButton Content="With some difficulty" Value="1" />
+                                        <RadioButton Content="With much difficulty" Value="2" />
+                                        <RadioButton Content="Unable to do" Value="3" />
+                                    </StackLayout>
+                                </StackLayout>
+                                <Line Style="{StaticResource QuestionSpacerV}"/>
+                            </StackLayout>
+                        </Grid>
+                    </xct:Expander>
+                </Grid>
+
+
+
+                <Grid Style="{StaticResource HAQGridRowB}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <BoxView  WidthRequest="5" CornerRadius="5" HorizontalOptions="Start" VerticalOptions="FillAndExpand"  BackgroundColor="{StaticResource BADBIRPurple}" Margin="0" />
+                    <xct:Expander Grid.Column="1" Padding="5" VerticalOptions="StartAndExpand" >
+                        <xct:Expander.Header >
+                            <StackLayout Orientation="Vertical" >
+                                <Label Text="Section 6"  TextColor="DarkGray" TextTransform="Uppercase"  FontSize="Small"  />
+                                <Label Text="Reach" TextColor="{StaticResource BADBIRPurple}" TextTransform="Uppercase" Padding="0,0,0,15" FontSize="Medium" />
+                            </StackLayout>
+                        </xct:Expander.Header>
+                        <Grid VerticalOptions="StartAndExpand" HorizontalOptions="FillAndExpand">
+                            <StackLayout Orientation="Vertical" VerticalOptions="StartAndExpand">
+                                <Label Text="Are you able to:" Style="{StaticResource BodyLabel}" FontAttributes="Bold" Margin="0" />
+                                <StackLayout Orientation="Vertical">
+                                    <Label Text="a. Reach and get down a 5 lb object (e.g. a bag of potatoes) from just above your head?" Style="{StaticResource BodyLabel}" Margin="0"  />
+                                    <StackLayout RadioButtonGroup.GroupName="data6_1" RadioButtonGroup.SelectedValue="{Binding HAQDAO.Reachabove}">
+                                        <RadioButton Content="Without any difficulty" Value="0" />
+                                        <RadioButton Content="With some difficulty" Value="1" />
+                                        <RadioButton Content="With much difficulty" Value="2" />
+                                        <RadioButton Content="Unable to do" Value="3" />
+                                    </StackLayout>
+                                </StackLayout>
+                                <Line Style="{StaticResource QuestionSpacerV}"/>
+                                <StackLayout Orientation="Vertical">
+                                    <Label Text="b. Bend down to pick up clothing off the floor?" Style="{StaticResource BodyLabel}" Margin="0" />
+                                    <StackLayout RadioButtonGroup.GroupName="data6_2" RadioButtonGroup.SelectedValue="{Binding HAQDAO.Bend}">
+                                        <RadioButton Content="Without any difficulty" Value="0" />
+                                        <RadioButton Content="With some difficulty" Value="1" />
+                                        <RadioButton Content="With much difficulty" Value="2" />
+                                        <RadioButton Content="Unable to do" Value="3" />
+                                    </StackLayout>
+                                </StackLayout>
+                                <Line Style="{StaticResource QuestionSpacerV}"/>
+                            </StackLayout>
+                        </Grid>
+                    </xct:Expander>
+                </Grid>
+
+
+
+                <Grid Style="{StaticResource HAQGridRowA}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <BoxView  WidthRequest="5" CornerRadius="5" HorizontalOptions="Start" VerticalOptions="FillAndExpand"  BackgroundColor="{StaticResource BADBIRPurple}" Margin="0" />
+                    <xct:Expander Grid.Column="1" Padding="5" VerticalOptions="StartAndExpand" >
+                        <xct:Expander.Header >
+                            <StackLayout Orientation="Vertical" >
+                                <Label Text="Section 7"  TextColor="DarkGray" TextTransform="Uppercase"  FontSize="Small"  />
+                                <Label Text="Grip" TextColor="{StaticResource BADBIRPurple}" TextTransform="Uppercase" Padding="0,0,0,15" FontSize="Medium" />
+                            </StackLayout>
+                        </xct:Expander.Header>
+                        <Grid VerticalOptions="StartAndExpand" HorizontalOptions="FillAndExpand">
+                            <StackLayout Orientation="Vertical" VerticalOptions="StartAndExpand">
+                                <Label Text="Are you able to:" Style="{StaticResource BodyLabel}" FontAttributes="Bold" Margin="0" />
+                                <StackLayout Orientation="Vertical">
+                                    <Label Text="a. Open car doors?" Style="{StaticResource BodyLabel}" Margin="0"  />
+                                    <StackLayout RadioButtonGroup.GroupName="data7_1" RadioButtonGroup.SelectedValue="{Binding HAQDAO.Cardoor}">
+                                        <RadioButton Content="Without any difficulty" Value="0" />
+                                        <RadioButton Content="With some difficulty" Value="1" />
+                                        <RadioButton Content="With much difficulty" Value="2" />
+                                        <RadioButton Content="Unable to do" Value="3" />
+                                    </StackLayout>
+                                </StackLayout>
+                                <Line Style="{StaticResource QuestionSpacerV}"/>
+                                <StackLayout Orientation="Vertical">
+                                    <Label Text="b. Open jars which have been previously opened?" Style="{StaticResource BodyLabel}" Margin="0" />
+                                    <StackLayout RadioButtonGroup.GroupName="data7_2" RadioButtonGroup.SelectedValue="{Binding HAQDAO.Openjar}">
+                                        <RadioButton Content="Without any difficulty" Value="0" />
+                                        <RadioButton Content="With some difficulty" Value="1" />
+                                        <RadioButton Content="With much difficulty" Value="2" />
+                                        <RadioButton Content="Unable to do" Value="3" />
+                                    </StackLayout>
+                                </StackLayout>
+                                <Line Style="{StaticResource QuestionSpacerV}"/>
+                                <StackLayout Orientation="Vertical">
+                                    <Label Text="c. Turn taps on and off?" Style="{StaticResource BodyLabel}" Margin="0" />
+                                    <StackLayout RadioButtonGroup.GroupName="data7_3" RadioButtonGroup.SelectedValue="{Binding HAQDAO.Turntap}">
+                                        <RadioButton Content="Without any difficulty" Value="0" />
+                                        <RadioButton Content="With some difficulty" Value="1" />
+                                        <RadioButton Content="With much difficulty" Value="2" />
+                                        <RadioButton Content="Unable to do" Value="3" />
+                                    </StackLayout>
+                                </StackLayout>
+                                <Line Style="{StaticResource QuestionSpacerV}"/>                                
+                            </StackLayout>
+                        </Grid>
+                    </xct:Expander>
+                </Grid>
+
+
+
+                <Grid Style="{StaticResource HAQGridRowB}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <BoxView  WidthRequest="5" CornerRadius="5" HorizontalOptions="Start" VerticalOptions="FillAndExpand"  BackgroundColor="{StaticResource BADBIRPurple}" Margin="0" />
+                    <xct:Expander Grid.Column="1" Padding="5" VerticalOptions="StartAndExpand" >
+                        <xct:Expander.Header >
+                            <StackLayout Orientation="Vertical" >
+                                <Label Text="Section 8"  TextColor="DarkGray" TextTransform="Uppercase"  FontSize="Small"  />
+                                <Label Text="Activities" TextColor="{StaticResource BADBIRPurple}" TextTransform="Uppercase" Padding="0,0,0,15" FontSize="Medium" />
+                            </StackLayout>
+                        </xct:Expander.Header>
+                        <Grid VerticalOptions="StartAndExpand" HorizontalOptions="FillAndExpand">
+                            <StackLayout Orientation="Vertical" VerticalOptions="StartAndExpand">
+                                <Label Text="Are you able to:" Style="{StaticResource BodyLabel}" FontAttributes="Bold" Margin="0" />
+                                <StackLayout Orientation="Vertical">
+                                    <Label Text="a. Run errands and shop?" Style="{StaticResource BodyLabel}" Margin="0"  />
+                                    <StackLayout RadioButtonGroup.GroupName="data8_1" RadioButtonGroup.SelectedValue="{Binding HAQDAO.Shop}">
+                                        <RadioButton Content="Without any difficulty" Value="0" />
+                                        <RadioButton Content="With some difficulty" Value="1" />
+                                        <RadioButton Content="With much difficulty" Value="2" />
+                                        <RadioButton Content="Unable to do" Value="3" />
+                                    </StackLayout>
+                                </StackLayout>
+                                <Line Style="{StaticResource QuestionSpacerV}"/>
+                                <StackLayout Orientation="Vertical">
+                                    <Label Text="b. Get in and out of a car?" Style="{StaticResource BodyLabel}" Margin="0" />
+                                    <StackLayout RadioButtonGroup.GroupName="data8_2" RadioButtonGroup.SelectedValue="{Binding HAQDAO.Getincar}">
+                                        <RadioButton Content="Without any difficulty" Value="0" />
+                                        <RadioButton Content="With some difficulty" Value="1" />
+                                        <RadioButton Content="With much difficulty" Value="2" />
+                                        <RadioButton Content="Unable to do" Value="3" />
+                                    </StackLayout>
+                                </StackLayout>
+                                <Line Style="{StaticResource QuestionSpacerV}"/>
+                                <StackLayout Orientation="Vertical">
+                                    <Label Text="c. Do chores such as vacuuming, housework or light gardening?" Style="{StaticResource BodyLabel}" Margin="0" />
+                                    <StackLayout RadioButtonGroup.GroupName="data8_3" RadioButtonGroup.SelectedValue="{Binding HAQDAO.Housework}">
+                                        <RadioButton Content="Without any difficulty" Value="0" />
+                                        <RadioButton Content="With some difficulty" Value="1" />
+                                        <RadioButton Content="With much difficulty" Value="2" />
+                                        <RadioButton Content="Unable to do" Value="3" />
+                                    </StackLayout>
+                                </StackLayout>
+                                <Line Style="{StaticResource QuestionSpacerV}"/>
+                                <StackLayout Orientation="Vertical" >
+                                    <Label Text="Please tick any AIDS or DEVICES that you usually use for any of these activities:" Style="{StaticResource BodyLabel}" Margin="0" Padding="0" />
+                                    <Grid  ColumnDefinitions="Auto, Auto, *" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" VerticalOptions="Start" RowSpacing="-7" ColumnSpacing="-10">
+                                        <CheckBox IsChecked="{Binding HAQDAO.Loolift}" Grid.Column="0" Grid.Row="0"/>
+                                        <Label Text="Raised toilet seat (H)" Style="{StaticResource BodyLabel}" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" />
+
+                                        <CheckBox IsChecked="{Binding HAQDAO.Bathseat}" Grid.Column="0" Grid.Row="1" />
+                                        <Label Text="Bath seat (H)" Style="{StaticResource BodyLabel}" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2"/>
+
+                                        <CheckBox IsChecked="{Binding HAQDAO.Bathrail}" Grid.Column="0" Grid.Row="2" />
+                                        <Label Text="Bath rail (H)" Style="{StaticResource BodyLabel}" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2"/>
+
+                                        <CheckBox IsChecked="{Binding HAQDAO.Longreach}" Grid.Column="0" Grid.Row="3" />
+                                        <Label Text="Long handled appliances for reach (R)" Style="{StaticResource BodyLabel}" Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="2"/>
+
+                                        <CheckBox IsChecked="{Binding HAQDAO.Jaropener}" Grid.Column="0" Grid.Row="4" />
+                                        <Label Text="Jar opener (for jars previously opened) (G)" Style="{StaticResource BodyLabel}" Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="2"/>
+
+                                        <Label Text="Other" Style="{StaticResource BodyLabel}" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="5" Padding="0,0,10,0" />
+                                        <Entry Text="{Binding HAQDAO.Deviceother}" Placeholder="Type here" Grid.Column="2" Grid.Row="5" />
+
+                                    </Grid>
+                                </StackLayout>
+                                <Line Style="{StaticResource QuestionSpacerV}"/>
+                                <StackLayout Orientation="Vertical" >
+                                    <Label Text="Please tick any categories for which you usually need help from another person:" Style="{StaticResource BodyLabel}" Margin="0" Padding="0" />
+                                    <Grid  ColumnDefinitions="Auto, Auto, *" RowDefinitions="Auto,Auto,Auto,Auto" VerticalOptions="Start" RowSpacing="-7" ColumnSpacing="-10">
+                                        <CheckBox IsChecked="{Binding HAQDAO.Hygiene}" Grid.Column="0" Grid.Row="0"/>
+                                        <Label Text="Hygiene" Style="{StaticResource BodyLabel}" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" />
+
+                                        <CheckBox IsChecked="{Binding HAQDAO.Reach}" Grid.Column="0" Grid.Row="1" />
+                                        <Label Text="Gripping and opening things" Style="{StaticResource BodyLabel}" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2"/>
+
+                                        <CheckBox IsChecked="{Binding HAQDAO.Gripping}" Grid.Column="0" Grid.Row="2" />
+                                        <Label Text="Reach" Style="{StaticResource BodyLabel}" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2"/>
+
+                                        <CheckBox IsChecked="{Binding HAQDAO.Errands}" Grid.Column="0" Grid.Row="3" />
+                                        <Label Text="Errands and housework" Style="{StaticResource BodyLabel}" Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="2"/>
+
+                                    </Grid>
+                                </StackLayout>
+
+                                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            </StackLayout>
+                        </Grid>
+                    </xct:Expander>
+                </Grid>
+
+                <StackLayout >
+                <Label Text="Today's date will be stored as the completion date of this questionnaire." HorizontalTextAlignment="Center"/>
+            </StackLayout>
+
+
+
+            <Button Text="Save" Command="{Binding SaveQCommand}" Style="{StaticResource PrimaryButtonPurple}" />
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

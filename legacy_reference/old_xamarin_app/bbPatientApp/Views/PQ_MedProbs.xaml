@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns:viewmodels="clr-namespace:bbPatientApp.ViewModels" 
+             x:DataType="viewmodels:MedProbsViewModel"
+             x:Class="bbPatientApp.Views.PQ_MedProbs"
+             Title="Medical Problems">
+    <ContentPage.BindingContext>
+        <viewmodels:MedProbsViewModel/>
+    </ContentPage.BindingContext>
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout Padding="10">
+
+                <Label Text="Medical Problems" Style="{StaticResource TitleLabel}"></Label>
+
+                <Label Text="This form collects information about your medical history since the previous follow up. It comprises of four main questions." Style="{StaticResource SubtitleLabel}" />
+
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                <StackLayout RadioButtonGroup.GroupName="q1" RadioButtonGroup.SelectedValue="{Binding MedProbDAO.Hospitaladmissions}">
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="How many times have you been " />
+                                <Span Text="ADMITTED " FontAttributes="Bold" />
+                                <Span Text="to hospital since your last dermatology clinic visit?" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <RadioButton Content="None" Value="0" GroupName="q1"/>
+                    <RadioButton Content="One" Value="1" GroupName="q1" />
+                    <RadioButton Content="Two" Value="2" GroupName="q1" />
+                    <RadioButton Content="More than two" Value="3" GroupName="q1" />
+                </StackLayout>
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                <StackLayout RadioButtonGroup.GroupName="q2" RadioButtonGroup.SelectedValue="{Binding MedProbDAO.Newdrugs}">
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="How many " />
+                                <Span Text="NEW DRUGS " FontAttributes="Bold" />
+                                <Span Text="have you been prescribed since your last dermatology clinic visit?" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <RadioButton Content="None" Value="0" GroupName="q2"/>
+                    <RadioButton Content="One" Value="1" GroupName="q2" />
+                    <RadioButton Content="Two" Value="2" GroupName="q2" />
+                    <RadioButton Content="More than two" Value="3" GroupName="q2" />
+                </StackLayout>
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                <StackLayout RadioButtonGroup.GroupName="q3" RadioButtonGroup.SelectedValue="{Binding MedProbDAO.Newclinics}">
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="How many " />
+                                <Span Text="NEW " FontAttributes="Bold" />
+                                <Span Text="hospital clinics have you been " />
+                                <Span Text="REFERRED " FontAttributes="Bold" />
+                                <Span Text="to since your last dermatology clinic visit?" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <RadioButton Content="None" Value="0" GroupName="q3"/>
+                    <RadioButton Content="One" Value="1" GroupName="q3" />
+                    <RadioButton Content="Two" Value="2" GroupName="q3" />
+                    <RadioButton Content="More than two" Value="3" GroupName="q3" />
+                </StackLayout>
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                <StackLayout>
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="What is your occupation?" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Entry Placeholder="Occupation" Text="{Binding MedProbDAO.Occupation}" />
+                </StackLayout>
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                <StackLayout RadioButtonGroup.GroupName="q5" RadioButtonGroup.SelectedValue="{Binding MedProbDAO.Employmentstatus}">
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Please tick the one box which best describes you:" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <RadioButton Content="Working full time" Value="1" GroupName="q5" />
+                    <RadioButton Content="Working part time" Value="2" GroupName="q5" />
+                    <RadioButton Content="Working full time in the home" Value="3" GroupName="q5" />
+                    <RadioButton Content="Unemployed but seeking work" Value="4" GroupName="q5" />
+                    <RadioButton Content="Not working due to disability/ill health" Value="5" GroupName="q5" />
+                    <RadioButton Content="Student" Value="6" GroupName="q5" />
+                    <RadioButton Content="Retired" Value="7" GroupName="q5" />
+                </StackLayout>
+
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                <Button Text="Save" Command="{Binding SaveQCommand}" Style="{StaticResource PrimaryButtonPurple}" />
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

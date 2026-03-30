@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Registration Flow — BADBIR Mockups</title>
+<style>
+/* ═══════════════════════════════════════════════════
+   BADBIR Mockup Shared Styles
+   ═══════════════════════════════════════════════════ */
+:root {
+  --nhs-blue:      #005EB8;
+  --nhs-blue-dark: #003D78;
+  --nhs-teal:      #41B6E6;
+  --nhs-green:     #007F3B;
+  --nhs-red:       #DA291C;
+  --nhs-amber:     #FFB81C;
+  --nhs-grey-1:    #F0F4F5;
+  --nhs-grey-2:    #D8DDE0;
+  --nhs-grey-3:    #AEB7BD;
+  --nhs-text:      #212B32;
+  --nhs-text-light:#425563;
+  --white:         #FFFFFF;
+  --shadow: 0 8px 32px rgba(0,0,0,0.18);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #E8EFF5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--nhs-text);
+  padding: 40px 20px;
+}
+h1.page-title {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--nhs-blue-dark);
+  margin-bottom: 6px;
+}
+p.page-subtitle {
+  text-align: center;
+  font-size: 14px;
+  color: var(--nhs-text-light);
+  margin-bottom: 40px;
+}
+.flow-section {
+  margin-bottom: 60px;
+}
+.flow-section h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--nhs-blue);
+  border-left: 4px solid var(--nhs-teal);
+  padding-left: 12px;
+  margin-bottom: 28px;
+}
+.screens-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+/* ── Phone Frame ── */
+.phone {
+  flex: 0 0 auto;
+  width: 320px;
+}
+.phone-caption {
+  text-align: center;
+  font-size: 12px;
+  color: var(--nhs-text-light);
+  margin-top: 10px;
+  font-weight: 600;
+}
+.phone-frame {
+  width: 320px;
+  height: 620px;
+  background: var(--nhs-grey-1);
+  border-radius: 36px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  border: 2px solid #C8D3DA;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* ── Status Bar ── */
+.status-bar {
+  background: var(--nhs-blue);
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  flex-shrink: 0;
+}
+.status-bar .time {
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+}
+.status-bar .icons {
+  color: white;
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+
+/* ── App Header ── */
+.app-header {
+  background: var(--nhs-blue);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.app-header .back-btn {
+  color: var(--nhs-teal);
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 1;
+}
+.app-header .header-title {
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  flex: 1;
+}
+.app-header .header-step {
+  color: rgba(255,255,255,0.7);
+  font-size: 11px;
+}
+
+/* ── Progress Bar ── */
+.progress-bar-wrap {
+  background: var(--nhs-blue-dark);
+  padding: 0 14px 8px;
+  flex-shrink: 0;
+}
+.progress-bar-track {
+  background: rgba(255,255,255,0.25);
+  border-radius: 4px;
+  height: 4px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  background: var(--nhs-teal);
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+.progress-label {
+  color: rgba(255,255,255,0.7);
+  font-size: 10px;
+  text-align: right;
+  margin-top: 3px;
+}
+
+/* ── Scrollable Content ── */
+.screen-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Bottom Button Bar ── */
+.bottom-bar {
+  background: white;
+  border-top: 1px solid var(--nhs-grey-2);
+  padding: 10px 16px;
+  flex-shrink: 0;
+}
+.btn-primary {
+  width: 100%;
+  background: var(--nhs-blue);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  display: block;
+}
+.btn-primary:disabled {
+  background: var(--nhs-grey-3);
+}
+.btn-secondary {
+  width: 100%;
+  background: white;
+  color: var(--nhs-blue);
+  border: 2px solid var(--nhs-blue);
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  display: block;
+  margin-top: 8px;
+}
+
+/* ── UI Components ── */
+.card {
+  background: white;
+  border-radius: 10px;
+  padding: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.question-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--nhs-text);
+  line-height: 1.45;
+  margin-bottom: 10px;
+}
+.question-sub {
+  font-size: 11px;
+  color: var(--nhs-text-light);
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border: 1.5px solid var(--nhs-grey-2);
+  border-radius: 8px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  background: white;
+  transition: all 0.15s;
+}
+.radio-option.selected {
+  border-color: var(--nhs-blue);
+  background: #EBF3FC;
+  color: var(--nhs-blue);
+  font-weight: 600;
+}
+.radio-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--nhs-grey-3);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.radio-dot.filled {
+  border-color: var(--nhs-blue);
+  background: var(--nhs-blue);
+}
+.radio-dot.filled::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+}
+.yn-row {
+  display: flex;
+  gap: 8px;
+}
+.yn-btn {
+  flex: 1;
+  padding: 11px 8px;
+  border: 2px solid var(--nhs-grey-2);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  background: white;
+}
+.yn-btn.yes { border-color: var(--nhs-green); color: var(--nhs-green); }
+.yn-btn.no  { border-color: var(--nhs-red);   color: var(--nhs-red);   }
+.yn-btn.yes.selected { background: var(--nhs-green); color: white; }
+.yn-btn.no.selected  { background: var(--nhs-red);   color: white; }
+
+.form-field {
+  background: white;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.form-field label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--nhs-text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.form-field input[type=text], .form-field input[type=email],
+.form-field input[type=password], .form-field input[type=number],
+.form-field select {
+  width: 100%;
+  border: 1.5px solid var(--nhs-grey-2);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--nhs-text);
+  background: var(--nhs-grey-1);
+  outline: none;
+}
+.form-field input:focus { border-color: var(--nhs-blue); }
+
+.section-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--nhs-text-light);
+  padding: 2px 0 6px;
+}
+.divider {
+  height: 1px;
+  background: var(--nhs-grey-2);
+  margin: 2px 0;
+}
+.banner {
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 500;
+}
+.banner-info  { background: #E8F4FD; color: #005EB8; border-left: 3px solid #41B6E6; }
+.banner-warn  { background: #FFF8E6; color: #6B5000; border-left: 3px solid #FFB81C; }
+.banner-error { background: #FDECEA; color: #8B1A14; border-left: 3px solid #DA291C; }
+.banner-ok    { background: #E8F5EE; color: #00401E; border-left: 3px solid #007F3B; }
+
+.form-list-item {
+  background: white;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.form-list-item.done { opacity: 0.6; }
+.form-list-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.icon-todo { background: var(--nhs-grey-2); }
+.icon-done { background: #CCE9DA; }
+.icon-next { background: #D6E8F8; }
+.form-list-info { flex: 1; }
+.form-list-title { font-size: 13px; font-weight: 700; color: var(--nhs-text); }
+.form-list-sub   { font-size: 11px; color: var(--nhs-text-light); margin-top: 1px; }
+.badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 12px;
+}
+.badge-cond { background: #FFF3CD; color: #856404; }
+.badge-done { background: #CCE9DA; color: #00401E; }
+.badge-todo { background: var(--nhs-grey-1); color: var(--nhs-text-light); }
+.badge-next { background: #D6E8F8; color: #003D78; }
+
+.haq-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+.haq-q-label { font-size: 11px; color: var(--nhs-text); flex: 1; line-height: 1.3; }
+.haq-options {
+  display: flex;
+  gap: 3px;
+}
+.haq-opt {
+  font-size: 8px;
+  padding: 3px 4px;
+  border: 1px solid var(--nhs-grey-2);
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  color: var(--nhs-text-light);
+  background: white;
+}
+.haq-opt.sel {
+  background: var(--nhs-blue);
+  color: white;
+  border-color: var(--nhs-blue);
+}
+.haq-cat-header {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--nhs-blue);
+  background: #EBF3FC;
+  padding: 5px 8px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+
+.vas-wrapper {
+  display: flex;
+  gap: 14px;
+  align-items: stretch;
+  padding: 8px 0;
+}
+.vas-scale {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+.vas-label-top { font-size: 9px; color: var(--nhs-green); font-weight: 700; text-align: center; margin-bottom: 4px; }
+.vas-label-bot { font-size: 9px; color: var(--nhs-red);   font-weight: 700; text-align: center; margin-top: 4px; }
+.vas-track {
+  width: 28px;
+  height: 160px;
+  background: linear-gradient(to bottom, #007F3B, #FFB81C, #DA291C);
+  border-radius: 14px;
+  position: relative;
+  cursor: pointer;
+}
+.vas-thumb {
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  transform: translate(-50%, -50%);
+  width: 32px;
+  height: 32px;
+  background: white;
+  border: 3px solid var(--nhs-blue);
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--nhs-blue);
+}
+.vas-numbers {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 160px;
+  padding: 2px 0;
+}
+.vas-numbers span {
+  font-size: 9px;
+  color: var(--nhs-text-light);
+}
+.vas-value-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 8px;
+}
+.vas-big-num {
+  font-size: 42px;
+  font-weight: 700;
+  color: var(--nhs-blue);
+  line-height: 1;
+}
+.vas-unit {
+  font-size: 11px;
+  color: var(--nhs-text-light);
+  margin-top: -4px;
+}
+.vas-prompt {
+  font-size: 11px;
+  color: var(--nhs-text);
+  line-height: 1.4;
+}
+
+.sapasi-region-card {
+  background: white;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+}
+.sapasi-region-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--nhs-blue);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sapasi-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+.sapasi-row-label { font-size: 10px; color: var(--nhs-text-light); flex: 1; }
+.sapasi-dots {
+  display: flex;
+  gap: 4px;
+}
+.sapasi-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--nhs-grey-2);
+  cursor: pointer;
+}
+.sapasi-dot.active { background: var(--nhs-blue); border-color: var(--nhs-blue); }
+
+.pga-option {
+  padding: 11px 14px;
+  border: 2px solid var(--nhs-grey-2);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 7px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: white;
+}
+.pga-option.selected {
+  border-color: var(--nhs-blue);
+  background: #EBF3FC;
+  color: var(--nhs-blue);
+}
+.pga-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.dot-red    { background: #DA291C; }
+.dot-orange { background: #FF8C00; }
+.dot-yellow { background: #FFB81C; }
+.dot-ltgreen{ background: #76C442; }
+.dot-green  { background: #007F3B; }
+
+.dlqi-q {
+  background: white;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.dlqi-q-num {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--nhs-text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.dlqi-q-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--nhs-text);
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+.dlqi-opts {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.dlqi-opt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--nhs-text);
+  padding: 6px 8px;
+  border: 1.5px solid var(--nhs-grey-2);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.dlqi-opt.sel {
+  border-color: var(--nhs-blue);
+  background: #EBF3FC;
+  color: var(--nhs-blue);
+  font-weight: 600;
+}
+.dot-radio {
+  width: 13px; height: 13px;
+  border-radius: 50%;
+  border: 2px solid #AEB7BD;
+  flex-shrink: 0;
+}
+.dot-radio.fill {
+  border-color: var(--nhs-blue);
+  background: var(--nhs-blue);
+}
+
+.euro-dim {
+  background: white;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.euro-dim-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--nhs-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 7px;
+}
+.euro-opt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--nhs-text);
+  padding: 6px 8px;
+  border: 1.5px solid var(--nhs-grey-2);
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 4px;
+}
+.euro-opt.sel {
+  border-color: var(--nhs-blue);
+  background: #EBF3FC;
+  color: var(--nhs-blue);
+  font-weight: 600;
+}
+
+.score-result {
+  background: var(--nhs-blue);
+  border-radius: 12px;
+  padding: 16px;
+  color: white;
+  text-align: center;
+}
+.score-result .big { font-size: 40px; font-weight: 700; line-height: 1; }
+.score-result .sub { font-size: 12px; margin-top: 4px; opacity: 0.8; }
+.score-result .band {
+  display: inline-block;
+  background: rgba(255,255,255,0.2);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-top: 8px;
+}
+
+.timeline-dot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+}
+.tdot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.tdot-done  { background: var(--nhs-green); }
+.tdot-now   { background: var(--nhs-teal);  }
+.tdot-next  { background: var(--nhs-grey-3);}
+.tdot-label { font-size: 12px; color: var(--nhs-text); font-weight: 500; }
+.tdot-label span { font-size: 10px; color: var(--nhs-text-light); display: block; }
+.timeline-line { width: 2px; height: 14px; background: var(--nhs-grey-2); margin-left: 6px; }
+
+.checkbox-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1.5px solid var(--nhs-grey-2);
+  border-radius: 8px;
+  margin-bottom: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  background: white;
+}
+.checkbox-option.checked {
+  border-color: var(--nhs-blue);
+  background: #EBF3FC;
+  color: var(--nhs-blue);
+}
+.chk-box {
+  width: 16px; height: 16px;
+  border-radius: 4px;
+  border: 2px solid #AEB7BD;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.chk-box.chk { border-color: var(--nhs-blue); background: var(--nhs-blue); color: white; font-size: 10px; }
+
+.hads-q {
+  background: white;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.hads-q-num { font-size: 9px; font-weight: 700; color: var(--nhs-text-light); letter-spacing: 0.5px; margin-bottom: 3px; }
+.hads-q-type {
+  display: inline-block;
+  font-size: 8px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-bottom: 5px;
+}
+.type-a { background: #FEF3C7; color: #92400E; }
+.type-d { background: #EDE9FE; color: #4C1D95; }
+.hads-q-text { font-size: 12px; font-weight: 600; color: var(--nhs-text); line-height: 1.35; margin-bottom: 8px; }
+.hads-opts { display: flex; flex-direction: column; gap: 4px; }
+.hads-opt {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 10px; color: var(--nhs-text);
+  padding: 5px 8px;
+  border: 1.5px solid var(--nhs-grey-2);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.hads-opt.sel { border-color: var(--nhs-blue); background: #EBF3FC; color: var(--nhs-blue); font-weight: 600; }
+
+.med-prob-q {
+  background: white;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.med-opts { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 7px; }
+.med-opt {
+  padding: 6px 10px;
+  border: 1.5px solid var(--nhs-grey-2);
+  border-radius: 20px;
+  font-size: 11px;
+  cursor: pointer;
+  background: white;
+  color: var(--nhs-text);
+}
+.med-opt.sel { background: var(--nhs-blue); color: white; border-color: var(--nhs-blue); }
+
+/* ── Dashboard visit timeline bar ── */
+.visit-bar {
+  background: white;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.visit-bar-title { font-size: 10px; font-weight: 700; color: var(--nhs-text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.visit-timeline {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.vt-item { display: flex; flex-direction: column; align-items: center; flex: 1; }
+.vt-dot { width: 12px; height: 12px; border-radius: 50%; }
+.vt-line { height: 2px; background: var(--nhs-grey-2); flex: 1; }
+.vt-label { font-size: 8px; color: var(--nhs-text-light); margin-top: 3px; text-align: center; white-space: nowrap; }
+.vt-active .vt-dot { background: var(--nhs-teal); box-shadow: 0 0 0 3px rgba(65,182,230,0.3); }
+.vt-done .vt-dot   { background: var(--nhs-green); }
+.vt-future .vt-dot { background: var(--nhs-grey-2); }
+
+/* ── Welcome screen ── */
+.welcome-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px 12px;
+  text-align: center;
+}
+.welcome-logo {
+  width: 64px;
+  height: 64px;
+  background: var(--nhs-blue);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 14px rgba(0,94,184,0.35);
+}
+.welcome-name { font-size: 22px; font-weight: 800; color: var(--nhs-blue-dark); }
+.welcome-tagline { font-size: 11px; color: var(--nhs-text-light); margin-top: 4px; line-height: 1.4; }
+
+/* ── Identity form ── */
+.id-row { display: flex; gap: 8px; }
+.id-row > .form-field { flex: 1; }
+
+/* ── Email verify ── */
+.verify-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px 0;
+  gap: 10px;
+}
+.verify-icon {
+  font-size: 48px;
+  line-height: 1;
+}
+.verify-title { font-size: 17px; font-weight: 700; color: var(--nhs-blue-dark); }
+.verify-sub   { font-size: 12px; color: var(--nhs-text-light); line-height: 1.5; }
+.verify-email { font-size: 13px; font-weight: 600; color: var(--nhs-blue); }
+</style>
+</head>
+<body>
+<p style="text-align:center;margin-bottom:24px"><a href="index.html" style="color:#005EB8;font-size:13px;font-weight:600;text-decoration:none">← Back to Index</a></p>
+<h1 class="page-title">BADBIR Patient App</h1>
+<p class="page-subtitle">Welcome · Eligibility Screener · Identity Verification · Account Setup · Consent</p>
+<div class="flow-section"><h2>Registration &amp; Eligibility Screener — 10 Screens</h2><div class="screens-row"><div class="phone"><div class="phone-frame"><div class="status-bar" style="background:#005EB8"><span class="time">9:41</span><span class="icons">signal wifi battery</span></div><div class="app-header" style="background:#005EB8"><span class="back-btn"></span><span class="header-title">BADBIR</span><span class="header-step"></span></div><div class="screen-content">
+<div class="welcome-hero">
+  <div class="welcome-logo">🏥</div>
+  <div class="welcome-name">BADBIR</div>
+  <div class="welcome-tagline">British Association of Dermatologists<br>Biologics &amp; Immunosuppressants Register</div>
+</div>
+<div class="card">Welcome to the BADBIR Patient App. Complete your study questionnaires securely from your phone or browser.</div><div class="banner banner-info">Your participation helps improve treatments for psoriasis patients across the UK.</div></div><div class="bottom-bar"><button class="btn-primary">Get Started</button><div class="btn-secondary">I already have an account</div></div></div><div class="phone-caption">1. Welcome / Landing</div></div>
+<div class="phone"><div class="phone-frame"><div class="status-bar" style="background:#005EB8"><span class="time">9:41</span><span class="icons">signal wifi battery</span></div><div class="app-header" style="background:#005EB8"><span class="back-btn">← </span><span class="header-title">Are you eligible?</span><span class="header-step">Step 1 of 3</span></div><div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:33%"></div></div><div class="progress-label">Question 1 of 3</div></div><div class="screen-content"><div class="banner banner-info">We need to check a few things before you can register. This takes less than a minute.</div><div class="card"><div class="question-text">Have you been <strong>diagnosed with psoriasis</strong> by a dermatologist?</div><div class="yn-row"><div class="yn-btn yes">Yes</div><div class="yn-btn no">No</div></div></div></div><div class="bottom-bar"><button class="btn-primary" disabled>Next</button></div></div><div class="phone-caption">2. Eligibility — Q1 Diagnosis</div></div>
+<div class="phone"><div class="phone-frame"><div class="status-bar" style="background:#005EB8"><span class="time">9:41</span><span class="icons">signal wifi battery</span></div><div class="app-header" style="background:#005EB8"><span class="back-btn">← </span><span class="header-title">Are you eligible?</span><span class="header-step">Step 2 of 3</span></div><div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:66%"></div></div><div class="progress-label">Question 2 of 3</div></div><div class="screen-content"><div class="banner banner-info">✓ Answered Yes</div><div class="card"><div class="question-text">Have you <strong>started a new prescribed treatment</strong> (pill, injection, or light therapy) for your psoriasis in the last <strong>6 months</strong>?</div><div class="yn-row"><div class="yn-btn yes">Yes</div><div class="yn-btn no">No</div></div></div></div><div class="bottom-bar"><button class="btn-primary" disabled>Next</button></div></div><div class="phone-caption">3. Eligibility — Q2 Treatment</div></div>
+<div class="phone"><div class="phone-frame"><div class="status-bar" style="background:#005EB8"><span class="time">9:41</span><span class="icons">signal wifi battery</span></div><div class="app-header" style="background:#005EB8"><span class="back-btn">← </span><span class="header-title">Are you eligible?</span><span class="header-step">Step 3 of 3</span></div><div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:100%"></div></div><div class="progress-label">Question 3 of 3</div></div><div class="screen-content"><div class="banner banner-info">✓ Answered Yes to both</div><div class="card"><div class="question-text">Are you currently <strong>16 years of age or older?</strong></div><div class="yn-row"><div class="yn-btn yes selected">Yes</div><div class="yn-btn no">No</div></div></div></div><div class="bottom-bar"><button class="btn-primary">Continue to Registration</button></div></div><div class="phone-caption">4. Eligibility — Q3 Age</div></div>
+<div class="phone"><div class="phone-frame"><div class="status-bar" style="background:#005EB8"><span class="time">9:41</span><span class="icons">signal wifi battery</span></div><div class="app-header" style="background:#005EB8"><span class="back-btn">← </span><span class="header-title">Registration paused</span><span class="header-step"></span></div><div class="screen-content"><div style="text-align:center;padding:20px 0"><div style="font-size:48px">⚠️</div>
+<div style="font-size:16px;font-weight:700;color:#003D78;margin:10px 0">You may not be eligible right now</div></div><div class="banner banner-warn">Based on your answers, you may not be eligible to join BADBIR at this exact time, or your clinical team may need to register you directly. Please speak to your dermatologist or dermatology nurse at your next appointment to confirm your eligibility.</div></div><div class="bottom-bar"><div class="btn-secondary">Review my answers</div></div></div><div class="phone-caption">5. Eligibility Failed</div></div>
+<div class="phone"><div class="phone-frame"><div class="status-bar" style="background:#005EB8"><span class="time">9:41</span><span class="icons">signal wifi battery</span></div><div class="app-header" style="background:#005EB8"><span class="back-btn">← </span><span class="header-title">Speak to your team</span><span class="header-step"></span></div><div class="screen-content"><div style="text-align:center;padding:20px 0"><div style="font-size:48px">👩‍⚕️</div>
+<div style="font-size:16px;font-weight:700;color:#003D78;margin:10px 0">Please see your clinical team</div></div><div class="banner banner-info">Currently, patients under 16 must be registered directly by their clinical team. Please speak to your dermatologist at your next appointment.</div></div><div class="bottom-bar"><div class="btn-secondary">Go back</div></div></div><div class="phone-caption">6. Under 16 — Paediatric Deferral</div></div>
+<div class="phone"><div class="phone-frame"><div class="status-bar" style="background:#005EB8"><span class="time">9:41</span><span class="icons">signal wifi battery</span></div><div class="app-header" style="background:#005EB8"><span class="back-btn">← </span><span class="header-title">Verify your identity</span><span class="header-step"></span></div><div class="screen-content"><div class="banner banner-info">We'll match your details to your BADBIR record. Enter exactly as provided to your clinical team.</div><div class="section-label">Date of Birth</div><div class="id-row"><div class="form-field"><label>Day</label><input type="text" value="" placeholder="DD"></div><div class="form-field"><label>Month</label><input type="text" value="" placeholder="MM"></div><div class="form-field"><label>Year</label><input type="text" value="" placeholder="YYYY"></div></div><div class="section-label">Your Initials</div><div class="id-row"><div class="form-field"><label>First Initial</label><input type="text" value="J" placeholder="e.g. J"></div><div class="form-field"><label>Last Initial</label><input type="text" value="S" placeholder="e.g. S"></div></div><div class="section-label">One Identifier</div><div class="form-field"><label>NHS Number</label><input type="text" value="" placeholder="e.g. 123 456 7890"></div><div class="form-field"><label>CHI Number (Scotland)</label><input type="text" value="" placeholder="Optional"></div><div class="form-field"><label>BADBIR Study Number</label><input type="text" value="" placeholder="Optional"></div></div><div class="bottom-bar"><button class="btn-primary">Verify Identity</button></div></div><div class="phone-caption">7. Identity Verification</div></div>
+<div class="phone"><div class="phone-frame"><div class="status-bar" style="background:#005EB8"><span class="time">9:41</span><span class="icons">signal wifi battery</span></div><div class="app-header" style="background:#005EB8"><span class="back-btn">← </span><span class="header-title">Create your account</span><span class="header-step"></span></div><div class="screen-content"><div class="banner banner-ok">✓ Identity verified — Welcome, J.S.</div><div class="section-label">Contact Details</div><div class="form-field"><label>Email Address</label><input type="email" value="" placeholder="your@email.com"></div><div class="form-field"><label>Confirm Email</label><input type="email" value="" placeholder=""></div><div class="section-label">Password</div><div class="form-field"><label>Password</label><input type="password" value="" placeholder="Min 8 characters"></div><div class="form-field"><label>Confirm Password</label><input type="password" value="" placeholder=""></div><div class="card">Password must be at least 8 characters and include at least one number.</div></div><div class="bottom-bar"><button class="btn-primary">Create Account</button></div></div><div class="phone-caption">8. Account Setup</div></div>
+<div class="phone"><div class="phone-frame"><div class="status-bar" style="background:#005EB8"><span class="time">9:41</span><span class="icons">signal wifi battery</span></div><div class="app-header" style="background:#005EB8"><span class="back-btn">← </span><span class="header-title">Verify email</span><span class="header-step"></span></div><div class="screen-content"><div class="verify-center">
+<div class="verify-icon">📧</div>
+<div class="verify-title">Check your email</div>
+<div class="verify-email">j.smith@example.com</div>
+<div class="verify-sub">We sent a 6-digit code to your email. Enter it below.</div>
+</div><div style="display:flex;gap:7px;justify-content:center;margin:8px 0"><input type="text" maxlength="1" style="width:38px;height:46px;text-align:center;border:2px solid #D8DDE0;border-radius:8px;font-size:20px;font-weight:700"><input type="text" maxlength="1" style="width:38px;height:46px;text-align:center;border:2px solid #D8DDE0;border-radius:8px;font-size:20px;font-weight:700"><input type="text" maxlength="1" style="width:38px;height:46px;text-align:center;border:2px solid #D8DDE0;border-radius:8px;font-size:20px;font-weight:700"><input type="text" maxlength="1" style="width:38px;height:46px;text-align:center;border:2px solid #D8DDE0;border-radius:8px;font-size:20px;font-weight:700"><input type="text" maxlength="1" style="width:38px;height:46px;text-align:center;border:2px solid #D8DDE0;border-radius:8px;font-size:20px;font-weight:700"><input type="text" maxlength="1" style="width:38px;height:46px;text-align:center;border:2px solid #D8DDE0;border-radius:8px;font-size:20px;font-weight:700"></div><div class="btn-secondary">Resend code</div></div><div class="bottom-bar"><button class="btn-primary">Verify &amp; Continue</button></div></div><div class="phone-caption">9. Email Verification</div></div>
+<div class="phone"><div class="phone-frame"><div class="status-bar" style="background:#005EB8"><span class="time">9:41</span><span class="icons">signal wifi battery</span></div><div class="app-header" style="background:#005EB8"><span class="back-btn">← </span><span class="header-title">Study Consent</span><span class="header-step"></span></div><div class="screen-content"><div class="banner banner-info">Please read the consent information carefully before signing.</div><div class="card"><div class="question-text">BADBIR Research Study Consent</div>
+<div style="font-size:11px;color:#425563;line-height:1.6;height:130px;overflow-y:auto;margin-bottom:8px">
+I understand that my participation in BADBIR is entirely voluntary and I can withdraw at any time without giving reasons and without my medical care being affected.<br><br>
+I understand that my GP will be informed of my participation in the study.<br><br>
+I agree to my anonymised data being used for approved research purposes.<br><br>
+I understand my data will be stored securely and handled in accordance with UK GDPR.
+</div></div><div class="checkbox-option checked"><div class="chk-box chk">✓</div>I have read and understood the information sheet.</div><div class="checkbox-option checked"><div class="chk-box chk">✓</div>I agree to take part in the BADBIR study.</div><div class="checkbox-option"><div class="chk-box"></div>I am happy for my GP to be informed.</div></div><div class="bottom-bar"><button class="btn-primary">Sign &amp; Submit Consent</button></div></div><div class="phone-caption">10. Consent Form</div></div></div></div>
+<p style="text-align:center;font-size:11px;color:#AEB7BD;margin-top:40px">BADBIR Mockups — Not for clinical use</p>
+</body>
+</html>

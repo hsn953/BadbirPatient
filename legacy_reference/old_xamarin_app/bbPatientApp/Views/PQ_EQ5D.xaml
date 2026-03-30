@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+            xmlns:range="clr-namespace:Syncfusion.SfRangeSlider.XForms;assembly=Syncfusion.SfRangeSlider.XForms"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+            xmlns:viewmodels="clr-namespace:bbPatientApp.ViewModels" 
+            xmlns:local="clr-namespace:bbPatientApp.Models"
+            x:Class="bbPatientApp.Views.PQ_Eq5d"
+            
+            Title="EQ-5D">
+    <ContentPage.BindingContext>
+        <viewmodels:Eq5dViewModel/>
+    </ContentPage.BindingContext>
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <DataTemplate x:Key="StandardTemplate">
+                <StackLayout>
+                    <Label  Style="{StaticResource SubtitleLabel}" Text="{Binding TopLabel}"/>
+
+                    <Line Style="{StaticResource QuestionSeparatorV}"/>
+                    <Line Style="{StaticResource QuestionSpacerV}"/>
+                    <Label Style="{StaticResource BodyLabel}">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="{Binding QuestionText}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <StackLayout RadioButtonGroup.GroupName="{Binding RbGroupName}" RadioButtonGroup.SelectedValue="{Binding AnswerValue}">
+                        <RadioButton Content="{Binding Answer0}" Value="0" HorizontalOptions="FillAndExpand" />
+                        <RadioButton Content="{Binding Answer1}" Value="1" HorizontalOptions="FillAndExpand"/>
+                        <RadioButton Content="{Binding Answer2}" Value="2"  HorizontalOptions="FillAndExpand"/>
+                    </StackLayout>
+                </StackLayout>
+            </DataTemplate>
+            <DataTemplate x:Key="ScaleQuestionTemplate">
+
+                <StackLayout>
+                    <Label  Style="{StaticResource SubtitleLabel}" Text="{Binding TopLabel}"/>
+                    <Line Style="{StaticResource QuestionSeparatorV}"/>
+                    <ScrollView>
+                        <StackLayout>
+                            <Label Text="You will see a scale numbered from 0 to 100." Style="{StaticResource BodyLabel}" Margin="0" Padding="0,0" />
+                            <Label Text="100 means the best health you can imagine." Style="{StaticResource BodyLabel}" Margin="0" Padding="0,0"/>
+                            <Label Text="0 means the worst health you can imagine." Style="{StaticResource BodyLabel}" Margin="0"/>
+                            <Label Text="Please indicate on the scale how your health is TODAY." Style="{StaticResource BodyLabel}" Margin="0"/>
+
+
+                            <StackLayout  >
+                                <Label Text="The best health you can imagine" FontAttributes="Bold" HorizontalOptions="CenterAndExpand" HorizontalTextAlignment="Center"/>
+                                <range:SfRangeSlider  Orientation="Vertical" VerticalOptions="Center" HorizontalOptions="Start" HeightRequest="250" KnobColor="{StaticResource BADBIRPurple}" 
+                                            TickFrequency="10" TickPlacement="Inline" ThumbBorderColor="{StaticResource BADBIRPurple}" Value="{Binding AnswerValue}"
+                                x:Name="rangeSlider" ShowRange="False" ShowValueLabel="True"  StepFrequency="1" TickColor="Black" 
+                                          ToolTipTextColor="{StaticResource BADBIRPurple}" ToolTipBackgroundColor="White" ToolTipPlacement="TopLeft"
+                                              RangeStart="0" RangeEnd="100" FontSize="12" 
+                                         LabelColor="{StaticResource BADBIRPurple}" LabelPlacement="BottomRight" TrackSelectionColor="{StaticResource BADBIRPurple}"
+                                             ValueChanging="rangeSlider_ValueChanging" />
+
+                                <Label Text="The worst health you can imagine" FontAttributes="Bold" HorizontalOptions="CenterAndExpand" HorizontalTextAlignment="Center"/>
+                                <Line Style="{StaticResource QuestionSeparatorV}"/>
+                                <Label x:Name="SliderValue" Text="How do you feel today: " FontAttributes="Bold" HorizontalOptions="CenterAndExpand" HorizontalTextAlignment="Center"/>
+
+                            </StackLayout>
+                        </StackLayout>
+                    </ScrollView>
+                </StackLayout>
+            </DataTemplate>
+
+            <local:Eq5dDataTemplateSelector x:Key="eq5dDataTemplateSelector" StandardTemplate="{StaticResource StandardTemplate}" ScaleTemplate="{StaticResource ScaleQuestionTemplate}" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <StackLayout Style="{StaticResource MainOuterStackLayout}">
+
+        <Label Text="EuroQOL (EQ-5D)" Style="{StaticResource TitleLabel}" />
+
+        <CarouselView  Loop="False" x:Name="carouselView" ItemsSource="{Binding EQ5DQuestions}" VerticalOptions="Start" ItemTemplate="{StaticResource Key=eq5dDataTemplateSelector}" 
+                        IndicatorView="indicatorView"
+            />
+
+
+
+        <Label Text="Swipe horizontally to proceed to next question." Style="{StaticResource BodyLabel}" HorizontalOptions="Center"/>
+
+        <IndicatorView x:Name="indicatorView" IndicatorColor="LightGray"  SelectedIndicatorColor="{StaticResource BADBIRPurple}" HorizontalOptions="Center"  />
+
+        <Label Text="© EuroQol Research Foundation. EQ-5D™ is a trade mark of the EuroQol Research Foundation. UK (English) v2.1" Style="{StaticResource BodyLabel}" FontSize="Micro" TextColor="Gray" HorizontalOptions="CenterAndExpand" HorizontalTextAlignment="Center"/>
+
+
+        <Button Text="Save" Command="{Binding SaveQCommand}" Style="{StaticResource PrimaryButtonPurple}" />
+    </StackLayout>
+</ContentPage>

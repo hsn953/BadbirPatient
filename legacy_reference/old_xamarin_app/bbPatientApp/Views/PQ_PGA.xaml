@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns:viewmodels="clr-namespace:bbPatientApp.ViewModels" 
+             x:DataType="viewmodels:PgaViewModel"
+             x:Class="bbPatientApp.Views.PQ_Pga"
+             Title="PGA Score">
+    <ContentPage.BindingContext>
+        <viewmodels:PgaViewModel/>
+    </ContentPage.BindingContext>
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout Style="{StaticResource MainOuterStackLayout}">
+
+                <Label Text="Psoriasis Global Assessment (PGA)" Style="{StaticResource TitleLabel}"></Label>
+
+                <StackLayout RadioButtonGroup.GroupName="q1" x:Name="PGAQ1" RadioButtonGroup.SelectedValue="{Binding PgaScore.Pgascore}">
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="How would you " />
+                                <Span Text="currently " FontAttributes="Bold" />
+                                <Span Text="rate your psoriasis?" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <RadioButton Content="Severe" Value="1" GroupName="q1"/>
+                    <RadioButton Content="Moderate" Value="3" GroupName="q1" />
+                    <RadioButton Content="Mild" Value="4" GroupName="q1" />
+                    <RadioButton Content="Almost Clear" Value="5" GroupName="q1" />
+                    <RadioButton Content="Clear" Value="6" GroupName="q1" />
+                </StackLayout>
+                <Line Style="{StaticResource QuestionSpacerV}"/>
+
+                <Button Text="Save &amp; proceed" Command="{Binding SaveQCommand}" Style="{StaticResource PrimaryButtonPurple}" />
+
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

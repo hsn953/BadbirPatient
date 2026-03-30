@@ -1,0 +1,88 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29905.134
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MHS.Badbir.NetTiers.Entities", "MHS.Badbir.NetTiers.Entities\MHS.Badbir.NetTiers.Entities.csproj", "{BEF768BE-FB43-47B4-A603-3141223AB7CE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MHS.Badbir.NetTiers.Data", "MHS.Badbir.NetTiers.Data\MHS.Badbir.NetTiers.Data.csproj", "{414024E1-C671-4DED-89FC-9CEEADB798D3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MHS.Badbir.NetTiers.Data.SqlClient", "MHS.Badbir.NetTiers.Data.SqlClient\MHS.Badbir.NetTiers.Data.SqlClient.csproj", "{F6D2A40F-DF93-482B-BF33-FF9CAC9CD75E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MHS.Badbir.NetTiers.Component", "MHS.Badbir.NetTiers.Component\MHS.Badbir.NetTiers.Component.csproj", "{149E5995-2CB7-4BD8-86F6-110CBB35D874}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MHS.Badbir.NetTiers.Web", "MHS.Badbir.NetTiers.Web\MHS.Badbir.NetTiers.Web.csproj", "{4A79F443-8C87-44E0-A1D2-A08B4A07E9EA}"
+EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "MHS.Badbir.NetTiers.Website", "MHS.Badbir.NetTiers.Website\", "{AD1A0F5D-CDD8-438B-996E-A28C4B3D7308}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.5"
+		ProjectReferences = "{BEF768BE-FB43-47B4-A603-3141223AB7CE}|MHS.Badbir.NetTiers.Entities.dll;{414024E1-C671-4DED-89FC-9CEEADB798D3}|MHS.Badbir.NetTiers.Data.dll;{F6D2A40F-DF93-482B-BF33-FF9CAC9CD75E}|MHS.Badbir.NetTiers.Data.SqlClient.dll;{149E5995-2CB7-4BD8-86F6-110CBB35D874}|MHS.Badbir.NetTiers.Component.dll;{4A79F443-8C87-44E0-A1D2-A08B4A07E9EA}|MHS.Badbir.NetTiers.Web.dll;"
+		Debug.AspNetCompiler.VirtualPath = "/MHS.Badbir.NetTiers.Website"
+		Debug.AspNetCompiler.PhysicalPath = "MHS.Badbir.NetTiers.Website\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\MHS.Badbir.NetTiers.Website\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/MHS.Badbir.NetTiers.Website"
+		Release.AspNetCompiler.PhysicalPath = "MHS.Badbir.NetTiers.Website\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\MHS.Badbir.NetTiers.Website\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "2005"
+		SlnRelativePath = "MHS.Badbir.NetTiers.Website\"
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NetTiers", "NetTiers", "{F3A10C8D-3227-449F-A2CB-014DE2D7F415}"
+	ProjectSection(SolutionItems) = preProject
+		AssemblyInfo.cs = AssemblyInfo.cs
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BEF768BE-FB43-47B4-A603-3141223AB7CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEF768BE-FB43-47B4-A603-3141223AB7CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEF768BE-FB43-47B4-A603-3141223AB7CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEF768BE-FB43-47B4-A603-3141223AB7CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{414024E1-C671-4DED-89FC-9CEEADB798D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{414024E1-C671-4DED-89FC-9CEEADB798D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{414024E1-C671-4DED-89FC-9CEEADB798D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{414024E1-C671-4DED-89FC-9CEEADB798D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6D2A40F-DF93-482B-BF33-FF9CAC9CD75E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6D2A40F-DF93-482B-BF33-FF9CAC9CD75E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6D2A40F-DF93-482B-BF33-FF9CAC9CD75E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6D2A40F-DF93-482B-BF33-FF9CAC9CD75E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{149E5995-2CB7-4BD8-86F6-110CBB35D874}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{149E5995-2CB7-4BD8-86F6-110CBB35D874}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{149E5995-2CB7-4BD8-86F6-110CBB35D874}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{149E5995-2CB7-4BD8-86F6-110CBB35D874}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A79F443-8C87-44E0-A1D2-A08B4A07E9EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A79F443-8C87-44E0-A1D2-A08B4A07E9EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A79F443-8C87-44E0-A1D2-A08B4A07E9EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A79F443-8C87-44E0-A1D2-A08B4A07E9EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD1A0F5D-CDD8-438B-996E-A28C4B3D7308}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD1A0F5D-CDD8-438B-996E-A28C4B3D7308}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD1A0F5D-CDD8-438B-996E-A28C4B3D7308}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD1A0F5D-CDD8-438B-996E-A28C4B3D7308}.Release|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BEF768BE-FB43-47B4-A603-3141223AB7CE} = {F3A10C8D-3227-449F-A2CB-014DE2D7F415}
+		{414024E1-C671-4DED-89FC-9CEEADB798D3} = {F3A10C8D-3227-449F-A2CB-014DE2D7F415}
+		{F6D2A40F-DF93-482B-BF33-FF9CAC9CD75E} = {F3A10C8D-3227-449F-A2CB-014DE2D7F415}
+		{149E5995-2CB7-4BD8-86F6-110CBB35D874} = {F3A10C8D-3227-449F-A2CB-014DE2D7F415}
+		{4A79F443-8C87-44E0-A1D2-A08B4A07E9EA} = {F3A10C8D-3227-449F-A2CB-014DE2D7F415}
+		{AD1A0F5D-CDD8-438B-996E-A28C4B3D7308} = {F3A10C8D-3227-449F-A2CB-014DE2D7F415}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {410275A3-B43E-4171-B8E1-7EBBCE724945}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="bbPatientApp.Views.AccessibilitySt"
+             xmlns:vm="clr-namespace:bbPatientApp.ViewModels"
+             Title="Accessibility Statement">
+    
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Color x:Key="Accent">#96d1ff</Color>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <StackLayout Padding="10,10">
+        <WebView  Source="https://patient.badbir.org/AccessibilityStatementBADBIR1_0.htm"  HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" />
+    </StackLayout>
+</ContentPage>

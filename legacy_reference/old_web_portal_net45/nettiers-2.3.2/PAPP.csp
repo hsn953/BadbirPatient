@@ -1,0 +1,308 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<codeSmith xmlns="http://www.codesmithtools.com/schema/csp.xsd">
+  <variables>
+    <add key="ConnectionString1" value="Data Source=badbir.dbs.ds.man.ac.uk;Initial Catalog=BADBIR_Dev5;Persist Security Info=True;User ID=badbirDevUser;Password=dalj3lkrjar1dusdal13k4_1" />
+  </variables>
+  <propertySets>
+    <propertySet name="NetTiers.txt" output="NetTiers.txt" template="NetTiers.cst">
+      <property name="ExecuteSql">True</property>
+      <property name="SQLFolderName">SQL</property>
+      <property name="ViewReport">True</property>
+      <property name="AutoIncrementBuildVersion">True</property>
+      <property name="LaunchVisualStudio">False</property>
+      <property name="IncludeUnitTest">None</property>
+      <property name="IncludeComponentLayer">ServiceLayer</property>
+      <property name="IncludeWCFDataAttributes">False</property>
+      <property name="SerializeEntityState">False</property>
+      <property name="EntLibVersion">v5_0</property>
+      <property name="VisualStudioVersion">v2013</property>
+      <property name="DotNetVersion">v4_5</property>
+      <property name="IncludeXmlAttributes">False</property>
+      <property name="CustomCodeFolderName">App_Code</property>
+      <property name="EqualitySemantics">Value</property>
+      <property name="TimeStandard">Local</property>
+      <property name="IsConnectionStringAzure">False</property>
+      <property name="BusinessLogicLayerNameSpace">Entities</property>
+      <property name="DataAccessLayerNameSpace">Data</property>
+      <property name="UnitTestsNameSpace">UnitTests</property>
+      <property name="SignAssembly">False</property>
+      <property name="GenerateWebLibrary">True</property>
+      <property name="IncludeDesignTimeSupport">True</property>
+      <property name="DataSourceEnableTransactionDefault">True</property>
+      <property name="GenerateWebservice">False</property>
+      <property name="AttemptCreateLocalVirtualDirectory">True</property>
+      <property name="GenerateWebsite">True</property>
+      <property name="UseWebAppProject">False</property>
+      <property name="OverwriteWebConfig">False</property>
+      <property name="IncludeAtlasLibrary">False</property>
+      <property name="IncludeAtlasToolkit">False</property>
+      <property name="GenerateWebsiteAdmin">False</property>
+      <property name="DateFormat">dd/MM/yyyy</property>
+      <property name="RetryEnabled">False</property>
+      <property name="RetryMaxAttempts">5</property>
+      <property name="RetrySleepTime">1000</property>
+      <property name="LibraryPath">References</property>
+      <property name="IncludeCustoms">True</property>
+      <property name="CustomNonMatchingReturnType">DataSet</property>
+      <property name="IncludeDrop">True</property>
+      <property name="DropStyle">Entity</property>
+      <property name="IncludeInsert">True</property>
+      <property name="IncludeUpdate">True</property>
+      <property name="IncludeSave">True</property>
+      <property name="IncludeDelete">True</property>
+      <property name="IncludeGet">True</property>
+      <property name="IncludeGetList">True</property>
+      <property name="IncludeGetListByFK">True</property>
+      <property name="IncludeGetListByIX">True</property>
+      <property name="IncludeFind">True</property>
+      <property name="IncludeManyToMany">True</property>
+      <property name="IncludeRelations">True</property>
+      <property name="IsolationLevel">None</property>
+      <property name="UseTimestampConcurrency">True</property>
+      <property name="InsertSuffix">_Insert</property>
+      <property name="UpdateSuffix">_Update</property>
+      <property name="DeleteSuffix">_Delete</property>
+      <property name="SelectSuffix">_Get</property>
+      <property name="SelectAllSuffix">_List</property>
+      <property name="FindSuffix">_Find</property>
+      <property name="GenerateWinLibrary">False</property>
+      <property name="RootNameSpace">MHS.Badbir.NetTiers</property>
+      <property name="OutputDirectory">C:\Work\BadbirSrc\BbPatientApp\BbPatientApp</property>
+      <property name="MappingFile">C:\Work\BadbirSrc\BbPatientApp\BBPatientApp\nettiers-2.3.2\PAPP.config</property>
+      <property name="ComponentLayerNameSpace">Component</property>
+      <property name="SourceTables">
+        <connectionString>$(ConnectionString1)</connectionString>
+        <providerType>SchemaExplorer.SqlSchemaProvider,SchemaExplorer.SqlSchemaProvider</providerType>
+        <tableList>
+      <table>
+        <owner>dbo</owner>
+        <name>bbAdditionalUserDetail</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbAnswerlkp</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbCentre</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbCentreRegionlkp</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbCentrestatus</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbCohortlkp</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbCommonFrequencylkp</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbConfigFactory</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbEthnicitylkp</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbFileStorage</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbGenderlkp</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbLesionlkp</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>BbLoginLog</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbMailingLists</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbMailingListSubscriptions</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbNotification</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbNotificationTypelkp</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbPappPatientCohortTracking</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbPappPatientDLQI</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbPappPatientLifestyle</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbPappPatientMedProblemFup</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbPatient</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbPatientCohortHistory</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbPatientCohortTracking</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbPatientCohortTrackingClinicAttendanceLkp</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbPatientCohortTrackingStatuslkp</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbPatientdrug</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbPatientdrugdose</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbPatientLifestyle</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbPatientStatusDetaillkp</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbPatientStatuslkp</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbPositionRolelkp</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbQuery</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbQueryForCentre</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbQueryForCentreMessage</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbQueryMessage</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbQueryStatuslkp</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbQueryTypelkp</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbSaeClinicianlkp</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbTitlelkp</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbUKCRNregionlkp</name>
+      </table>
+      <table>
+        <owner>dbo</owner>
+        <name>bbWorkStatuslkp</name>
+      </table>
+    </tableList>
+      </property>
+      <property name="WebServiceOutputPath">C:\Work\BadbirSrc\Branches\HassanDev\WebServices</property>
+      <property name="WebServiceUrl">http://localhost/BadbirServices</property>
+      <property name="WebAdminSiteName">BADBIR_Dev5 Application</property>
+      <property name="ValidationType">NetTiers</property>
+      <property name="GenerateWebSecurity">False</property>
+      <property name="UseMD5Hash">False</property>
+      <property name="ChooseSourceDatabase">
+        <connectionString>$(ConnectionString1)</connectionString>
+        <providerType>SchemaExplorer.SqlSchemaProvider,SchemaExplorer.SqlSchemaProvider</providerType>
+      </property>
+      <property name="CompanyName">The University of Manchester</property>
+      <property name="CompanyURL">www.manchester.ac.uk</property>
+      <property name="RetrySleepStyle">Constant</property>
+      <property name="GrantUser">bb_external</property>
+      <property name="IncludeGeneratedDate">True</property>
+      <property name="NameConversion">Mapping</property>
+      <property name="IncludeDatabaseFeatures">None</property>
+      <property name="MethodNames">
+        <MethodNamesProperty xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="">
+      <Get>Get</Get>
+      <GetAll>GetAll</GetAll>
+      <GetPaged>GetPaged</GetPaged>
+      <Find>Find</Find>
+      <Insert>Insert</Insert>
+      <Update>Update</Update>
+      <Save>Save</Save>
+      <Delete>Delete</Delete>
+      <DeepLoad>DeepLoad</DeepLoad>
+      <DeepSave>DeepSave</DeepSave>
+      <GetTotalItems>GetTotalItems</GetTotalItems>
+      <BulkInsert>BulkInsert</BulkInsert>
+    </MethodNamesProperty>
+      </property>
+      <property name="StrippedTablePrefixes">tbl</property>
+      <property name="StrippedTableSuffixes">_t</property>
+      <property name="EntityFormat">{0}</property>
+      <property name="EntityKeyFormat">{0}Key</property>
+      <property name="CollectionFormat">{0}Collection</property>
+      <property name="GenericViewFormat">VList&lt;{0}&gt;</property>
+      <property name="GenericListFormat">TList&lt;{0}&gt;</property>
+      <property name="ProviderFormat">{0}Provider</property>
+      <property name="InterfaceFormat">I{0}</property>
+      <property name="BaseClassFormat">{0}Base</property>
+      <property name="EnumFormat">{0}List</property>
+      <property name="ManyToManyFormat">{0}From{1}</property>
+      <property name="ServiceClassNameFormat">{0}Service</property>
+      <property name="ColumnClassNameFormat">{0}Column</property>
+      <property name="ComparerClassNameFormat">{0}Comparer</property>
+      <property name="EventHandlerClassNameFormat">{0}EventHandler</property>
+      <property name="EventArgsClassNameFormat">{0}EventArgs</property>
+      <property name="ParseDbColDefaultVal">True</property>
+      <property name="ChangeUnderscoreToPascalCase">True</property>
+      <property name="SafeNamePrefix">SafeName_</property>
+      <property name="UsePascalCasing">Style2</property>
+      <property name="ProcedurePrefix">znt_</property>
+      <property name="CustomProcedureStartsWith">bb</property>
+      <property name="CSPUseDefaultValForNonNullableTypes">False</property>
+      <property name="AllowCustomProcMultipleResults">True</property>
+      <property name="AliasFilePath" />
+    </propertySet>
+  </propertySets>
+</codeSmith>

@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns:viewmodels="clr-namespace:bbPatientApp.ViewModels" 
+             x:DataType="viewmodels:LifestyleViewModel"
+             x:Class="bbPatientApp.Views.PQ_Lifestyle">
+    <ContentPage.BindingContext>
+        <viewmodels:LifestyleViewModel/>
+    </ContentPage.BindingContext>
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout Style="{StaticResource MainOuterStackLayout}">
+
+                <Label Text="Lifestyle Factors" Style="{StaticResource TitleLabel}"></Label>
+                
+                <StackLayout RadioButtonGroup.GroupName="q1" RadioButtonGroup.SelectedValue="{Binding LifestyleDAO.Currentlysmoke}">
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Are you " />
+                                <Span Text="currently " FontAttributes="Bold" />
+                                <Span Text="a smoker?" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <RadioButton Content="No" Value="False"/>
+                    <RadioButton Content="Yes" Value="True"/>
+                </StackLayout>
+
+                <StackLayout>
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="If so, how many cigarettes do you smoke " />
+                                <Span Text="per day?" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Entry Placeholder="Enter number of cigarettes per day..." Keyboard="Numeric" Text="{Binding LifestyleDAO.Currentlysmokenumbercigsperday}" />
+                </StackLayout>
+
+                <StackLayout RadioButtonGroup.GroupName="q2" RadioButtonGroup.SelectedValue="{Binding LifestyleDAO.Drinkalcohol}">
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Do you " />
+                                <Span Text="currently " FontAttributes="Bold" />
+                                <Span Text="drink alcohol?" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <RadioButton Content="No" Value="False" />
+                    <RadioButton Content="Yes" Value="True"    />
+                </StackLayout>
+
+                <StackLayout>
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="If so, how many units of alcohol do you drink " />
+                                <Span Text="per week?" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Entry Placeholder="Enter number of units per week..." Keyboard="Numeric" Text="{Binding LifestyleDAO.Drnkunitsavg}"/>
+                </StackLayout>
+
+                <Button Text="Save" Command="{Binding SaveQCommand}" Style="{StaticResource PrimaryButtonPurple}" />
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

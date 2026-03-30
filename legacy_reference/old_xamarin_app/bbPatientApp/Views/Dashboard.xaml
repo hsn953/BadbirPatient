@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns:viewmodels="clr-namespace:bbPatientApp.ViewModels" 
+             x:DataType="viewmodels:DashboardViewModel"
+             x:Class="bbPatientApp.Views.Dashboard"
+             Title="BADBIR Patient App"
+             x:Name="DashboardPage"
+             Appearing="DashboardPage_Appearing"
+             Shell.PresentationMode="Animated"
+             >
+    <ContentPage.BindingContext>
+        <viewmodels:DashboardViewModel/>
+    </ContentPage.BindingContext>
+    <ContentPage.Content>
+        <ScrollView >
+            <StackLayout Style="{StaticResource MainOuterStackLayout}">
+                
+                <Label Text="Dashboard" Style="{StaticResource TitleLabel}"/>
+
+                <Label x:Name="Subtitle" Text="Welcome to the BADBIR Patient App. Please choose from the questionnaires below to respond." Style="{StaticResource SubtitleLabel}"/>
+
+                <Label x:Name="LabelDashboardInfo" Text="{Binding LabelDashboardInfo}" Style="{StaticResource SubtitleLabel}"  />
+
+
+                <StackLayout >
+
+                    <Line Style="{StaticResource QuestionSpacerV}" />
+                    <Line Style="{StaticResource QuestionSeparatorV}" />
+                    <StackLayout Orientation="Vertical"  IsVisible="{Binding Dash.DlqiVisible}">
+                        <Label x:Name="DLQILabel" Text="{Binding Dash.DlqiLabelText}" Style="{StaticResource SubtitleLabel}" />
+                        <Button x:Name="DLQIButton"  Text="Open DLQI" Command="{Binding DlqiCommand}" Style="{StaticResource PrimaryButtonPurple}" IsVisible="{Binding Dash.DlqiButtonEnabled}" />
+                    </StackLayout>  
+                    <Line Style="{StaticResource QuestionSpacerV}" />
+                    <Line Style="{StaticResource QuestionSeparatorV}" />
+                    <StackLayout Orientation="Vertical" IsVisible="{Binding Dash.PgaVisible}">
+                        <Label x:Name="PGALabel" Text="{Binding Dash.PgaLabelText}" Style="{StaticResource SubtitleLabel}"/>
+                        <Button x:Name="PGAButton" Text="Open PGA" Command="{Binding PgaCommand}" Style="{StaticResource PrimaryButtonPurple}" IsVisible="{Binding Dash.PgaButtonEnabled}" />
+                    </StackLayout>
+                    <Line Style="{StaticResource QuestionSpacerV}" />
+                    <Line Style="{StaticResource QuestionSeparatorV}" />
+                    <StackLayout Orientation="Vertical" IsVisible="{Binding Dash.EqVisible}">
+                        <Label x:Name="EQ5DLabel" Text="{Binding Dash.EqLabelText}" Style="{StaticResource SubtitleLabel}" />
+                        <Button x:Name="EQ5DButton"  Text="Open EQ-5D" Command="{Binding Eq5dCommand}" Style="{StaticResource PrimaryButtonPurple}" IsVisible="{Binding Dash.EqButtonEnabled}"  />
+                    </StackLayout>
+                    <Line Style="{StaticResource QuestionSpacerV}" />
+                    <Line Style="{StaticResource QuestionSeparatorV}" />
+                    <StackLayout Orientation="Vertical" IsVisible="{Binding Dash.MedProbVisible}">
+                        <Label x:Name="MedProbsLabel" Text="{Binding Dash.MedLabelText}" Style="{StaticResource SubtitleLabel}" />
+                        <Button x:Name="MedProbsButton"  Text="Open Medical Problems" Command="{Binding MedprobsCommand}" Style="{StaticResource PrimaryButtonPurple}" IsVisible="{Binding Dash.MedButtonEnabled}"/>
+                    </StackLayout>
+                    <Line Style="{StaticResource QuestionSpacerV}" />
+                    <Line Style="{StaticResource QuestionSeparatorV}" />
+                    <StackLayout Orientation="Vertical" IsVisible="{Binding Dash.LifestyleVisible}">
+                        <Label x:Name="LifestyleLabel" Text="{Binding Dash.LifestyleLabelText}" Style="{StaticResource SubtitleLabel}" />
+                        <Button x:Name="LifestyleButton"  Text="Open Lifestyle Factors" Command="{Binding LifestyleCommand}" Style="{StaticResource PrimaryButtonPurple}" IsVisible="{Binding Dash.LifestyleButtonEnabled}"/>
+                    </StackLayout>
+                    <Line Style="{StaticResource QuestionSpacerV}" />
+                    <Line Style="{StaticResource QuestionSeparatorV}" />
+                    <StackLayout Orientation="Vertical" IsVisible="{Binding Dash.CageVisible}">
+                        <Label x:Name="CAGELabel" Text="{Binding Dash.CageLabelText}" Style="{StaticResource SubtitleLabel}" />
+                        <Button x:Name="CAGEButton"  Text="Open CAGE" Command="{Binding CageCommand}" Style="{StaticResource PrimaryButtonPurple}" IsVisible="{Binding Dash.CageButtonEnabled}" />
+                    </StackLayout>
+                    <Line Style="{StaticResource QuestionSpacerV}" />
+                    <Line Style="{StaticResource QuestionSeparatorV}" />
+                    <StackLayout Orientation="Vertical" IsVisible="{Binding Dash.HaqVisible}">
+                        <Label x:Name="HAQLabel" Text="{Binding Dash.HaqLabelText}" Style="{StaticResource SubtitleLabel}" />
+                        <Button x:Name="HAQButton"  Text="Open HAQ" Command="{Binding HaqCommand}" Style="{StaticResource PrimaryButtonPurple}" IsVisible="{Binding Dash.HaqButtonEnabled}" />
+                    </StackLayout>
+                    <Line Style="{StaticResource QuestionSpacerV}" />
+
+                </StackLayout>
+
+            </StackLayout>
+
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

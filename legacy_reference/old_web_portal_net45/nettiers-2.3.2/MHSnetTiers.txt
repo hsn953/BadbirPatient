@@ -1,0 +1,7 @@
+﻿
+
+
+Generation complete. Execution time: 00:00:45.6029196
+You can view current documentation @ http://docs.netTiers.com
+Generated solution can be found here: 
+file:\\\D:\BadbirSrc\Branches\BSRBR\MHS.Badbir.NetTiers.sln

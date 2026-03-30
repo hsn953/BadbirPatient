@@ -1,0 +1,96 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+    <LangVersion>10</LangVersion>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Copyright>BADBIR</Copyright>
+    <PackageProjectUrl>patient.badbir.org</PackageProjectUrl>
+    <PackageIcon>BbIcon.png</PackageIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Views\Eq5dQuestions\**" />
+    <EmbeddedResource Remove="Views\Eq5dQuestions\**" />
+    <None Remove="Views\Eq5dQuestions\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Plugin.Fingerprint" Version="2.1.5" />
+    <PackageReference Include="Syncfusion.Xamarin.SfRangeSlider" Version="21.1.41" />
+    <PackageReference Include="Xamarin.CommunityToolkit" Version="2.0.5" />
+    <PackageReference Include="Xamarin.Forms" Version="5.0.0.2578" />  
+    <PackageReference Include="Xamarin.Essentials" Version="1.7.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\PrivacayPol.xaml.cs">
+      <DependentUpon>PrivacayPol.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\EULA.xaml.cs">
+      <DependentUpon>EULA.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\AccessibilitySt.xaml.cs">
+      <DependentUpon>AccessibilitySt.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\PQ_Cage.xaml.cs">
+      <DependentUpon>PQ_Cage.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\PQ_Haq.xaml.cs">
+      <DependentUpon>PQ_Haq.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\PQ_DLQI.xaml.cs">
+      <DependentUpon>PQ_Dlqi.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\PQ_EQ5D.xaml.cs">
+      <DependentUpon>PQ_Eq5d.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\PQ_MedProbs.xaml.cs">
+      <DependentUpon>PQ_MedProbs.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\PQ_Lifestyle.xaml.cs">
+      <DependentUpon>PQ_Lifestyle.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\PQ_PGA.xaml.cs">
+      <DependentUpon>PQ_Pga.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\Register.xaml.cs">
+      <DependentUpon>Register.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Views\Register.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\RegisterPage1.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\RegisterPageStep1.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\RegisterPageStep2.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+    <Folder Include="Services\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Artwork\BbIcon.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Artwork\BbIcon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+</Project>
