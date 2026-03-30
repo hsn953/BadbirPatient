@@ -405,9 +405,6 @@ public class FormsController : ControllerBase
         var pappFupId = await GetCurrentPappFupIdAsync();
         if (pappFupId is null) return Forbid();
 
-        if (!dto.SkipForm && dto.Pgascore is not null && (dto.Pgascore < 1 || dto.Pgascore > 5))
-            return BadRequest("PGA score must be between 1 (Clear) and 5 (Severe).");
-
         var pgascore = dto.SkipForm ? null : dto.Pgascore;
 
         var existing = await _db.PappPgaScores

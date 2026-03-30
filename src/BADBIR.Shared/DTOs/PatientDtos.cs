@@ -94,10 +94,10 @@ public class PappDlqiSubmitDto
     /// <summary>Sport — 0=Not at all … 3=Very much.</summary>
     [Range(0, 3)] public int? SportScore { get; set; }
 
-    /// <summary>Work/study prevented — 0=No, 1=Yes.</summary>
+    /// <summary>Work/study prevented — 0=No (sub-question follows), 1=Yes (prevented).</summary>
     [Range(0, 1)] public int? WorkstudScore { get; set; }
 
-    /// <summary>Work/study problem (shown when Q7a=No) — 0=Not at all, 1=A little, 2=A lot.</summary>
+    /// <summary>Work/study problem (sub-question, shown when <see cref="WorkstudScore"/> = 0 / "No") — 0=Not at all, 1=A little, 2=A lot.</summary>
     [Range(0, 2)] public int? WorkstudnoScore { get; set; }
 
     /// <summary>Partner/family problems — 0=Not at all … 3=Very much.</summary>
@@ -266,7 +266,7 @@ public class PappHaqSubmitDto
     public bool? Missingdata { get; set; }
     public string? Missingdatadetails { get; set; }
 
-    // ── Category 1: Dressing &amp; Grooming — each 0=Without difficulty … 3=Unable ──
+    // Category 1: Dressing & Grooming — each 0=Without difficulty … 3=Unable
     [Range(0, 3)] public int? Dressself { get; set; }
     [Range(0, 3)] public int? Shampoo { get; set; }
 
@@ -302,7 +302,7 @@ public class PappHaqSubmitDto
     [Range(0, 3)] public int? Getincar { get; set; }
     [Range(0, 3)] public int? Housework { get; set; }
 
-    // ── Aids &amp; Devices (0=None, 1=Used) ────────────────────────────────────
+    // Aids & Devices (0=None, 1=Used)
     [Range(0, 1)] public int? Cane { get; set; }
     [Range(0, 1)] public int? Crutches { get; set; }
     [Range(0, 1)] public int? Walker { get; set; }

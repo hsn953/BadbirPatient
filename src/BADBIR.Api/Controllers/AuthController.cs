@@ -124,10 +124,10 @@ public class AuthController : ControllerBase
         if (user is null || !await _userManager.CheckPasswordAsync(user, dto.Password))
             return Unauthorized(new { error = "Invalid email or password." });
 
-        var roles  = await _userManager.GetRolesAsync(user);
-        var token  = BuildJwt(user, roles);
-        var expiry = DateTime.UtcNow.AddMinutes(
-            _config.GetValue("Jwt:ExpiryMinutes", 60));
+        var roles       = await _userManager.GetRolesAsync(user);
+        var expiryMins  = _config.GetValue("Jwt:ExpiryMinutes", 60);
+        var expiry      = DateTime.UtcNow.AddMinutes(expiryMins);
+        var token       = BuildJwt(user, roles, expiry);
 
         return Ok(new LoginResponseDto
         {
@@ -143,7 +143,7 @@ public class AuthController : ControllerBase
     // Helpers
     // ─────────────────────────────────────────────────────────────────────────
 
-    private JwtSecurityToken BuildJwt(ApplicationUser user, IList<string> roles)
+    private JwtSecurityToken BuildJwt(ApplicationUser user, IList<string> roles, DateTime expiry)
     {
         var jwtSection = _config.GetSection("Jwt");
         var key        = jwtSection["Key"]
@@ -166,8 +166,7 @@ public class AuthController : ControllerBase
             issuer:             jwtSection["Issuer"],
             audience:           jwtSection["Audience"],
             claims:             claims,
-            expires:            DateTime.UtcNow.AddMinutes(
-                                    _config.GetValue("Jwt:ExpiryMinutes", 60)),
+            expires:            expiry,
             signingCredentials: credentials);
     }
 }
