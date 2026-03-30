@@ -25,8 +25,10 @@
 | **FORM-009** | `docs/forms/FORM-009_Eligibility_Screener.md` | Eligibility Screener (Pathway A registration) |
 | **TST-001** | `docs/testing/TST-001_Testing_Strategy.md` | SQLite testing strategy, test cases, infrastructure |
 | **INT-001** | `docs/requirements/INT-001_Clinician_System_Integration.md` | Clinician System integration requirements (consent inbox, data promotion, shared schema) |
+| **MDS-001** | `docs/requirements/MDS-001_App_Store_Release_Form.md` | UoM MDS Deployment Release Form — Android + iOS store submission (updated for MAUI v2.0.0) |
 | **MOCK-001** | `docs/mockups/index.html` | UI mockup screens — Registration (10), Baseline (17), Follow-Up (11) |
 | **DECISION-LOG** | `docs/progress/DECISION-LOG.md` | All architectural decisions with rationale |
+| **DEV-001** | `docs/progress/DEV-001_Development_Kickoff.md` | Sprint 1 kickoff — development sequence, first steps, testing as you go |
 
 ---
 
