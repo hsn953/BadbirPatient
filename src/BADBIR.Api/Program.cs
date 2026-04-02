@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,7 +34,11 @@ else
 builder.Services
     .AddIdentityCore<ApplicationUser>(options =>
     {
+        // Password policy — these rules are shown in the OpenAPI docs and enforced here.
+        // The frontend should also apply the same rules during field validation.
         options.Password.RequiredLength         = 8;
+        options.Password.RequireUppercase       = true;
+        options.Password.RequireLowercase       = true;
         options.Password.RequireNonAlphanumeric = true;
         options.Password.RequireDigit           = true;
         options.SignIn.RequireConfirmedEmail     = false; // set true in production
@@ -69,6 +74,7 @@ builder.Services.AddAuthorization();
 
 // ── 4. Application Services ───────────────────────────────────────────────────
 builder.Services.AddScoped<IEncryptionService, EncryptionService>();
+builder.Services.AddScoped<IClinicianSystemClient, StubClinicianSystemClient>();
 
 // ── 5. Controllers ───────────────────────────────────────────────────────────
 builder.Services.AddControllers();
@@ -78,11 +84,26 @@ builder.Services.AddOpenApi(options =>
 {
     options.AddDocumentTransformer((document, context, _) =>
     {
-        document.Info.Title       = "BADBIR Patient API";
-        document.Info.Version     = "v1";
+        document.Info.Title   = "BADBIR Patient API";
+        document.Info.Version = "v1";
         document.Info.Description =
-            "REST API for the BADBIR Patient Application. " +
-            "Authenticate via the Identity endpoints to obtain a bearer token.";
+            "REST API for the BADBIR Patient Application (v2).\n\n" +
+            "## Authentication\n" +
+            "Use `POST /api/auth/login` to obtain a Bearer JWT, then pass it in the " +
+            "`Authorization: Bearer <token>` header on all protected endpoints.\n\n" +
+            "## Password requirements\n" +
+            "All patient passwords must satisfy the following rules:\n" +
+            "- Minimum **8 characters**\n" +
+            "- At least one **uppercase** letter (A–Z)\n" +
+            "- At least one **lowercase** letter (a–z)\n" +
+            "- At least one **digit** (0–9)\n" +
+            "- At least one **non-alphanumeric** character (e.g. `!`, `@`, `#`, `$`, `%`)\n\n" +
+            "These rules apply to `POST /api/auth/register`. " +
+            "Validation errors are returned in the `errors` array of the 400 response.\n\n" +
+            "## Registration identity verification\n" +
+            "Before an account is created, the patient's identity is verified against the " +
+            "Clinician System using date of birth, initials, and at least one of: " +
+            "NHS number, CHI number, or BADBIR study number.";
         return Task.CompletedTask;
     });
 });
@@ -104,8 +125,8 @@ var app = builder.Build();
 // ── 8. Middleware pipeline ────────────────────────────────────────────────────
 if (app.Environment.IsDevelopment())
 {
-    // Serves the OpenAPI JSON at /openapi/v1.json
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();
@@ -119,7 +140,8 @@ app.MapControllers();
 // MapIdentityApi provides built-in endpoints:
 //   POST /register, /login, /refresh, /confirmEmail, /resendConfirmationEmail
 //   GET  /manage/info   POST /manage/info, /manage/2fa
-app.MapGroup("api/auth")
+// Routed under /api/identity so our custom AuthController owns /api/auth/register and /api/auth/login.
+app.MapGroup("api/identity")
    .MapIdentityApi<ApplicationUser>()
    .RequireCors("BadbirCorsPolicy");
 

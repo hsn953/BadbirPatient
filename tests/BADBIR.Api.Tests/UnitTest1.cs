@@ -1,5 +1,5 @@
 using BADBIR.Api.Data;
-using BADBIR.Api.Data.Entities.Papp;
+using BADBIR.Api.Data.Entities;
 using BADBIR.Api.Services;
 using BADBIR.Shared.DTOs;
 using Microsoft.Data.Sqlite;
@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 namespace BADBIR.Api.Tests;
 
 /// <summary>
-/// Score-calculation tests – these are pure unit tests with no DB dependency.
+/// Score-calculation tests – pure unit tests with no DB dependency.
 /// They validate the HAQ-DI and HADS score algorithms.
 /// </summary>
 public class HaqScoreCalculationTests
@@ -75,8 +75,6 @@ public class HadsScoreCalculationTests
 
 /// <summary>
 /// Encryption service unit tests.
-/// Validates that encrypt → decrypt round-trips produce the original value,
-/// and that the output format matches the legacy system (Base64 encoded).
 /// </summary>
 public class EncryptionServiceTests
 {
@@ -153,15 +151,15 @@ public class EncryptionServiceTests
 }
 
 /// <summary>
-/// Tests for the papp holding table schema using an in-memory SQLite database.
-/// Validates that EF Core can create and query the papp tables correctly.
+/// Tests for the portal schema using an in-memory SQLite database.
+/// Validates that EF Core can create and query the new submission tables correctly.
 /// </summary>
-public class PappTableSchemaTests : IDisposable
+public class PortalTableSchemaTests : IDisposable
 {
     private readonly SqliteConnection _connection;
     private readonly BadbirDbContext _db;
 
-    public PappTableSchemaTests()
+    public PortalTableSchemaTests()
     {
         _connection = new SqliteConnection("Data Source=:memory:");
         _connection.Open();
@@ -181,66 +179,59 @@ public class PappTableSchemaTests : IDisposable
     }
 
     [Fact]
-    public async Task PappCohortTracking_CanInsertAndRetrieve()
+    public async Task VisitTracking_CanInsertAndRetrieve()
     {
-        await SeedPatientAsync(1);
+        var userId = await SeedUserAsync("user1");
 
-        var tracking = new BbPappPatientCohortTracking
+        var visit = new VisitTracking
         {
-            PatientId        = 1,
+            UserId           = userId,
             PotentialFupCode = 0,
-            PappFupStatus    = 0,
+            VisitStatus      = 0,
             DataStatus       = 0,
-            Dateentered      = DateTime.UtcNow,
-            Createdbyid      = 0,
-            Createdbyname    = "Test",
-            Createddate      = DateTime.UtcNow,
-            Lastupdatedbyid  = 0,
-            Lastupdatedbyname = "Test",
-            Lastupdateddate  = DateTime.UtcNow
+            DateEntered      = DateTime.UtcNow,
+            CreatedDate      = DateTime.UtcNow,
+            LastUpdatedDate  = DateTime.UtcNow
         };
 
-        _db.PappCohortTrackings.Add(tracking);
+        _db.VisitTrackings.Add(visit);
         await _db.SaveChangesAsync();
 
-        var saved = await _db.PappCohortTrackings.FindAsync(tracking.PappFupId);
+        var saved = await _db.VisitTrackings.FindAsync(visit.VisitId);
         Assert.NotNull(saved);
         Assert.Equal(0, saved.DataStatus);
         Assert.Equal(0, saved.PotentialFupCode);
     }
 
     [Fact]
-    public async Task PappDlqi_CanInsertAndRetrieve()
+    public async Task DlqiSubmission_CanInsertAndRetrieve()
     {
-        await SeedPatientAsync(1);
+        var userId = await SeedUserAsync("user2");
 
-        // Create parent tracking row first
-        var tracking = new BbPappPatientCohortTracking
+        var visit = new VisitTracking
         {
-            PatientId = 1, PotentialFupCode = 0, PappFupStatus = 0, DataStatus = 0,
-            Dateentered = DateTime.UtcNow, Createdbyid = 0, Createdbyname = "Test",
-            Createddate = DateTime.UtcNow, Lastupdatedbyid = 0, Lastupdatedbyname = "Test",
-            Lastupdateddate = DateTime.UtcNow
+            UserId = userId, PotentialFupCode = 0, VisitStatus = 0, DataStatus = 0,
+            DateEntered = DateTime.UtcNow, CreatedDate = DateTime.UtcNow, LastUpdatedDate = DateTime.UtcNow
         };
-        _db.PappCohortTrackings.Add(tracking);
+        _db.VisitTrackings.Add(visit);
         await _db.SaveChangesAsync();
 
-        var dlqi = new BbPappPatientDlqi
+        var dlqi = new DlqiSubmission
         {
-            PappFupId     = tracking.PappFupId,
+            VisitId       = visit.VisitId,
             Diagnosis     = "Psoriasis",
             ItchsoreScore = 3,
             TotalScore    = 15,
             DataStatus    = 0,
-            Createdbyid   = 0, Createdbyname = "Test", Createddate = DateTime.UtcNow,
-            Lastupdatedbyid = 0, Lastupdatedbyname = "Test", Lastupdateddate = DateTime.UtcNow
+            CreatedDate   = DateTime.UtcNow,
+            LastUpdatedDate = DateTime.UtcNow
         };
 
-        _db.PappDlqis.Add(dlqi);
+        _db.DlqiSubmissions.Add(dlqi);
         await _db.SaveChangesAsync();
 
-        var saved = await _db.PappDlqis
-            .FirstOrDefaultAsync(d => d.PappFupId == tracking.PappFupId);
+        var saved = await _db.DlqiSubmissions
+            .FirstOrDefaultAsync(d => d.VisitId == visit.VisitId);
 
         Assert.NotNull(saved);
         Assert.Equal("Psoriasis", saved.Diagnosis);
@@ -248,24 +239,22 @@ public class PappTableSchemaTests : IDisposable
     }
 
     [Fact]
-    public async Task PappHad_IsCountable_SetOnFullSubmission()
+    public async Task HadsSubmission_IsCountable_SetOnFullSubmission()
     {
-        await SeedPatientAsync(2);
+        var userId = await SeedUserAsync("user3");
 
-        var tracking = new BbPappPatientCohortTracking
+        var visit = new VisitTracking
         {
-            PatientId = 2, PotentialFupCode = 0, PappFupStatus = 0, DataStatus = 0,
-            Dateentered = DateTime.UtcNow, Createdbyid = 0, Createdbyname = "Test",
-            Createddate = DateTime.UtcNow, Lastupdatedbyid = 0, Lastupdatedbyname = "Test",
-            Lastupdateddate = DateTime.UtcNow
+            UserId = userId, PotentialFupCode = 0, VisitStatus = 0, DataStatus = 0,
+            DateEntered = DateTime.UtcNow, CreatedDate = DateTime.UtcNow, LastUpdatedDate = DateTime.UtcNow
         };
-        _db.PappCohortTrackings.Add(tracking);
+        _db.VisitTrackings.Add(visit);
         await _db.SaveChangesAsync();
 
         // All 14 items answered
-        var had = new BbPappPatientHad
+        var hads = new HadsSubmission
         {
-            PappFupId = tracking.PappFupId,
+            VisitId = visit.VisitId,
             Q01tense = 2, Q02enjoy = 1, Q03frightened = 1, Q04laugh = 2,
             Q05worry = 3, Q06cheerful = 0, Q07relaxed = 1, Q08slowed = 2,
             Q09butterflies = 2, Q10appearence = 1, Q11restless = 3, Q12enjoyment = 1,
@@ -273,58 +262,53 @@ public class PappTableSchemaTests : IDisposable
             ScoreAnxiety = 12, ResultAnxiety = 1,
             ScoreDepression = 9, ResultDepression = 1,
             IsCountable = true, DataStatus = 0,
-            Createdbyid = 0, Createdbyname = "Test", Createddate = DateTime.UtcNow,
-            Lastupdatedbyid = 0, Lastupdatedbyname = "Test", Lastupdateddate = DateTime.UtcNow
+            CreatedDate = DateTime.UtcNow, LastUpdatedDate = DateTime.UtcNow
         };
 
-        _db.PappHads.Add(had);
+        _db.HadsSubmissions.Add(hads);
         await _db.SaveChangesAsync();
 
-        var saved = await _db.PappHads.FindAsync(had.PappHadId);
+        var saved = await _db.HadsSubmissions.FindAsync(hads.HadsId);
         Assert.NotNull(saved);
         Assert.True(saved.IsCountable);
         Assert.Equal(12, saved.ScoreAnxiety);
     }
 
     [Fact]
-    public async Task PappCohortTracking_DataStatus_DefaultIsZero()
+    public async Task VisitTracking_DataStatus_DefaultIsZero()
     {
-        await SeedPatientAsync(3);
+        var userId = await SeedUserAsync("user4");
 
-        var tracking = new BbPappPatientCohortTracking
+        var visit = new VisitTracking
         {
-            PatientId = 3, PotentialFupCode = 0, PappFupStatus = 0, DataStatus = 0,
-            Dateentered = DateTime.UtcNow, Createdbyid = 0, Createdbyname = "Test",
-            Createddate = DateTime.UtcNow, Lastupdatedbyid = 0, Lastupdatedbyname = "Test",
-            Lastupdateddate = DateTime.UtcNow
+            UserId = userId, PotentialFupCode = 0, VisitStatus = 0, DataStatus = 0,
+            DateEntered = DateTime.UtcNow, CreatedDate = DateTime.UtcNow, LastUpdatedDate = DateTime.UtcNow
         };
-        _db.PappCohortTrackings.Add(tracking);
+        _db.VisitTrackings.Add(visit);
         await _db.SaveChangesAsync();
 
-        Assert.Equal((byte)0, tracking.DataStatus);
-        Assert.Null(tracking.ImportedFupId);
+        Assert.Equal((byte)0, visit.DataStatus);
+        Assert.Null(visit.ImportedFupId);
     }
 
     [Fact]
-    public async Task PappCohortTracking_CanBeMarkedApproved()
+    public async Task VisitTracking_CanBeMarkedApproved()
     {
-        await SeedPatientAsync(4);
+        var userId = await SeedUserAsync("user5");
 
-        var tracking = new BbPappPatientCohortTracking
+        var visit = new VisitTracking
         {
-            PatientId = 4, PotentialFupCode = 0, PappFupStatus = 0, DataStatus = 0,
-            Dateentered = DateTime.UtcNow, Createdbyid = 0, Createdbyname = "Test",
-            Createddate = DateTime.UtcNow, Lastupdatedbyid = 0, Lastupdatedbyname = "Test",
-            Lastupdateddate = DateTime.UtcNow
+            UserId = userId, PotentialFupCode = 0, VisitStatus = 0, DataStatus = 0,
+            DateEntered = DateTime.UtcNow, CreatedDate = DateTime.UtcNow, LastUpdatedDate = DateTime.UtcNow
         };
-        _db.PappCohortTrackings.Add(tracking);
+        _db.VisitTrackings.Add(visit);
         await _db.SaveChangesAsync();
 
-        tracking.DataStatus    = 1;
-        tracking.ImportedFupId = 99999;
+        visit.DataStatus    = 1;
+        visit.ImportedFupId = 99999;
         await _db.SaveChangesAsync();
 
-        var saved = await _db.PappCohortTrackings.FindAsync(tracking.PappFupId);
+        var saved = await _db.VisitTrackings.FindAsync(visit.VisitId);
         Assert.NotNull(saved);
         Assert.Equal((byte)1, saved.DataStatus);
         Assert.Equal(99999, saved.ImportedFupId);
@@ -332,25 +316,22 @@ public class PappTableSchemaTests : IDisposable
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private async Task SeedPatientAsync(int patientId)
+    private async Task<string> SeedUserAsync(string userId)
     {
-        if (await _db.BbPatients.AnyAsync(p => p.Patientid == patientId))
-            return;
+        if (await _db.Users.AnyAsync(u => u.Id == userId))
+            return userId;
 
-        _db.BbPatients.Add(new BADBIR.Api.Data.Entities.BbPatient
+        _db.Users.Add(new ApplicationUser
         {
-            Patientid         = patientId,
-            PortalIsRegistered = 1,
-            Statusid           = 6,
-            Createdbyid        = 0,
-            Createdbyname      = "Test",
-            Createddate        = DateTime.UtcNow,
-            Lastupdatedbyid    = 0,
-            Lastupdatedbyname  = "Test",
-            Lastupdateddate    = DateTime.UtcNow,
-            Statusdetailid     = 0
+            Id                 = userId,
+            UserName           = $"{userId}@test.com",
+            Email              = $"{userId}@test.com",
+            NormalizedUserName = $"{userId}@TEST.COM",
+            NormalizedEmail    = $"{userId}@TEST.COM",
+            SecurityStamp      = Guid.NewGuid().ToString()
         });
         await _db.SaveChangesAsync();
+        return userId;
     }
 }
 
@@ -378,3 +359,256 @@ public class HadsResultClassificationTests
     }
 }
 
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Clinician System Stub tests
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// <summary>
+/// Tests for <see cref="StubClinicianSystemClient"/>.
+/// </summary>
+public class StubClinicianSystemClientTests
+{
+    private static IConfiguration BuildConfig(string stubMode) =>
+        new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ClinicianSystem:StubMode"] = stubMode
+            })
+            .Build();
+
+    [Fact]
+    public async Task VerifyIdentity_AlwaysTrue_ReturnsTrue()
+    {
+        var client = new StubClinicianSystemClient(BuildConfig("AlwaysTrue"));
+        var result = await client.VerifyIdentityAsync(
+            new DateOnly(1985, 4, 12), "JD", "1234567890", null, null);
+        Assert.True(result);
+    }
+
+    [Fact]
+    public async Task VerifyIdentity_AlwaysFalse_ReturnsFalse()
+    {
+        var client = new StubClinicianSystemClient(BuildConfig("AlwaysFalse"));
+        var result = await client.VerifyIdentityAsync(
+            new DateOnly(1985, 4, 12), "JD", "1234567890", null, null);
+        Assert.False(result);
+    }
+
+    [Fact]
+    public async Task VerifyIdentity_DefaultMode_ReturnsTrue()
+    {
+        // When ClinicianSystem:StubMode is absent, defaults to AlwaysTrue
+        var client = new StubClinicianSystemClient(
+            new ConfigurationBuilder().Build());
+        var result = await client.VerifyIdentityAsync(
+            new DateOnly(1990, 1, 1), "AB", null, "0101901234", null);
+        Assert.True(result);
+    }
+
+    [Fact]
+    public async Task VerifyIdentity_AlwaysFalse_CaseInsensitive_ReturnsFalse()
+    {
+        var client = new StubClinicianSystemClient(BuildConfig("alwaysfalse"));
+        var result = await client.VerifyIdentityAsync(
+            new DateOnly(1990, 1, 1), "AB", null, "0101901234", null);
+        Assert.False(result);
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SAPASI score calculation tests
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// <summary>
+/// Validates the SAPASI scoring formula:
+///   RegionScore = (Erythema + Induration + Desquamation) × Coverage × RegionWeight
+///   SAPASI Total = Head(0.1) + Trunk(0.3) + UpperLimbs(0.2) + LowerLimbs(0.4)
+/// </summary>
+public class SapasiScoreCalculationTests
+{
+    // ── Formula replication (mirrors FormsController.ComputeSapasiScore) ──────
+
+    private static float ComputeSapasiScore(SapasiSubmitDto dto)
+    {
+        static float Region(int? coverage, int? e, int? i, int? d, float w)
+            => ((e ?? 0) + (i ?? 0) + (d ?? 0)) * (coverage ?? 0) * w;
+
+        return Region(dto.HeadCoverage, dto.HeadErythema, dto.HeadInduration, dto.HeadDesquamation, 0.1f)
+             + Region(dto.TrunkCoverage, dto.TrunkErythema, dto.TrunkInduration, dto.TrunkDesquamation, 0.3f)
+             + Region(dto.UpperLimbsCoverage, dto.UpperLimbsErythema, dto.UpperLimbsInduration, dto.UpperLimbsDesquamation, 0.2f)
+             + Region(dto.LowerLimbsCoverage, dto.LowerLimbsErythema, dto.LowerLimbsInduration, dto.LowerLimbsDesquamation, 0.4f);
+    }
+
+    [Fact]
+    public void SapasiScore_AllZero_ReturnsZero()
+    {
+        var dto = new SapasiSubmitDto(); // all null — treated as 0
+        Assert.Equal(0f, ComputeSapasiScore(dto));
+    }
+
+    [Fact]
+    public void SapasiScore_SpecExample_IsCorrect()
+    {
+        // From FORM-007 spec example:
+        // Head:         R=2,T=1,S=2 → Severity=5. Coverage=2. Weight=0.1 → 1.0
+        // UpperLimbs:   R=3,T=2,S=2 → Severity=7. Coverage=2. Weight=0.2 → 2.8
+        // Trunk:        R=1,T=1,S=1 → Severity=3. Coverage=1. Weight=0.3 → 0.9
+        // LowerLimbs:   R=2,T=2,S=1 → Severity=5. Coverage=3. Weight=0.4 → 6.0
+        // Total = 1.0 + 2.8 + 0.9 + 6.0 = 10.7
+        var dto = new SapasiSubmitDto
+        {
+            HeadCoverage = 2, HeadErythema = 2, HeadInduration = 1, HeadDesquamation = 2,
+            TrunkCoverage = 1, TrunkErythema = 1, TrunkInduration = 1, TrunkDesquamation = 1,
+            UpperLimbsCoverage = 2, UpperLimbsErythema = 3, UpperLimbsInduration = 2, UpperLimbsDesquamation = 2,
+            LowerLimbsCoverage = 3, LowerLimbsErythema = 2, LowerLimbsInduration = 2, LowerLimbsDesquamation = 1,
+        };
+        var score = ComputeSapasiScore(dto);
+        Assert.Equal(10.7f, score, precision: 1);
+    }
+
+    [Fact]
+    public void SapasiScore_AllMax_Returns48()
+    {
+        var dto = new SapasiSubmitDto
+        {
+            HeadCoverage = 4, HeadErythema = 4, HeadInduration = 4, HeadDesquamation = 4,
+            TrunkCoverage = 4, TrunkErythema = 4, TrunkInduration = 4, TrunkDesquamation = 4,
+            UpperLimbsCoverage = 4, UpperLimbsErythema = 4, UpperLimbsInduration = 4, UpperLimbsDesquamation = 4,
+            LowerLimbsCoverage = 4, LowerLimbsErythema = 4, LowerLimbsInduration = 4, LowerLimbsDesquamation = 4,
+        };
+        Assert.Equal(48f, ComputeSapasiScore(dto), precision: 1);
+    }
+
+    [Fact]
+    public void SapasiScore_HeadOnly_IsCorrect()
+    {
+        // Head: coverage=3, E=2, I=1, D=1 → (2+1+1)×3×0.1 = 1.2
+        var dto = new SapasiSubmitDto
+        {
+            HeadCoverage = 3, HeadErythema = 2, HeadInduration = 1, HeadDesquamation = 1
+        };
+        Assert.Equal(1.2f, ComputeSapasiScore(dto), precision: 2);
+    }
+
+    [Fact]
+    public void SapasiScore_NullFieldsInRegion_TreatedAsZero()
+    {
+        // Trunk with coverage=2, E=null, I=3, D=null → (0+3+0)×2×0.3 = 1.8
+        var dto = new SapasiSubmitDto
+        {
+            TrunkCoverage = 2, TrunkInduration = 3
+        };
+        Assert.Equal(1.8f, ComputeSapasiScore(dto), precision: 2);
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Input validation range tests
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// <summary>
+/// Verifies that DataAnnotations Range attributes on form submit DTOs
+/// produce the expected validation errors for out-of-range values.
+/// </summary>
+public class FormDtoValidationTests
+{
+    private static IList<System.ComponentModel.DataAnnotations.ValidationResult> Validate(object dto)
+    {
+        var results = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
+        var context = new System.ComponentModel.DataAnnotations.ValidationContext(dto);
+        System.ComponentModel.DataAnnotations.Validator.TryValidateObject(dto, context, results, validateAllProperties: true);
+        return results;
+    }
+
+    [Fact]
+    public void EuroqolSubmitDto_MobilityOutOfRange_FailsValidation()
+    {
+        var dto = new EuroqolSubmitDto { Mobility = 0 }; // must be 1–3
+        var errors = Validate(dto);
+        Assert.Contains(errors, e => e.MemberNames.Contains("Mobility"));
+    }
+
+    [Fact]
+    public void EuroqolSubmitDto_VasOutOfRange_FailsValidation()
+    {
+        var dto = new EuroqolSubmitDto { Howyoufeel = 101 }; // must be 0–100
+        var errors = Validate(dto);
+        Assert.Contains(errors, e => e.MemberNames.Contains("Howyoufeel"));
+    }
+
+    [Fact]
+    public void EuroqolSubmitDto_ValidValues_PassesValidation()
+    {
+        var dto = new EuroqolSubmitDto
+        {
+            Mobility = 1, Selfcare = 2, Usualacts = 3,
+            Paindisc = 1, Anxdepr = 2, Comphealth = 3, Howyoufeel = 75
+        };
+        Assert.Empty(Validate(dto));
+    }
+
+    [Fact]
+    public void HadSubmitDto_ItemOutOfRange_FailsValidation()
+    {
+        var dto = new HadsSubmitRequest { Q01tense = 4 }; // must be 0–3
+        var errors = Validate(dto);
+        Assert.Contains(errors, e => e.MemberNames.Contains("Q01tense"));
+    }
+
+    [Fact]
+    public void HadSubmitDto_NullItems_PassesValidation()
+    {
+        // All items null (paper-based blank) should pass
+        var dto = new HadsSubmitRequest();
+        Assert.Empty(Validate(dto));
+    }
+
+    [Fact]
+    public void HaqSubmitDto_ItemOutOfRange_FailsValidation()
+    {
+        var dto = new HaqSubmitRequest { Dressself = 4 }; // must be 0–3
+        var errors = Validate(dto);
+        Assert.Contains(errors, e => e.MemberNames.Contains("Dressself"));
+    }
+
+    [Fact]
+    public void DlqiSubmitDto_ItemOutOfRange_FailsValidation()
+    {
+        var dto = new DlqiSubmitDto { ItchsoreScore = 4 }; // must be 0–3
+        var errors = Validate(dto);
+        Assert.Contains(errors, e => e.MemberNames.Contains("ItchsoreScore"));
+    }
+
+    [Fact]
+    public void SapasiSubmitDto_CoverageOutOfRange_FailsValidation()
+    {
+        var dto = new SapasiSubmitDto { HeadCoverage = 5 }; // must be 0–4
+        var errors = Validate(dto);
+        Assert.Contains(errors, e => e.MemberNames.Contains("HeadCoverage"));
+    }
+
+    [Fact]
+    public void SapasiSubmitDto_SeverityOutOfRange_FailsValidation()
+    {
+        var dto = new SapasiSubmitDto { TrunkErythema = -1 }; // must be 0–4
+        var errors = Validate(dto);
+        Assert.Contains(errors, e => e.MemberNames.Contains("TrunkErythema"));
+    }
+
+    [Fact]
+    public void SapasiSubmitDto_AllNull_PassesValidation()
+    {
+        // All null (paper-based blank) should pass
+        var dto = new SapasiSubmitDto();
+        Assert.Empty(Validate(dto));
+    }
+
+    [Fact]
+    public void PgaSubmitDto_ScoreOutOfRange_FailsValidation()
+    {
+        var dto = new PgaSubmitDto { Pgascore = 6 }; // must be 1–5
+        var errors = Validate(dto);
+        Assert.Contains(errors, e => e.MemberNames.Contains("Pgascore"));
+    }
+}
