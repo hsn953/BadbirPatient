@@ -51,14 +51,22 @@ public class AuthController : ControllerBase
     /// <summary>
     /// Patient self-registration with identity pre-verification.
     ///
-    /// Step 1 — The patient's DOB, initials, and identification number are
-    ///          checked against the Clinician System (currently a configurable
-    ///          stub — see <c>ClinicianSystem:StubMode</c> in appsettings).
+    /// **Step 1** — The patient's DOB, initials, and at least one identification
+    /// number are verified against the Clinician System.
     ///
-    /// Step 2 — If verification passes, an <see cref="ApplicationUser"/>
-    ///          account is created via ASP.NET Core Identity.
+    /// **Step 2** — If verification passes, a portal account is created.
     ///
-    /// At least one of <c>NhsNumber</c> or <c>ChiNumber</c> must be provided.
+    /// **Identity numbers:** Supply at least one of NhsNumber, ChiNumber, or BadbirStudyNumber.
+    ///
+    /// **Password requirements:**
+    /// - Minimum 8 characters
+    /// - At least one uppercase letter (A–Z)
+    /// - At least one lowercase letter (a–z)
+    /// - At least one digit (0–9)
+    /// - At least one non-alphanumeric character (e.g. !, @, #, $)
+    ///
+    /// Returns 400 with an <c>errors</c> array if password rules are not met.
+    /// Returns 400 with an <c>error</c> string if identity verification fails.
     /// </summary>
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] PatientRegisterRequestDto dto)
