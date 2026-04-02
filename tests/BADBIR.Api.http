@@ -1,0 +1,50 @@
+### BADBIR Patient API - Test Endpoints
+@baseUrl = https://localhost:7280
+
+### 1. Register a new PATIENT (custom endpoint with identity verification)
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "hsn953@gmail.com",
+  "password": "Abcd1123!",
+  "dateOfBirth": "1985-01-25",
+  "initials": "HA",
+  "nhsNumber": "0102030467",
+  "chiNumber": null
+}
+
+### 2. Login with registered patient
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "hsn953@gmail.com",
+  "password": "Abcd1123!"
+}
+
+### 3. Get user info (requires authentication - replace YOUR_TOKEN_HERE with token from login)
+GET {{baseUrl}}/api/identity/manage/info
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### ========================================
+### Built-in Identity Endpoints (simple email/password only)
+### ========================================
+
+### 4. Register with built-in Identity endpoint (no patient verification)
+POST {{baseUrl}}/api/identity/register
+Content-Type: application/json
+
+{
+  "email": "simple@example.com",
+  "password": "Test123!@#"
+}
+
+### 5. Login with built-in Identity endpoint
+POST {{baseUrl}}/api/identity/login?useCookies=false
+Content-Type: application/json
+
+{
+  "email": "simple@example.com",
+  "password": "Test123!@#"
+}

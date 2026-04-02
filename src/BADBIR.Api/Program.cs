@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -105,8 +106,8 @@ var app = builder.Build();
 // ── 8. Middleware pipeline ────────────────────────────────────────────────────
 if (app.Environment.IsDevelopment())
 {
-    // Serves the OpenAPI JSON at /openapi/v1.json
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();
