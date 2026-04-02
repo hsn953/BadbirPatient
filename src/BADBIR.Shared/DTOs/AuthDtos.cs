@@ -44,7 +44,8 @@ public class PatientRegisterRequestDto
 
     /// <summary>
     /// BADBIR study number (if the patient was assigned one). Optional.
-    /// At least one of NhsNumber, ChiNumber, or BadbirStudyNumber must be provided.
+    /// At least one of NhsNumber, ChiNumber, or BadbirStudyNumber must be provided;
+    /// this requirement is enforced at the API level in AuthController.
     /// </summary>
     public string? BadbirStudyNumber { get; set; }
 }

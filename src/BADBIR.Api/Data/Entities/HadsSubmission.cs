@@ -2,7 +2,8 @@ namespace BADBIR.Api.Data.Entities;
 
 /// <summary>
 /// Patient-submitted HADS (Hospital Anxiety and Depression Scale).
-/// 14 items: Q01–Q07 Anxiety, Q02–Q14 Depression (each 0–3).
+/// 14 items: odd questions (Q01/Q03/Q05/Q07/Q09/Q11/Q13) for Anxiety,
+/// even questions (Q02/Q04/Q06/Q08/Q10/Q12/Q14) for Depression (each 0–3).
 /// Replaces bbPappPatientHad.
 /// </summary>
 public class HadsSubmission
