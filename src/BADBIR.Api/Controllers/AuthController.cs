@@ -65,9 +65,10 @@ public class AuthController : ControllerBase
     {
         // ── 1. Basic guard: at least one ID number required ───────────────────
         if (string.IsNullOrWhiteSpace(dto.NhsNumber) &&
-            string.IsNullOrWhiteSpace(dto.ChiNumber))
+            string.IsNullOrWhiteSpace(dto.ChiNumber) &&
+            string.IsNullOrWhiteSpace(dto.BadbirStudyNumber))
         {
-            return BadRequest(new { error = "At least one identification number (NhsNumber or ChiNumber) must be provided." });
+            return BadRequest(new { error = "At least one identification number (NhsNumber, ChiNumber, or BadbirStudyNumber) must be provided." });
         }
 
         // ── 2. External identity verification (stub or real Clinician System) ─
@@ -75,7 +76,8 @@ public class AuthController : ControllerBase
             dto.DateOfBirth,
             dto.Initials.Trim(),
             dto.NhsNumber,
-            dto.ChiNumber);
+            dto.ChiNumber,
+            dto.BadbirStudyNumber);
 
         if (!verified)
         {

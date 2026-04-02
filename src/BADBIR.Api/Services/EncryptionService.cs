@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
 using BADBIR.Api.Data.Entities;
-using BADBIR.Api.Data.Entities.Papp;
 
 namespace BADBIR.Api.Services;
 
@@ -107,31 +106,7 @@ public class EncryptionService : IEncryptionService
     // ── Entity convenience methods ────────────────────────────────────────────
 
     /// <inheritdoc/>
-    public BbPatient EncryptPatient(BbPatient patient)
-    {
-        patient.Title           = Encrypt(patient.Title ?? string.Empty);
-        patient.Forenames       = Encrypt(patient.Forenames ?? string.Empty);
-        patient.Surname         = Encrypt(patient.Surname ?? string.Empty);
-        patient.Countryresidence = Encrypt(patient.Countryresidence ?? string.Empty);
-        patient.Phrn            = Encrypt(patient.Phrn ?? string.Empty);
-        patient.Pnhs            = Encrypt(patient.Pnhs ?? string.Empty);
-        return patient;
-    }
-
-    /// <inheritdoc/>
-    public BbPatient DecryptPatient(BbPatient patient)
-    {
-        patient.Title            = Decrypt(patient.Title ?? string.Empty);
-        patient.Forenames        = Decrypt(patient.Forenames ?? string.Empty);
-        patient.Surname          = Decrypt(patient.Surname ?? string.Empty);
-        patient.Countryresidence = Decrypt(patient.Countryresidence ?? string.Empty);
-        patient.Phrn             = Decrypt(patient.Phrn ?? string.Empty);
-        patient.Pnhs             = Decrypt(patient.Pnhs ?? string.Empty);
-        return patient;
-    }
-
-    /// <inheritdoc/>
-    public BbPatientLifestyle EncryptLifestyle(BbPatientLifestyle lifestyle)
+    public LifestyleSubmission EncryptLifestyle(LifestyleSubmission lifestyle)
     {
         lifestyle.Birthtown    = Encrypt(lifestyle.Birthtown ?? string.Empty);
         lifestyle.Birthcountry = Encrypt(lifestyle.Birthcountry ?? string.Empty);
@@ -139,23 +114,7 @@ public class EncryptionService : IEncryptionService
     }
 
     /// <inheritdoc/>
-    public BbPatientLifestyle DecryptLifestyle(BbPatientLifestyle lifestyle)
-    {
-        lifestyle.Birthtown    = Decrypt(lifestyle.Birthtown ?? string.Empty);
-        lifestyle.Birthcountry = Decrypt(lifestyle.Birthcountry ?? string.Empty);
-        return lifestyle;
-    }
-
-    /// <inheritdoc/>
-    public BbPappPatientLifestyle EncryptPappLifestyle(BbPappPatientLifestyle lifestyle)
-    {
-        lifestyle.Birthtown    = Encrypt(lifestyle.Birthtown ?? string.Empty);
-        lifestyle.Birthcountry = Encrypt(lifestyle.Birthcountry ?? string.Empty);
-        return lifestyle;
-    }
-
-    /// <inheritdoc/>
-    public BbPappPatientLifestyle DecryptPappLifestyle(BbPappPatientLifestyle lifestyle)
+    public LifestyleSubmission DecryptLifestyle(LifestyleSubmission lifestyle)
     {
         lifestyle.Birthtown    = Decrypt(lifestyle.Birthtown ?? string.Empty);
         lifestyle.Birthcountry = Decrypt(lifestyle.Birthcountry ?? string.Empty);

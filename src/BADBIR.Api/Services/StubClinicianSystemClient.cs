@@ -21,10 +21,11 @@ public sealed class StubClinicianSystemClient : IClinicianSystemClient
     }
 
     public Task<bool> VerifyIdentityAsync(
-        DateOnly dateOfBirth,
-        string   initials,
-        string?  nhsNumber,
-        string?  chiNumber,
+        DateOnly          dateOfBirth,
+        string            initials,
+        string?           nhsNumber,
+        string?           chiNumber,
+        string?           badbirStudyNumber,
         CancellationToken cancellationToken = default)
         => Task.FromResult(_alwaysVerified);
 }
