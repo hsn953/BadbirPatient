@@ -25,6 +25,9 @@ namespace BADBIR.Api.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("ClinicalCentre")
+                        .HasColumnType("TEXT");
+
                     b.Property<int?>("ClinicianPatientId")
                         .HasColumnType("INTEGER");
 
@@ -32,12 +35,30 @@ namespace BADBIR.Api.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("ConsentGiven")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ConsentVersion")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly?>("DateOfBirth")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool?>("DiagnosisConfirmedIA")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("HoldingExpiry")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Initials")
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("INTEGER");
@@ -53,6 +74,12 @@ namespace BADBIR.Api.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("NotifyInfoComms")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("NotifyReminders")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("PasswordHash")
                         .HasColumnType("TEXT");
 
@@ -62,8 +89,14 @@ namespace BADBIR.Api.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("INTEGER");
 
+                    b.Property<byte>("RegistrationStatus")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("TEXT");
+
+                    b.Property<byte?>("SelfReportedDiagnosis")
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("INTEGER");
@@ -123,6 +156,43 @@ namespace BADBIR.Api.Migrations
                         .IsUnique();
 
                     b.ToTable("CageSubmissions", (string)null);
+                });
+
+            modelBuilder.Entity("BADBIR.Api.Data.Entities.ConsentRecord", b =>
+                {
+                    b.Property<int>("ConsentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ConsentFormVersion")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("ConsentTimestamp")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("IPAddress")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SignatureData")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<byte>("SignatureType")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("UserAgent")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ConsentId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ConsentRecords", (string)null);
                 });
 
             modelBuilder.Entity("BADBIR.Api.Data.Entities.DlqiSubmission", b =>
@@ -919,6 +989,17 @@ namespace BADBIR.Api.Migrations
                     b.Navigation("Visit");
                 });
 
+            modelBuilder.Entity("BADBIR.Api.Data.Entities.ConsentRecord", b =>
+                {
+                    b.HasOne("BADBIR.Api.Data.Entities.ApplicationUser", "User")
+                        .WithMany("ConsentRecords")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("BADBIR.Api.Data.Entities.DlqiSubmission", b =>
                 {
                     b.HasOne("BADBIR.Api.Data.Entities.VisitTracking", "Visit")
@@ -1060,6 +1141,8 @@ namespace BADBIR.Api.Migrations
 
             modelBuilder.Entity("BADBIR.Api.Data.Entities.ApplicationUser", b =>
                 {
+                    b.Navigation("ConsentRecords");
+
                     b.Navigation("Visits");
                 });
 

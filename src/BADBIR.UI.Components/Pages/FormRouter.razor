@@ -1,0 +1,57 @@
+@page "/forms"
+@page "/forms/{FormName}"
+@attribute [Authorize]
+@inject IPatientApiService PatientService
+@inject NavigationManager Nav
+
+<PageTitle>My Forms – BADBIR Patient</PageTitle>
+
+@if (string.IsNullOrEmpty(FormName))
+{
+    @* Forms list — redirect to dashboard *@
+    <p>Redirecting to your dashboard…</p>
+}
+else
+{
+    @* Route to specific form by name *@
+    @switch (FormName.ToLowerInvariant())
+    {
+        case "lifestyle":
+            <LifestyleFormPage />
+            break;
+        case "pga":
+            <PgaFormPage />
+            break;
+        case "cage":
+            <CageFormPage />
+            break;
+        case "dlqi":
+            <DlqiFormPage />
+            break;
+        case "euroqol":
+            <EuroqolFormPage />
+            break;
+        case "hads":
+            <HadsFormPage />
+            break;
+        case "haq":
+            <HaqFormPage />
+            break;
+        case "sapasi":
+            <SapasiFormPage />
+            break;
+        default:
+            <div class="alert alert-warning">Form '@FormName' not found. <a href="/dashboard">Return to dashboard</a></div>
+            break;
+    }
+}
+
+@code {
+    [Parameter] public string? FormName { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (string.IsNullOrEmpty(FormName))
+            Nav.NavigateTo("/dashboard");
+    }
+}

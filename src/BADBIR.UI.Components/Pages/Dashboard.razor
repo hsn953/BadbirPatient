@@ -1,7 +1,150 @@
 @page "/dashboard"
+@attribute [Authorize]
+@inject IPatientApiService PatientService
+@inject NavigationManager Nav
 
 <PageTitle>Dashboard – BADBIR Patient</PageTitle>
 
-<h1>Patient Dashboard</h1>
+@if (_loading)
+{
+    <div class="text-center py-5">
+        <div class="spinner-border text-primary"></div>
+        <p class="mt-2 text-muted">Loading your dashboard…</p>
+    </div>
+}
+else if (_dashboard is null)
+{
+    <div class="alert alert-danger">@_error</div>
+}
+else
+{
+    @* Consent / Diagnosis prompts *@
+    @if (_dashboard.ConsentRequired)
+    {
+        <div class="alert alert-info d-flex align-items-center gap-2 mb-3">
+            <span class="fs-4">✅</span>
+            <div>
+                <strong>Informed consent required.</strong> Before completing your forms, please read and sign the BADBIR consent form.
+                <a href="/consent" class="ms-2 btn btn-sm btn-info">Sign Consent</a>
+            </div>
+        </div>
+    }
 
-<p>Your recent form submissions and health summary will appear here.</p>
+    @if (_dashboard.DiagnosisRequired)
+    {
+        <div class="alert alert-info d-flex align-items-center gap-2 mb-3">
+            <span class="fs-4">🩺</span>
+            <div>
+                <strong>One question needed.</strong> We need to know about your diagnosis to set up your form sequence.
+                <a href="/diagnosis" class="ms-2 btn btn-sm btn-info">Answer Now</a>
+            </div>
+        </div>
+    }
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase small mb-1">Account Status</h6>
+                    @if (_dashboard.RegistrationStatus == RegistrationStatus.Holding)
+                    {
+                        <span class="badge bg-warning text-dark fs-6">⏳ Pending Confirmation</span>
+                        @if (_dashboard.HoldingDaysRemaining.HasValue)
+                        {
+                            <p class="mt-2 mb-0 small text-warning">
+                                Data expires in <strong>@_dashboard.HoldingDaysRemaining day(s)</strong> if not confirmed by your clinical team.
+                            </p>
+                        }
+                    }
+                    else
+                    {
+                        <span class="badge bg-success fs-6">✅ Verified</span>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase small mb-1">Current Period</h6>
+                    <p class="fs-5 fw-bold mb-0">@_dashboard.FollowUpLabel</p>
+                    @if (!string.IsNullOrEmpty(_dashboard.ClinicalCentre))
+                    {
+                        <p class="text-muted small mb-0">@_dashboard.ClinicalCentre</p>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase small mb-1">Next Visit</h6>
+                    @if (_dashboard.NextVisitDate.HasValue)
+                    {
+                        <p class="fs-5 fw-bold mb-0">@_dashboard.NextVisitDate.Value.ToLocalTime().ToString("d MMM yyyy")</p>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">Not yet scheduled</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Form sequence *@
+    <h5 class="mb-3">📋 Your Forms — @_dashboard.FollowUpLabel</h5>
+    <div class="list-group shadow-sm">
+        @foreach (var form in _dashboard.Forms.Where(f => !f.IsConditional || f.ConditionMet).OrderBy(f => f.SequenceOrder))
+        {
+            <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="fw-bold text-muted small" style="width:24px">@form.SequenceOrder</span>
+                    <div>
+                        <span class="fw-semibold">@form.FormName</span>
+                        @if (form.IsConditional)
+                        {
+                            <span class="badge bg-secondary ms-2 small">Conditional</span>
+                        }
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    @switch (form.Status)
+                    {
+                        case FormStatusEnum.Completed:
+                            <span class="badge bg-success">✓ Completed</span>
+                            <a href="/forms/@form.FormType.ToString().ToLower()" class="btn btn-sm btn-outline-success">View</a>
+                            break;
+                        case FormStatusEnum.Skipped:
+                            <span class="badge bg-secondary">Skipped</span>
+                            break;
+                        default:
+                            <span class="badge bg-light text-dark border">Not started</span>
+                            @if (!_dashboard.ConsentRequired && !_dashboard.DiagnosisRequired)
+                            {
+                                <a href="/forms/@form.FormType.ToString().ToLower()" class="btn btn-sm btn-primary">Start →</a>
+                            }
+                            break;
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private DashboardDto? _dashboard;
+    private bool _loading = true;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await PatientService.GetDashboardAsync();
+        _loading = false;
+
+        if (result.IsSuccess)
+            _dashboard = result.Data;
+        else
+            _error = result.ErrorMessage ?? "Failed to load dashboard.";
+    }
+}

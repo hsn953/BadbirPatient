@@ -1,0 +1,31 @@
+@inject BabdirAuthStateProvider AuthProvider
+
+@if (_showBanner)
+{
+    <div class="alert alert-warning d-flex align-items-center gap-2 mb-3" role="alert">
+        <span>⚠️</span>
+        <div>
+            <strong>Account pending confirmation.</strong>
+            Your account is being verified by your clinical team.
+            If not confirmed by <strong>@_expiryDisplay</strong>, your data will be permanently deleted.
+            (@_daysRemaining day(s) remaining)
+        </div>
+    </div>
+}
+
+@code {
+    private bool _showBanner;
+    private string _expiryDisplay = string.Empty;
+    private int _daysRemaining;
+
+    protected override void OnInitialized()
+    {
+        var user = AuthProvider.CurrentUser;
+        if (user?.RegistrationStatus == RegistrationStatus.Holding && user.HoldingExpiry.HasValue)
+        {
+            _showBanner    = true;
+            _expiryDisplay = user.HoldingExpiry.Value.ToLocalTime().ToString("d MMM yyyy");
+            _daysRemaining = Math.Max(0, (int)Math.Ceiling((user.HoldingExpiry.Value - DateTime.UtcNow).TotalDays));
+        }
+    }
+}

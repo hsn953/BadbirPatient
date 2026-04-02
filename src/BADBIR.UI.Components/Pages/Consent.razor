@@ -1,0 +1,183 @@
+@page "/consent"
+@attribute [Authorize]
+@inject IConsentApiService ConsentService
+@inject BabdirAuthStateProvider AuthProvider
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+<PageTitle>Informed Consent – BADBIR Patient</PageTitle>
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-9">
+
+            @if (_submitted)
+            {
+                <div class="text-center py-5">
+                    <div class="fs-1 mb-3">✅</div>
+                    <h3>Thank You</h3>
+                    <p class="text-muted">Your consent has been recorded.</p>
+                    <a href="/diagnosis" class="btn btn-primary mt-2">Continue →</a>
+                </div>
+            }
+            else
+            {
+                <h2>Informed Consent</h2>
+                <p class="text-muted mb-4">Please read the following information carefully before providing your consent to participate in BADBIR.</p>
+
+                @* Consent sections *@
+                <ConsentSection Title="Study Purpose" Icon="🔬">
+                    <p><strong>[PLACEHOLDER — FINAL TEXT TO BE PROVIDED BY STUDY TEAM]</strong></p>
+                    <p>BADBIR (British Association of Dermatologists Biologics and Immunosuppressants Register) is a UK-wide patient registry that collects information about patients with psoriasis and other inflammatory skin conditions who are receiving biologic or immunosuppressant treatments.</p>
+                    <p>The purpose of this study is to monitor the long-term safety and effectiveness of these treatments in a real-world setting, and to improve patient care.</p>
+                </ConsentSection>
+
+                <ConsentSection Title="What Data We Collect" Icon="📋">
+                    <p><strong>[PLACEHOLDER — FINAL TEXT TO BE PROVIDED BY STUDY TEAM]</strong></p>
+                    <p>We collect patient-reported outcome measures including quality of life questionnaires (DLQI, EQ-5D), health assessment data (HAQ), psychological wellbeing (HADS), and information about your skin condition (SAPASI, PGA). We also collect demographic information such as date of birth, occupation, and lifestyle factors.</p>
+                </ConsentSection>
+
+                <ConsentSection Title="How Your Data Is Used" Icon="🔒">
+                    <p><strong>[PLACEHOLDER — FINAL TEXT TO BE PROVIDED BY STUDY TEAM]</strong></p>
+                    <p>Your data is stored securely and encrypted. It will only be accessed by authorised members of the BADBIR research team and your clinical team. Your data may be used in aggregated, anonymised research publications. Your personal details will not be published.</p>
+                </ConsentSection>
+
+                <ConsentSection Title="Your Right to Withdraw" Icon="🚪">
+                    <p><strong>[PLACEHOLDER — FINAL TEXT TO BE PROVIDED BY STUDY TEAM]</strong></p>
+                    <p>Participation is voluntary. You may withdraw your consent at any time by contacting your clinical team. Withdrawal will not affect your medical care in any way.</p>
+                </ConsentSection>
+
+                <ConsentSection Title="Data Retention" Icon="🗓️">
+                    <p><strong>[PLACEHOLDER — FINAL TEXT TO BE PROVIDED BY STUDY TEAM]</strong></p>
+                    <p>Your data will be retained for the duration of your participation and for a defined period afterwards as required by research governance regulations. If you withdraw, your data will be handled in accordance with current data protection legislation.</p>
+                </ConsentSection>
+
+                @* Signature section *@
+                <div class="card border-0 shadow-sm mt-4">
+                    <div class="card-body p-4">
+                        <h5 class="mb-3">Your Signature</h5>
+                        <p class="text-muted small mb-3">Please choose how you would like to sign your consent:</p>
+
+                        <div class="mb-3">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="sigElectronic" name="sigType"
+                                       checked="@(_sigType == SignatureType.Electronic)"
+                                       @onchange='() => _sigType = SignatureType.Electronic' />
+                                <label class="form-check-label" for="sigElectronic">Electronic signature (type your name)</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="sigDrawn" name="sigType"
+                                       checked="@(_sigType == SignatureType.Drawn)"
+                                       @onchange="HandleDrawnSelected" />
+                                <label class="form-check-label" for="sigDrawn">Drawn signature (sign with mouse/finger)</label>
+                            </div>
+                        </div>
+
+                        @if (_sigType == SignatureType.Electronic)
+                        {
+                            <div class="mb-3">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="consentCheck" @bind="_readAndUnderstood" />
+                                    <label class="form-check-label" for="consentCheck">
+                                        I have read and understood the above information and I agree to participate in BADBIR.
+                                    </label>
+                                </div>
+                                <label class="form-label fw-semibold">Type your full name</label>
+                                <input type="text" class="form-control" style="max-width:400px"
+                                       @bind="_typedName" placeholder="Your full name" />
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Sign below</label>
+                                <div class="border rounded bg-white" style="touch-action:none;">
+                                    <canvas id="sig-canvas" width="600" height="150"
+                                            style="width:100%;max-width:600px;height:150px;cursor:crosshair;display:block;"
+                                            aria-label="Signature pad — draw your signature here"></canvas>
+                                </div>
+                                <div class="mt-2">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                                            @onclick="ClearCanvasAsync">Clear</button>
+                                </div>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(_error))
+                        {
+                            <div class="alert alert-danger mt-2">@_error</div>
+                        }
+
+                        <button class="btn btn-success mt-3" disabled="@_loading" @onclick="SubmitConsentAsync">
+                            @if (_loading) { <span class="spinner-border spinner-border-sm me-2"></span> }
+                            I Consent — Submit
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private SignatureType _sigType = SignatureType.Electronic;
+    private bool _readAndUnderstood;
+    private string _typedName = string.Empty;
+    private bool _loading;
+    private bool _submitted;
+    private string? _error;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && _sigType == SignatureType.Drawn)
+            await JS.InvokeVoidAsync("signaturePad.init", "sig-canvas");
+    }
+
+    private async Task InitCanvasAsync()
+    {
+        await Task.Yield(); // let render cycle complete
+        await JS.InvokeVoidAsync("signaturePad.init", "sig-canvas");
+    }
+
+    private async Task HandleDrawnSelected()
+    {
+        _sigType = SignatureType.Drawn;
+        await InitCanvasAsync();
+    }
+
+    private async Task ClearCanvasAsync() =>
+        await JS.InvokeVoidAsync("signaturePad.clear", "sig-canvas");
+
+    private async Task SubmitConsentAsync()
+    {
+        _error = null;
+        string sigData;
+
+        if (_sigType == SignatureType.Electronic)
+        {
+            if (!_readAndUnderstood)
+            { _error = "Please tick the checkbox to confirm you have read and understood the consent information."; return; }
+            if (string.IsNullOrWhiteSpace(_typedName))
+            { _error = "Please type your full name as your electronic signature."; return; }
+            sigData = _typedName.Trim();
+        }
+        else
+        {
+            var isEmpty = await JS.InvokeAsync<bool>("signaturePad.isEmpty", "sig-canvas");
+            if (isEmpty) { _error = "Please draw your signature on the pad above."; return; }
+            sigData = await JS.InvokeAsync<string>("signaturePad.getDataUrl", "sig-canvas") ?? string.Empty;
+        }
+
+        _loading = true;
+        var result = await ConsentService.SubmitConsentAsync(new ConsentSubmitDto
+        {
+            ConsentFormVersion = AppConstants.ConsentFormVersion,
+            SignatureType      = _sigType,
+            SignatureData      = sigData
+        });
+        _loading = false;
+
+        if (!result.IsSuccess) { _error = result.ErrorMessage; return; }
+        _submitted = true;
+    }
+}

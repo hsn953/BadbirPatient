@@ -1,0 +1,88 @@
+@inject IFormApiService FormService
+
+@if (_submitted)
+{
+    <div class="text-center py-4">
+        <div class="fs-1 mb-2">✅</div>
+        <p class="fw-semibold">CAGE questionnaire submitted.</p>
+        <a href="/dashboard" class="btn btn-primary">Back to Dashboard</a>
+    </div>
+}
+else
+{
+    <p class="mb-3">Please answer Yes or No to each of the following questions.</p>
+
+    @foreach (var q in _cageQuestions)
+    {
+        <div class="mb-3 p-3 border rounded">
+            <p class="fw-semibold mb-2">@q.Text</p>
+            <div class="d-flex gap-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="@($"{q.Key}_y")" name="@q.Key"
+                           checked="@(q.Value == true)" @onchange="() => q.Value = true" />
+                    <label class="form-check-label" for="@($"{q.Key}_y")">Yes</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="@($"{q.Key}_n")" name="@q.Key"
+                           checked="@(q.Value == false)" @onchange="() => q.Value = false" />
+                    <label class="form-check-label" for="@($"{q.Key}_n")">No</label>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(_error))
+    {
+        <div class="alert alert-danger">@_error</div>
+    }
+
+    <div class="d-flex gap-2 mt-3">
+        <button class="btn btn-primary" disabled="@_loading" @onclick="SubmitAsync">
+            @if (_loading) { <span class="spinner-border spinner-border-sm me-2"></span> }
+            Submit CAGE
+        </button>
+        <button class="btn btn-outline-secondary" @onclick="SkipAsync">Skip</button>
+    </div>
+}
+
+@code {
+    private bool _loading, _submitted;
+    private string? _error;
+
+    private record CageQ(string Key, string Text)
+    {
+        public bool? Value { get; set; }
+    }
+
+    private readonly CageQ[] _cageQuestions =
+    [
+        new("cutdown",    "C — Have you ever felt you should Cut down on your drinking?"),
+        new("annoyed",    "A — Have people Annoyed you by criticising your drinking?"),
+        new("guilty",     "G — Have you ever felt bad or Guilty about your drinking?"),
+        new("eyeopener",  "E — Have you ever had a drink first thing in the morning to steady your nerves or to get rid of a hangover (Eye-opener)?")
+    ];
+
+    private async Task SubmitAsync()
+    {
+        _loading = true;
+        var result = await FormService.SubmitCageAsync(new CageSubmitDto
+        {
+            Cutdown      = _cageQuestions[0].Value,
+            Annoyed      = _cageQuestions[1].Value,
+            Guilty       = _cageQuestions[2].Value,
+            Earlymorning = _cageQuestions[3].Value
+        });
+        _loading = false;
+        if (!result.IsSuccess) { _error = result.ErrorMessage; return; }
+        _submitted = true;
+    }
+
+    private async Task SkipAsync()
+    {
+        _loading = true;
+        var result = await FormService.SubmitCageAsync(new CageSubmitDto { SkipForm = true });
+        _loading = false;
+        if (!result.IsSuccess) { _error = result.ErrorMessage; return; }
+        _submitted = true;
+    }
+}

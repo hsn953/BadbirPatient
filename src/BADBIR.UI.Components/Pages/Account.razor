@@ -1,0 +1,187 @@
+@page "/account"
+@attribute [Authorize]
+@inject IPatientApiService PatientService
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+<PageTitle>Account Settings – BADBIR Patient</PageTitle>
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <h3 class="mb-4">⚙️ Account Settings</h3>
+
+            @if (_loading)
+            {
+                <div class="text-center py-4"><div class="spinner-border text-primary"></div></div>
+            }
+            else if (_profile is null)
+            {
+                <div class="alert alert-danger">@_error</div>
+            }
+            else
+            {
+                @* Profile info *@
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">👤 Account Information</h5>
+                        <dl class="row mb-0">
+                            <dt class="col-sm-4">Email</dt>
+                            <dd class="col-sm-8">@_profile.Email</dd>
+
+                            <dt class="col-sm-4">Status</dt>
+                            <dd class="col-sm-8">
+                                @if (_profile.RegistrationStatus == RegistrationStatus.Holding)
+                                {
+                                    <span class="badge bg-warning text-dark">Pending Confirmation</span>
+                                    @if (_profile.HoldingExpiry.HasValue)
+                                    {
+                                        <span class="ms-2 text-muted small">Expires @_profile.HoldingExpiry.Value.ToLocalTime().ToString("d MMM yyyy")</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">Verified</span>
+                                }
+                            </dd>
+
+                            @if (!string.IsNullOrEmpty(_profile.ClinicalCentre))
+                            {
+                                <dt class="col-sm-4">Clinical Centre</dt>
+                                <dd class="col-sm-8">@_profile.ClinicalCentre</dd>
+                            }
+                        </dl>
+                    </div>
+                </div>
+
+                @* Notification preferences *@
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">🔔 Notification Preferences</h5>
+                        <p class="text-muted small mb-3">
+                            Email is your primary contact method for account and study communications and cannot be disabled.
+                        </p>
+
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="notifyReminders"
+                                   @bind="_notifyReminders" role="switch" />
+                            <label class="form-check-label" for="notifyReminders">
+                                <strong>Clinical reminders</strong>
+                                <div class="text-muted small">Email reminders before your follow-up visits</div>
+                            </label>
+                            @if (!_notifyReminders)
+                            {
+                                <div class="alert alert-warning py-1 px-2 mt-1 small">
+                                    ⚠️ Turning this off means you will not receive visit reminders.
+                                </div>
+                            }
+                        </div>
+
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="notifyInfo"
+                                   @bind="_notifyInfoComms" role="switch" />
+                            <label class="form-check-label" for="notifyInfo">
+                                <strong>Study news &amp; updates</strong>
+                                <div class="text-muted small">Occasional research updates from BADBIR (off by default)</div>
+                            </label>
+                        </div>
+
+                        @* Browser notifications (web only) *@
+                        <div class="border-top pt-3 mt-3">
+                            <strong class="d-block mb-1">🌐 Browser Notifications (optional)</strong>
+                            <p class="text-muted small mb-2">Enable browser notifications for timely reminders even when you don't have your email open.</p>
+                            <button class="btn btn-outline-secondary btn-sm" @onclick="RequestBrowserNotificationsAsync">
+                                Enable Browser Notifications
+                            </button>
+                            @if (!string.IsNullOrEmpty(_notifResult))
+                            {
+                                <span class="ms-3 text-muted small">@_notifResult</span>
+                            }
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(_prefError))
+                        {
+                            <div class="alert alert-danger mt-3">@_prefError</div>
+                        }
+                        @if (_prefSaved)
+                        {
+                            <div class="alert alert-success mt-3">✅ Preferences saved.</div>
+                        }
+
+                        <button class="btn btn-primary mt-3" disabled="@_saving" @onclick="SavePreferencesAsync">
+                            @if (_saving) { <span class="spinner-border spinner-border-sm me-2"></span> }
+                            Save Preferences
+                        </button>
+                    </div>
+                </div>
+
+                @* Quick links *@
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">🔗 Quick Links</h5>
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2"><a href="/consent">View / Re-sign Consent Form</a></li>
+                            <li class="mb-2"><a href="/diagnosis">Update Diagnosis Answer</a></li>
+                            <li><a href="/account-recovery">Change Password</a></li>
+                        </ul>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private PatientProfileDto? _profile;
+    private bool _loading = true;
+    private bool _saving;
+    private bool _notifyReminders = true;
+    private bool _notifyInfoComms = false;
+    private bool _prefSaved;
+    private string? _error;
+    private string? _prefError;
+    private string? _notifResult;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await PatientService.GetProfileAsync();
+        _loading = false;
+
+        if (!result.IsSuccess) { _error = result.ErrorMessage; return; }
+        _profile         = result.Data;
+        _notifyReminders = _profile!.NotifyReminders;
+        _notifyInfoComms = _profile.NotifyInfoComms;
+    }
+
+    private async Task SavePreferencesAsync()
+    {
+        _prefSaved = false;
+        _prefError = null;
+        _saving    = true;
+
+        var result = await PatientService.UpdatePreferencesAsync(new PreferencesUpdateDto
+        {
+            NotifyReminders = _notifyReminders,
+            NotifyInfoComms = _notifyInfoComms
+        });
+        _saving = false;
+
+        if (!result.IsSuccess) { _prefError = result.ErrorMessage; return; }
+        _prefSaved = true;
+    }
+
+    private async Task RequestBrowserNotificationsAsync()
+    {
+        try
+        {
+            var result = await JS.InvokeAsync<string>("Notification.requestPermission");
+            _notifResult = result == "granted"
+                ? "✅ Browser notifications enabled!"
+                : "Notification permission was not granted.";
+        }
+        catch
+        {
+            _notifResult = "Browser notifications are not supported on this device.";
+        }
+    }
+}

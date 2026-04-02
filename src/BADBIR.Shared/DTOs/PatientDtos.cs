@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using BADBIR.Shared.Enums;
 
 namespace BADBIR.Shared.DTOs;
 
@@ -51,6 +52,14 @@ public class PatientProfileDto
     public string UserId { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public int? ClinicianPatientId { get; set; }
+    public RegistrationStatus RegistrationStatus { get; set; }
+    public DateTime? HoldingExpiry { get; set; }
+    public bool ConsentGiven { get; set; }
+    public SelfReportedDiagnosis? SelfReportedDiagnosis { get; set; }
+    public bool? DiagnosisConfirmedIA { get; set; }
+    public bool NotifyReminders { get; set; }
+    public bool NotifyInfoComms { get; set; }
+    public string? ClinicalCentre { get; set; }
 }
 
 // ── Form submission DTOs ──────────────────────────────────────────────────────
@@ -417,4 +426,85 @@ public class EuroQolSubmitDto
     public byte AnxietyDepression { get; set; }
     public byte VasScore { get; set; }
     public string? Notes { get; set; }
+}
+
+// ── Consent ───────────────────────────────────────────────────────────────────
+
+/// <summary>Request body for POST /api/consent.</summary>
+public class ConsentSubmitDto
+{
+    [Required]
+    public string ConsentFormVersion { get; set; } = string.Empty;
+
+    [Required]
+    public SignatureType SignatureType { get; set; }
+
+    /// <summary>
+    /// For electronic signatures: typed full name.
+    /// For drawn signatures: base64-encoded PNG image.
+    /// </summary>
+    [Required]
+    [MinLength(1)]
+    public string SignatureData { get; set; } = string.Empty;
+}
+
+/// <summary>Response from POST /api/consent.</summary>
+public class ConsentResultDto
+{
+    public int ConsentId { get; set; }
+    public DateTime ConsentTimestamp { get; set; }
+    public string ConsentFormVersion { get; set; } = string.Empty;
+}
+
+// ── Diagnosis / Preferences ───────────────────────────────────────────────────
+
+/// <summary>Request body for PATCH /api/patients/me/diagnosis.</summary>
+public class DiagnosisUpdateDto
+{
+    [Required]
+    public SelfReportedDiagnosis SelfReportedDiagnosis { get; set; }
+}
+
+/// <summary>Request body for PATCH /api/patients/me/preferences.</summary>
+public class PreferencesUpdateDto
+{
+    public bool NotifyReminders { get; set; }
+    public bool NotifyInfoComms { get; set; }
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+
+/// <summary>Response from GET /api/patients/me/dashboard.</summary>
+public class DashboardDto
+{
+    public string Email { get; set; } = string.Empty;
+    public RegistrationStatus RegistrationStatus { get; set; }
+    public DateTime? HoldingExpiry { get; set; }
+    /// <summary>Days remaining until holding account deletion. Null if not in holding state.</summary>
+    public int? HoldingDaysRemaining { get; set; }
+    public string? ClinicalCentre { get; set; }
+
+    /// <summary>0 = Baseline, 1..N = Follow-up number.</summary>
+    public int FollowUpNumber { get; set; }
+    public string FollowUpLabel { get; set; } = string.Empty;
+    public DateTime? NextVisitDate { get; set; }
+
+    public bool ConsentRequired { get; set; }
+    public bool DiagnosisRequired { get; set; }
+
+    public List<FormStatusItemDto> Forms { get; set; } = [];
+}
+
+/// <summary>Status of a single form within the current follow-up period.</summary>
+public class FormStatusItemDto
+{
+    public FormType FormType { get; set; }
+    public string FormName { get; set; } = string.Empty;
+    public FormStatusEnum Status { get; set; }
+    public int SequenceOrder { get; set; }
+    /// <summary>
+    /// True if this form is conditional and the condition is not met — form is absent from sequence.
+    /// </summary>
+    public bool IsConditional { get; set; }
+    public bool ConditionMet { get; set; }
 }

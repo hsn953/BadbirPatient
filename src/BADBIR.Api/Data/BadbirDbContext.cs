@@ -32,6 +32,7 @@ public class BadbirDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<HaqSubmission>       HaqSubmissions       => Set<HaqSubmission>();
     public DbSet<PgaSubmission>       PgaSubmissions       => Set<PgaSubmission>();
     public DbSet<SapasiSubmission>    SapasiSubmissions    => Set<SapasiSubmission>();
+    public DbSet<ConsentRecord>       ConsentRecords       => Set<ConsentRecord>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -105,6 +106,16 @@ public class BadbirDbContext : IdentityDbContext<ApplicationUser>
         {
             e.ToTable("SapasiSubmissions");
             e.HasKey(s => s.SapasiId);
+        });
+
+        builder.Entity<ConsentRecord>(e =>
+        {
+            e.ToTable("ConsentRecords");
+            e.HasKey(c => c.ConsentId);
+            e.HasOne(c => c.User)
+             .WithMany(u => u.ConsentRecords)
+             .HasForeignKey(c => c.UserId)
+             .IsRequired();
         });
     }
 }

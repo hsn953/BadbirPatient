@@ -1,9 +1,62 @@
 @page "/"
 
-<PageTitle>Home – BADBIR Patient</PageTitle>
+<PageTitle>BADBIR Patient Portal</PageTitle>
 
-<h1>Welcome to the BADBIR Patient Application</h1>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1 class="display-5 fw-bold mb-3">
+                🩺 BADBIR Patient Portal
+            </h1>
+            <p class="lead mb-4">
+                Welcome to the British Association of Dermatologists Biologics and
+                Immunosuppressants Register (BADBIR) patient portal. Here you can
+                register, complete your questionnaires, and manage your participation
+                in this important research study.
+            </p>
+            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <AuthorizeView>
+                    <Authorized>
+                        <a href="/dashboard" class="btn btn-primary btn-lg px-4">Go to Dashboard</a>
+                    </Authorized>
+                    <NotAuthorized>
+                        <a href="/register" class="btn btn-primary btn-lg px-4">Register</a>
+                        <a href="/login" class="btn btn-outline-primary btn-lg px-4">Log in</a>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </div>
+        </div>
+    </div>
 
-<p>
-    Use the navigation menu to access your dashboard and submit patient-reported outcome forms.
-</p>
+    <hr class="my-5" />
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="fs-1 mb-3">🔒</div>
+                    <h5 class="card-title">Secure &amp; Private</h5>
+                    <p class="card-text text-muted">Your health data is stored securely and encrypted. Only your clinical team can access your information.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="fs-1 mb-3">📋</div>
+                    <h5 class="card-title">Easy Questionnaires</h5>
+                    <p class="card-text text-muted">Complete your assigned forms at your own pace, guided step-by-step before or during your clinic visit.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="fs-1 mb-3">🤝</div>
+                    <h5 class="card-title">Supporting Research</h5>
+                    <p class="card-text text-muted">Your participation helps researchers understand the long-term effects of treatments for skin conditions.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
