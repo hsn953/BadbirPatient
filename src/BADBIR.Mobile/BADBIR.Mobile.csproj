@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0-android;net8.0-ios</TargetFrameworks>
+    <TargetFrameworks>net10.0-android;net10.0-ios</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <RootNamespace>BADBIR.Mobile</RootNamespace>
     <UseMaui>true</UseMaui>
@@ -25,25 +25,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- App Icon -->
-    <MauiIcon Include="Resources\appicon.svg" ForegroundFile="Resources\appiconfg.svg" Color="#512BD4" />
-
-    <!-- Splash Screen -->
-    <MauiSplashScreen Include="Resources\splash.svg" Color="#512BD4" BaseSize="128,128" />
-
-    <!-- Images -->
-    <MauiImage Include="Resources\Images\*" />
-
-    <!-- Fonts -->
-    <MauiFont Include="Resources\Fonts\*" />
-
     <!-- Raw Assets (also process as MauiAsset for MAUI) -->
     <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.100" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="8.0.100" />
+    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.40" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="10.0.40" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
   </ItemGroup>
 
   <ItemGroup>
