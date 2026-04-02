@@ -3,17 +3,18 @@ using Microsoft.AspNetCore.Identity;
 namespace BADBIR.Api.Data.Entities;
 
 /// <summary>
-/// Custom Identity user – extends IdentityUser with BADBIR-specific profile data.
-/// One-to-one with <see cref="BbPatient"/> via <see cref="PatientId"/>.
+/// Portal user account. Extends IdentityUser with BADBIR-specific fields.
+/// One user account corresponds to one patient accessing the portal.
 /// </summary>
 public class ApplicationUser : IdentityUser
 {
     /// <summary>
-    /// FK to bbPatient.patientid — set when a patient registers via the portal.
-    /// Null for clinician / admin accounts that don't have a patient record.
+    /// Optional reference to the Clinician System's patient record (bbPatient.patientid).
+    /// Set once identity is verified against the Clinician System at registration.
+    /// Null for admin/clinician accounts that are not linked to a patient record.
     /// </summary>
-    public int? PatientId { get; set; }
+    public int? ClinicianPatientId { get; set; }
 
-    /// <summary>Navigation to the linked patient record (may be null for admin/clinician users).</summary>
-    public BbPatient? Patient { get; set; }
+    /// <summary>Navigation to this user's portal visits.</summary>
+    public ICollection<VisitTracking> Visits { get; set; } = [];
 }

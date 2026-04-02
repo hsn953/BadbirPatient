@@ -13,21 +13,18 @@ public interface IClinicianSystemClient
     /// </summary>
     /// <param name="dateOfBirth">Patient date of birth.</param>
     /// <param name="initials">Patient initials, e.g. "JD" (case-insensitive).</param>
-    /// <param name="nhsNumber">
-    /// NHS number (England/Wales). Either this or <paramref name="chiNumber"/>
-    /// must be supplied.
-    /// </param>
-    /// <param name="chiNumber">
-    /// CHI / Health &amp; Care number (Scotland). Either this or
-    /// <paramref name="nhsNumber"/> must be supplied.
-    /// </param>
+    /// <param name="nhsNumber">NHS number (England/Wales).</param>
+    /// <param name="chiNumber">CHI / Health &amp; Care number (Scotland).</param>
+    /// <param name="badbirStudyNumber">BADBIR study number, if available.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>
     /// <c>true</c> if a matching patient record is found; <c>false</c> otherwise.
     /// </returns>
     Task<bool> VerifyIdentityAsync(
-        DateOnly dateOfBirth,
-        string   initials,
-        string?  nhsNumber,
-        string?  chiNumber,
+        DateOnly          dateOfBirth,
+        string            initials,
+        string?           nhsNumber,
+        string?           chiNumber,
+        string?           badbirStudyNumber,
         CancellationToken cancellationToken = default);
 }

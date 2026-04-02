@@ -1,6 +1,5 @@
 using BADBIR.Api.Data;
 using BADBIR.Api.Data.Entities;
-using BADBIR.Api.Data.Entities.Papp;
 using BADBIR.Api.Services;
 using BADBIR.Shared.DTOs;
 using Microsoft.AspNetCore.Authorization;
@@ -11,10 +10,10 @@ using Microsoft.EntityFrameworkCore;
 namespace BADBIR.Api.Controllers;
 
 /// <summary>
-/// Handles patient-submitted PRO form saves into the papp holding tables.
+/// Handles patient-submitted PRO form saves into the portal submission tables.
 /// A patient may only submit/view their own forms.
-/// All data written here stays in the papp tables until the clinician calls
-/// POST /api/admin/patients/{patientId}/promote to copy it to the live tables.
+/// All data written here stays in a holding state (DataStatus=0) until the
+/// clinician calls POST /api/admin/visits/{visitId}/approve.
 /// </summary>
 [ApiController]
 [Route("api/forms")]
@@ -37,35 +36,35 @@ public class FormsController : ControllerBase
     // ─────────────────────────────────────────────────────────────────────────
 
     // GET api/forms/dlqi
-    /// <summary>Returns the DLQI holding record for the caller's current papp visit.</summary>
+    /// <summary>Returns the DLQI submission for the caller's current visit.</summary>
     [HttpGet("dlqi")]
-    public async Task<ActionResult<PappDlqiDto>> GetDlqi()
+    public async Task<ActionResult<DlqiDto>> GetDlqi()
     {
-        var pappFupId = await GetCurrentPappFupIdAsync();
-        if (pappFupId is null) return Forbid();
+        var visitId = await GetCurrentVisitIdAsync();
+        if (visitId is null) return Forbid();
 
-        var dlqi = await _db.PappDlqis
+        var dlqi = await _db.DlqiSubmissions
             .AsNoTracking()
-            .FirstOrDefaultAsync(d => d.PappFupId == pappFupId && d.DataStatus == 0);
+            .FirstOrDefaultAsync(d => d.VisitId == visitId && d.DataStatus == 0);
 
         return dlqi is null ? NotFound() : Ok(MapDlqi(dlqi));
     }
 
     // POST api/forms/dlqi
-    /// <summary>Saves or updates the DLQI form in the papp holding table.</summary>
+    /// <summary>Saves or updates the DLQI form.</summary>
     [HttpPost("dlqi")]
-    public async Task<ActionResult<PappDlqiDto>> SaveDlqi(PappDlqiSubmitDto dto)
+    public async Task<ActionResult<DlqiDto>> SaveDlqi(DlqiSubmitDto dto)
     {
-        var pappFupId = await GetCurrentPappFupIdAsync();
-        if (pappFupId is null) return Forbid();
+        var visitId = await GetCurrentVisitIdAsync();
+        if (visitId is null) return Forbid();
 
-        var existing = await _db.PappDlqis
-            .FirstOrDefaultAsync(d => d.PappFupId == pappFupId && d.DataStatus == 0);
+        var existing = await _db.DlqiSubmissions
+            .FirstOrDefaultAsync(d => d.VisitId == visitId && d.DataStatus == 0);
 
         if (existing is null)
         {
-            var entity = MapFromDlqiDto(dto, pappFupId.Value);
-            _db.PappDlqis.Add(entity);
+            var entity = MapFromDlqiDto(dto, visitId.Value);
+            _db.DlqiSubmissions.Add(entity);
             await _db.SaveChangesAsync();
             return CreatedAtAction(nameof(GetDlqi), MapDlqi(entity));
         }
@@ -81,44 +80,44 @@ public class FormsController : ControllerBase
 
     // GET api/forms/lifestyle
     [HttpGet("lifestyle")]
-    public async Task<ActionResult<PappLifestyleDto>> GetLifestyle()
+    public async Task<ActionResult<LifestyleDto>> GetLifestyle()
     {
-        var pappFupId = await GetCurrentPappFupIdAsync();
-        if (pappFupId is null) return Forbid();
+        var visitId = await GetCurrentVisitIdAsync();
+        if (visitId is null) return Forbid();
 
-        var ls = await _db.PappLifestyles
+        var ls = await _db.LifestyleSubmissions
             .AsNoTracking()
-            .FirstOrDefaultAsync(l => l.PappFupId == pappFupId && l.DataStatus == 0);
+            .FirstOrDefaultAsync(l => l.VisitId == visitId && l.DataStatus == 0);
 
         if (ls is null) return NotFound();
-        _enc.DecryptPappLifestyle(ls);
+        _enc.DecryptLifestyle(ls);
         return Ok(MapLifestyle(ls));
     }
 
     // POST api/forms/lifestyle
     [HttpPost("lifestyle")]
-    public async Task<ActionResult<PappLifestyleDto>> SaveLifestyle(PappLifestyleSubmitDto dto)
+    public async Task<ActionResult<LifestyleDto>> SaveLifestyle(LifestyleSubmitDto dto)
     {
-        var pappFupId = await GetCurrentPappFupIdAsync();
-        if (pappFupId is null) return Forbid();
+        var visitId = await GetCurrentVisitIdAsync();
+        if (visitId is null) return Forbid();
 
-        var existing = await _db.PappLifestyles
-            .FirstOrDefaultAsync(l => l.PappFupId == pappFupId && l.DataStatus == 0);
+        var existing = await _db.LifestyleSubmissions
+            .FirstOrDefaultAsync(l => l.VisitId == visitId && l.DataStatus == 0);
 
         if (existing is null)
         {
-            var entity = MapFromLifestyleDto(dto, pappFupId.Value);
-            _enc.EncryptPappLifestyle(entity);
-            _db.PappLifestyles.Add(entity);
+            var entity = MapFromLifestyleDto(dto, visitId.Value);
+            _enc.EncryptLifestyle(entity);
+            _db.LifestyleSubmissions.Add(entity);
             await _db.SaveChangesAsync();
-            _enc.DecryptPappLifestyle(entity);
+            _enc.DecryptLifestyle(entity);
             return CreatedAtAction(nameof(GetLifestyle), MapLifestyle(entity));
         }
 
         UpdateLifestyleFromDto(existing, dto);
-        _enc.EncryptPappLifestyle(existing);
+        _enc.EncryptLifestyle(existing);
         await _db.SaveChangesAsync();
-        _enc.DecryptPappLifestyle(existing);
+        _enc.DecryptLifestyle(existing);
         return Ok(MapLifestyle(existing));
     }
 
@@ -128,52 +127,52 @@ public class FormsController : ControllerBase
 
     // GET api/forms/cage
     [HttpGet("cage")]
-    public async Task<ActionResult<PappCageDto>> GetCage()
+    public async Task<ActionResult<CageDto>> GetCage()
     {
-        var pappFupId = await GetCurrentPappFupIdAsync();
-        if (pappFupId is null) return Forbid();
+        var visitId = await GetCurrentVisitIdAsync();
+        if (visitId is null) return Forbid();
 
-        var cage = await _db.PappCages
+        var cage = await _db.CageSubmissions
             .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.PappFupId == pappFupId && c.DataStatus == 0);
+            .FirstOrDefaultAsync(c => c.VisitId == visitId && c.DataStatus == 0);
 
         return cage is null ? NotFound() : Ok(MapCage(cage));
     }
 
     // POST api/forms/cage
     [HttpPost("cage")]
-    public async Task<ActionResult<PappCageDto>> SaveCage(PappCageSubmitDto dto)
+    public async Task<ActionResult<CageDto>> SaveCage(CageSubmitDto dto)
     {
-        var pappFupId = await GetCurrentPappFupIdAsync();
-        if (pappFupId is null) return Forbid();
+        var visitId = await GetCurrentVisitIdAsync();
+        if (visitId is null) return Forbid();
 
-        var existing = await _db.PappCages
-            .FirstOrDefaultAsync(c => c.PappFupId == pappFupId && c.DataStatus == 0);
+        var existing = await _db.CageSubmissions
+            .FirstOrDefaultAsync(c => c.VisitId == visitId && c.DataStatus == 0);
 
         if (existing is null)
         {
-            var entity = new BbPappPatientCage
+            var entity = new CageSubmission
             {
-                PappFupId    = pappFupId.Value,
-                Cutdown      = dto.SkipForm ? null : dto.Cutdown,
-                Annoyed      = dto.SkipForm ? null : dto.Annoyed,
-                Guilty       = dto.SkipForm ? null : dto.Guilty,
-                Earlymorning = dto.SkipForm ? null : dto.Earlymorning,
-                Datecomp     = DateTime.UtcNow,
-                DataStatus   = 0,
-                Createdbyid  = 0, Createdbyname = "PatientPortal", Createddate = DateTime.UtcNow,
-                Lastupdatedbyid = 0, Lastupdatedbyname = "PatientPortal", Lastupdateddate = DateTime.UtcNow
+                VisitId       = visitId.Value,
+                Cutdown       = dto.SkipForm ? null : dto.Cutdown,
+                Annoyed       = dto.SkipForm ? null : dto.Annoyed,
+                Guilty        = dto.SkipForm ? null : dto.Guilty,
+                Earlymorning  = dto.SkipForm ? null : dto.Earlymorning,
+                DateCompleted = DateTime.UtcNow,
+                DataStatus    = 0,
+                CreatedDate   = DateTime.UtcNow,
+                LastUpdatedDate = DateTime.UtcNow
             };
-            _db.PappCages.Add(entity);
+            _db.CageSubmissions.Add(entity);
             await _db.SaveChangesAsync();
             return CreatedAtAction(nameof(GetCage), MapCage(entity));
         }
 
-        existing.Cutdown = dto.SkipForm ? null : dto.Cutdown;
-        existing.Annoyed = dto.SkipForm ? null : dto.Annoyed;
-        existing.Guilty  = dto.SkipForm ? null : dto.Guilty;
+        existing.Cutdown      = dto.SkipForm ? null : dto.Cutdown;
+        existing.Annoyed      = dto.SkipForm ? null : dto.Annoyed;
+        existing.Guilty       = dto.SkipForm ? null : dto.Guilty;
         existing.Earlymorning = dto.SkipForm ? null : dto.Earlymorning;
-        existing.Lastupdateddate = DateTime.UtcNow;
+        existing.LastUpdatedDate = DateTime.UtcNow;
         await _db.SaveChangesAsync();
         return Ok(MapCage(existing));
     }
@@ -184,58 +183,58 @@ public class FormsController : ControllerBase
 
     // GET api/forms/euroqol
     [HttpGet("euroqol")]
-    public async Task<ActionResult<PappEuroqolDto>> GetEuroqol()
+    public async Task<ActionResult<EuroqolDto>> GetEuroqol()
     {
-        var pappFupId = await GetCurrentPappFupIdAsync();
-        if (pappFupId is null) return Forbid();
+        var visitId = await GetCurrentVisitIdAsync();
+        if (visitId is null) return Forbid();
 
-        var eq = await _db.PappEuroqols
+        var eq = await _db.EuroqolSubmissions
             .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.PappFupId == pappFupId && e.DataStatus == 0);
+            .FirstOrDefaultAsync(e => e.VisitId == visitId && e.DataStatus == 0);
 
         return eq is null ? NotFound() : Ok(MapEuroqol(eq));
     }
 
     // POST api/forms/euroqol
     [HttpPost("euroqol")]
-    public async Task<ActionResult<PappEuroqolDto>> SaveEuroqol(PappEuroqolSubmitDto dto)
+    public async Task<ActionResult<EuroqolDto>> SaveEuroqol(EuroqolSubmitDto dto)
     {
-        var pappFupId = await GetCurrentPappFupIdAsync();
-        if (pappFupId is null) return Forbid();
+        var visitId = await GetCurrentVisitIdAsync();
+        if (visitId is null) return Forbid();
 
-        var existing = await _db.PappEuroqols
-            .FirstOrDefaultAsync(e => e.PappFupId == pappFupId && e.DataStatus == 0);
+        var existing = await _db.EuroqolSubmissions
+            .FirstOrDefaultAsync(e => e.VisitId == visitId && e.DataStatus == 0);
 
         if (existing is null)
         {
-            var entity = new BbPappPatientEuroqol
+            var entity = new EuroqolSubmission
             {
-                PappFupId    = pappFupId.Value,
-                Mobility     = dto.SkipForm ? null : dto.Mobility,
-                Selfcare     = dto.SkipForm ? null : dto.Selfcare,
-                Usualacts    = dto.SkipForm ? null : dto.Usualacts,
-                Paindisc     = dto.SkipForm ? null : dto.Paindisc,
-                Anxdepr      = dto.SkipForm ? null : dto.Anxdepr,
-                Comphealth   = dto.SkipForm ? null : dto.Comphealth,
-                Howyoufeel   = dto.SkipForm ? null : dto.Howyoufeel,
+                VisitId       = visitId.Value,
+                Mobility      = dto.SkipForm ? null : dto.Mobility,
+                Selfcare      = dto.SkipForm ? null : dto.Selfcare,
+                Usualacts     = dto.SkipForm ? null : dto.Usualacts,
+                Paindisc      = dto.SkipForm ? null : dto.Paindisc,
+                Anxdepr       = dto.SkipForm ? null : dto.Anxdepr,
+                Comphealth    = dto.SkipForm ? null : dto.Comphealth,
+                Howyoufeel    = dto.SkipForm ? null : dto.Howyoufeel,
                 DateCompleted = DateTime.UtcNow,
-                DataStatus   = 0,
-                Createdbyid  = 0, Createdbyname = "PatientPortal", Createddate = DateTime.UtcNow,
-                Lastupdatedbyid = 0, Lastupdatedbyname = "PatientPortal", Lastupdateddate = DateTime.UtcNow
+                DataStatus    = 0,
+                CreatedDate   = DateTime.UtcNow,
+                LastUpdatedDate = DateTime.UtcNow
             };
-            _db.PappEuroqols.Add(entity);
+            _db.EuroqolSubmissions.Add(entity);
             await _db.SaveChangesAsync();
             return CreatedAtAction(nameof(GetEuroqol), MapEuroqol(entity));
         }
 
-        existing.Mobility   = dto.SkipForm ? null : dto.Mobility;
-        existing.Selfcare   = dto.SkipForm ? null : dto.Selfcare;
-        existing.Usualacts  = dto.SkipForm ? null : dto.Usualacts;
-        existing.Paindisc   = dto.SkipForm ? null : dto.Paindisc;
-        existing.Anxdepr    = dto.SkipForm ? null : dto.Anxdepr;
-        existing.Comphealth = dto.SkipForm ? null : dto.Comphealth;
-        existing.Howyoufeel = dto.SkipForm ? null : dto.Howyoufeel;
-        existing.Lastupdateddate = DateTime.UtcNow;
+        existing.Mobility    = dto.SkipForm ? null : dto.Mobility;
+        existing.Selfcare    = dto.SkipForm ? null : dto.Selfcare;
+        existing.Usualacts   = dto.SkipForm ? null : dto.Usualacts;
+        existing.Paindisc    = dto.SkipForm ? null : dto.Paindisc;
+        existing.Anxdepr     = dto.SkipForm ? null : dto.Anxdepr;
+        existing.Comphealth  = dto.SkipForm ? null : dto.Comphealth;
+        existing.Howyoufeel  = dto.SkipForm ? null : dto.Howyoufeel;
+        existing.LastUpdatedDate = DateTime.UtcNow;
         await _db.SaveChangesAsync();
         return Ok(MapEuroqol(existing));
     }
@@ -246,26 +245,25 @@ public class FormsController : ControllerBase
 
     // GET api/forms/hads
     [HttpGet("hads")]
-    public async Task<ActionResult<PappHadDto>> GetHads()
+    public async Task<ActionResult<HadsDto>> GetHads()
     {
-        var pappFupId = await GetCurrentPappFupIdAsync();
-        if (pappFupId is null) return Forbid();
+        var visitId = await GetCurrentVisitIdAsync();
+        if (visitId is null) return Forbid();
 
-        var had = await _db.PappHads
+        var hads = await _db.HadsSubmissions
             .AsNoTracking()
-            .FirstOrDefaultAsync(h => h.PappFupId == pappFupId && h.DataStatus == 0);
+            .FirstOrDefaultAsync(h => h.VisitId == visitId && h.DataStatus == 0);
 
-        return had is null ? NotFound() : Ok(MapHad(had));
+        return hads is null ? NotFound() : Ok(MapHads(hads));
     }
 
     // POST api/forms/hads
     [HttpPost("hads")]
-    public async Task<ActionResult<PappHadDto>> SaveHads(PappHadSubmitDto dto)
+    public async Task<ActionResult<HadsDto>> SaveHads(HadsSubmitRequest dto)
     {
-        var pappFupId = await GetCurrentPappFupIdAsync();
-        if (pappFupId is null) return Forbid();
+        var visitId = await GetCurrentVisitIdAsync();
+        if (visitId is null) return Forbid();
 
-        // When SkipForm=true, nullify all items and mark as non-countable
         int? anxietyScore    = dto.SkipForm ? null : (dto.Q01tense ?? 0) + (dto.Q03frightened ?? 0) + (dto.Q05worry ?? 0) +
                               (dto.Q07relaxed ?? 0) + (dto.Q09butterflies ?? 0) + (dto.Q11restless ?? 0) + (dto.Q13panic ?? 0);
         int? depressionScore = dto.SkipForm ? null : (dto.Q02enjoy ?? 0) + (dto.Q04laugh ?? 0) + (dto.Q06cheerful ?? 0) +
@@ -277,14 +275,14 @@ public class FormsController : ControllerBase
                                    dto.Q13panic, dto.Q14goodbook }
                            .All(q => q.HasValue);
 
-        var existing = await _db.PappHads
-            .FirstOrDefaultAsync(h => h.PappFupId == pappFupId && h.DataStatus == 0);
+        var existing = await _db.HadsSubmissions
+            .FirstOrDefaultAsync(h => h.VisitId == visitId && h.DataStatus == 0);
 
         if (existing is null)
         {
-            var entity = new BbPappPatientHad
+            var entity = new HadsSubmission
             {
-                PappFupId        = pappFupId.Value,
+                VisitId          = visitId.Value,
                 Q01tense         = dto.SkipForm ? null : dto.Q01tense,   Q02enjoy      = dto.SkipForm ? null : dto.Q02enjoy,
                 Q03frightened    = dto.SkipForm ? null : dto.Q03frightened, Q04laugh    = dto.SkipForm ? null : dto.Q04laugh,
                 Q05worry         = dto.SkipForm ? null : dto.Q05worry,   Q06cheerful   = dto.SkipForm ? null : dto.Q06cheerful,
@@ -299,12 +297,12 @@ public class FormsController : ControllerBase
                 DateScored       = DateTime.UtcNow,
                 IsCountable      = allAnswered,
                 DataStatus       = 0,
-                Createdbyid      = 0, Createdbyname = "PatientPortal", Createddate = DateTime.UtcNow,
-                Lastupdatedbyid  = 0, Lastupdatedbyname = "PatientPortal", Lastupdateddate = DateTime.UtcNow
+                CreatedDate      = DateTime.UtcNow,
+                LastUpdatedDate  = DateTime.UtcNow
             };
-            _db.PappHads.Add(entity);
+            _db.HadsSubmissions.Add(entity);
             await _db.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetHads), MapHad(entity));
+            return CreatedAtAction(nameof(GetHads), MapHads(entity));
         }
 
         existing.Q01tense = dto.SkipForm ? null : dto.Q01tense; existing.Q02enjoy = dto.SkipForm ? null : dto.Q02enjoy;
@@ -319,9 +317,9 @@ public class FormsController : ControllerBase
         existing.ScoreDepression = depressionScore;
         existing.ResultDepression = depressionScore.HasValue ? HadsResult(depressionScore.Value) : null;
         existing.IsCountable = allAnswered;
-        existing.Lastupdateddate = DateTime.UtcNow;
+        existing.LastUpdatedDate = DateTime.UtcNow;
         await _db.SaveChangesAsync();
-        return Ok(MapHad(existing));
+        return Ok(MapHads(existing));
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -330,24 +328,24 @@ public class FormsController : ControllerBase
 
     // GET api/forms/haq
     [HttpGet("haq")]
-    public async Task<ActionResult<PappHaqDto>> GetHaq()
+    public async Task<ActionResult<HaqDto>> GetHaq()
     {
-        var pappFupId = await GetCurrentPappFupIdAsync();
-        if (pappFupId is null) return Forbid();
+        var visitId = await GetCurrentVisitIdAsync();
+        if (visitId is null) return Forbid();
 
-        var haq = await _db.PappHaqs
+        var haq = await _db.HaqSubmissions
             .AsNoTracking()
-            .FirstOrDefaultAsync(h => h.PappFupId == pappFupId && h.DataStatus == 0);
+            .FirstOrDefaultAsync(h => h.VisitId == visitId && h.DataStatus == 0);
 
         return haq is null ? NotFound() : Ok(MapHaq(haq));
     }
 
     // POST api/forms/haq
     [HttpPost("haq")]
-    public async Task<ActionResult<PappHaqDto>> SaveHaq(PappHaqSubmitDto dto)
+    public async Task<ActionResult<HaqDto>> SaveHaq(HaqSubmitRequest dto)
     {
-        var pappFupId = await GetCurrentPappFupIdAsync();
-        if (pappFupId is null) return Forbid();
+        var visitId = await GetCurrentVisitIdAsync();
+        if (visitId is null) return Forbid();
 
         // Category scores = max of items in each category, raised by 1 if any aids used.
         // HAQ-DI = mean of 8 category scores (rounded to 3 d.p.)
@@ -364,13 +362,13 @@ public class FormsController : ControllerBase
         };
         var haqDi = Math.Round(catScores.Average(), 3);
 
-        var existing = await _db.PappHaqs
-            .FirstOrDefaultAsync(h => h.PappFupId == pappFupId && h.DataStatus == 0);
+        var existing = await _db.HaqSubmissions
+            .FirstOrDefaultAsync(h => h.VisitId == visitId && h.DataStatus == 0);
 
         if (existing is null)
         {
-            var entity = BuildHaqEntity(dto, pappFupId.Value, catScores, haqDi);
-            _db.PappHaqs.Add(entity);
+            var entity = BuildHaqEntity(dto, visitId.Value, catScores, haqDi);
+            _db.HaqSubmissions.Add(entity);
             await _db.SaveChangesAsync();
             return CreatedAtAction(nameof(GetHaq), MapHaq(entity));
         }
@@ -386,50 +384,50 @@ public class FormsController : ControllerBase
 
     // GET api/forms/pga
     [HttpGet("pga")]
-    public async Task<ActionResult<PappPgaDto>> GetPga()
+    public async Task<ActionResult<PgaDto>> GetPga()
     {
-        var pappFupId = await GetCurrentPappFupIdAsync();
-        if (pappFupId is null) return Forbid();
+        var visitId = await GetCurrentVisitIdAsync();
+        if (visitId is null) return Forbid();
 
-        var pga = await _db.PappPgaScores
+        var pga = await _db.PgaSubmissions
             .AsNoTracking()
-            .FirstOrDefaultAsync(p => p.PappFupId == pappFupId && p.DataStatus == 0);
+            .FirstOrDefaultAsync(p => p.VisitId == visitId && p.DataStatus == 0);
 
-        return pga is null ? NotFound() : Ok(new PappPgaDto { PappFupId = pga.PappFupId, Pgascore = pga.Pgascore, DateScored = pga.DateScored });
+        return pga is null ? NotFound() : Ok(new PgaDto { PgaId = pga.PgaId, VisitId = pga.VisitId, Pgascore = pga.Pgascore, DateScored = pga.DateScored });
     }
 
     // POST api/forms/pga
     [HttpPost("pga")]
-    public async Task<ActionResult<PappPgaDto>> SavePga(PappPgaSubmitDto dto)
+    public async Task<ActionResult<PgaDto>> SavePga(PgaSubmitDto dto)
     {
-        var pappFupId = await GetCurrentPappFupIdAsync();
-        if (pappFupId is null) return Forbid();
+        var visitId = await GetCurrentVisitIdAsync();
+        if (visitId is null) return Forbid();
 
         var pgascore = dto.SkipForm ? null : dto.Pgascore;
 
-        var existing = await _db.PappPgaScores
-            .FirstOrDefaultAsync(p => p.PappFupId == pappFupId && p.DataStatus == 0);
+        var existing = await _db.PgaSubmissions
+            .FirstOrDefaultAsync(p => p.VisitId == visitId && p.DataStatus == 0);
 
         if (existing is null)
         {
-            var entity = new BbPappPatientPgaScore
+            var entity = new PgaSubmission
             {
-                PappFupId   = pappFupId.Value,
-                Pgascore    = pgascore,
-                DateScored  = DateTime.UtcNow,
-                DataStatus  = 0,
-                Createdbyid = 0, Createdbyname = "PatientPortal", Createddate = DateTime.UtcNow,
-                Lastupdatedbyid = 0, Lastupdatedbyname = "PatientPortal", Lastupdateddate = DateTime.UtcNow
+                VisitId         = visitId.Value,
+                Pgascore        = pgascore,
+                DateScored      = DateTime.UtcNow,
+                DataStatus      = 0,
+                CreatedDate     = DateTime.UtcNow,
+                LastUpdatedDate = DateTime.UtcNow
             };
-            _db.PappPgaScores.Add(entity);
+            _db.PgaSubmissions.Add(entity);
             await _db.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetPga), new PappPgaDto { PappFupId = entity.PappFupId, Pgascore = entity.Pgascore, DateScored = entity.DateScored });
+            return CreatedAtAction(nameof(GetPga), new PgaDto { PgaId = entity.PgaId, VisitId = entity.VisitId, Pgascore = entity.Pgascore, DateScored = entity.DateScored });
         }
 
-        existing.Pgascore = pgascore;
-        existing.Lastupdateddate = DateTime.UtcNow;
+        existing.Pgascore        = pgascore;
+        existing.LastUpdatedDate = DateTime.UtcNow;
         await _db.SaveChangesAsync();
-        return Ok(new PappPgaDto { PappFupId = existing.PappFupId, Pgascore = existing.Pgascore, DateScored = existing.DateScored });
+        return Ok(new PgaDto { PgaId = existing.PgaId, VisitId = existing.VisitId, Pgascore = existing.Pgascore, DateScored = existing.DateScored });
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -437,49 +435,45 @@ public class FormsController : ControllerBase
     // ─────────────────────────────────────────────────────────────────────────
 
     // GET api/forms/sapasi
-    /// <summary>Returns the SAPASI holding record for the caller's current papp visit.</summary>
+    /// <summary>Returns the SAPASI submission for the caller's current visit.</summary>
     [HttpGet("sapasi")]
-    public async Task<ActionResult<PappSapasiDto>> GetSapasi()
+    public async Task<ActionResult<SapasiDto>> GetSapasi()
     {
-        var pappFupId = await GetCurrentPappFupIdAsync();
-        if (pappFupId is null) return Forbid();
+        var visitId = await GetCurrentVisitIdAsync();
+        if (visitId is null) return Forbid();
 
-        var sapasi = await _db.PappSapasis
+        var sapasi = await _db.SapasiSubmissions
             .AsNoTracking()
-            .FirstOrDefaultAsync(s => s.PappFupId == pappFupId && s.DataStatus == 0);
+            .FirstOrDefaultAsync(s => s.VisitId == visitId && s.DataStatus == 0);
 
         return sapasi is null ? NotFound() : Ok(MapSapasi(sapasi));
     }
 
     // POST api/forms/sapasi
     /// <summary>
-    /// Saves or updates the SAPASI form in the papp holding table.
+    /// Saves or updates the SAPASI form.
     ///
     /// The server calculates the SAPASI total score from the four region scores:
     ///   RegionScore = (Erythema + Induration + Desquamation) × Coverage × RegionWeight
     ///   SAPASI Total = Head + Trunk + UpperLimbs + LowerLimbs
     ///   Weights: Head=0.1, Trunk=0.3, UpperLimbs=0.2, LowerLimbs=0.4
     ///   Max score ≈ 48 (using coverage bands 0–4 and severity items 0–4).
-    ///
-    /// Patients may leave any region fields null (paper-based blank equivalent).
-    /// Setting <c>SkipForm = true</c> records an explicit patient skip and stores
-    /// all fields as null with a zero score.
     /// </summary>
     [HttpPost("sapasi")]
-    public async Task<ActionResult<PappSapasiDto>> SaveSapasi(PappSapasiSubmitDto dto)
+    public async Task<ActionResult<SapasiDto>> SaveSapasi(SapasiSubmitDto dto)
     {
-        var pappFupId = await GetCurrentPappFupIdAsync();
-        if (pappFupId is null) return Forbid();
+        var visitId = await GetCurrentVisitIdAsync();
+        if (visitId is null) return Forbid();
 
         var score = dto.SkipForm ? 0f : ComputeSapasiScore(dto);
 
-        var existing = await _db.PappSapasis
-            .FirstOrDefaultAsync(s => s.PappFupId == pappFupId && s.DataStatus == 0);
+        var existing = await _db.SapasiSubmissions
+            .FirstOrDefaultAsync(s => s.VisitId == visitId && s.DataStatus == 0);
 
         if (existing is null)
         {
-            var entity = BuildSapasiEntity(dto, pappFupId.Value, score);
-            _db.PappSapasis.Add(entity);
+            var entity = BuildSapasiEntity(dto, visitId.Value, score);
+            _db.SapasiSubmissions.Add(entity);
             await _db.SaveChangesAsync();
             return CreatedAtAction(nameof(GetSapasi), MapSapasi(entity));
         }
@@ -494,22 +488,19 @@ public class FormsController : ControllerBase
     // ─────────────────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Gets the PappFupId of the caller's current (DataStatus=0) papp visit.
-    /// Returns null if the user is not linked to a patient or has no papp visit.
+    /// Gets the VisitId of the caller's current (DataStatus=0) visit.
+    /// Returns null if the user has no active visit.
     /// </summary>
-    private async Task<int?> GetCurrentPappFupIdAsync()
+    private async Task<int?> GetCurrentVisitIdAsync()
     {
         var userId = _userManager.GetUserId(User);
         if (userId is null) return null;
 
-        var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
-        if (user?.PatientId is null) return null;
-
-        var pappFup = await _db.PappCohortTrackings
+        var visit = await _db.VisitTrackings
             .AsNoTracking()
-            .FirstOrDefaultAsync(t => t.PatientId == user.PatientId && t.DataStatus == 0);
+            .FirstOrDefaultAsync(t => t.UserId == userId && t.DataStatus == 0);
 
-        return pappFup?.PappFupId;
+        return visit?.VisitId;
     }
 
     private static int HadsResult(int score) => score switch
@@ -535,9 +526,9 @@ public class FormsController : ControllerBase
         return max;
     }
 
-    private static BbPappPatientHaq BuildHaqEntity(PappHaqSubmitDto dto, int pappFupId, double[] cats, double haqDi) => new()
+    private static HaqSubmission BuildHaqEntity(HaqSubmitRequest dto, int visitId, double[] cats, double haqDi) => new()
     {
-        PappFupId = pappFupId,
+        VisitId = visitId,
         Missingdata = dto.Missingdata, Missingdatadetails = dto.Missingdatadetails,
         Dressself = dto.Dressself, Shampoo = dto.Shampoo,
         Standchair = dto.Standchair, Bed = dto.Bed,
@@ -556,11 +547,10 @@ public class FormsController : ControllerBase
         Hygiene = (int)cats[4], Reach = (int)cats[5], Gripping = (int)cats[6], Errands = (int)cats[7],
         Totalscore = (int)cats.Sum(), Haqscore = haqDi,
         DateScored = DateTime.UtcNow, DataStatus = 0,
-        Createdbyid = 0, Createdbyname = "PatientPortal", Createddate = DateTime.UtcNow,
-        Lastupdatedbyid = 0, Lastupdatedbyname = "PatientPortal", Lastupdateddate = DateTime.UtcNow
+        CreatedDate = DateTime.UtcNow, LastUpdatedDate = DateTime.UtcNow
     };
 
-    private static void UpdateHaqFromDto(BbPappPatientHaq existing, PappHaqSubmitDto dto, double[] cats, double haqDi)
+    private static void UpdateHaqFromDto(HaqSubmission existing, HaqSubmitRequest dto, double[] cats, double haqDi)
     {
         existing.Missingdata = dto.Missingdata; existing.Missingdatadetails = dto.Missingdatadetails;
         existing.Dressself = dto.Dressself; existing.Shampoo = dto.Shampoo;
@@ -575,25 +565,24 @@ public class FormsController : ControllerBase
         existing.Walking = (int)cats[3]; existing.Hygiene = (int)cats[4]; existing.Reach = (int)cats[5];
         existing.Gripping = (int)cats[6]; existing.Errands = (int)cats[7];
         existing.Totalscore = (int)cats.Sum(); existing.Haqscore = haqDi;
-        existing.Lastupdateddate = DateTime.UtcNow;
+        existing.LastUpdatedDate = DateTime.UtcNow;
     }
 
-    private static BbPappPatientDlqi MapFromDlqiDto(PappDlqiSubmitDto dto, int pappFupId) => new()
+    private static DlqiSubmission MapFromDlqiDto(DlqiSubmitDto dto, int visitId) => new()
     {
-        PappFupId = pappFupId,
+        VisitId = visitId,
         Diagnosis = dto.Diagnosis,
         ItchsoreScore = dto.ItchsoreScore, EmbscScore = dto.EmbscScore, ShophgScore = dto.ShophgScore,
         ClothesScore = dto.ClothesScore, SocleisScore = dto.SocleisScore, SportScore = dto.SportScore,
         WorkstudScore = dto.WorkstudScore, WorkstudnoScore = dto.WorkstudnoScore,
         PartcrfScore = dto.PartcrfScore, SexdifScore = dto.SexdifScore, TreatmentScore = dto.TreatmentScore,
         TotalScore = ComputeDlqiTotal(dto),
-        Datecomp = DateTime.UtcNow, SkipBreakup = dto.SkipBreakup ? 1 : 0,
+        DateCompleted = DateTime.UtcNow, SkipBreakup = dto.SkipBreakup ? 1 : 0,
         DataStatus = 0,
-        Createdbyid = 0, Createdbyname = "PatientPortal", Createddate = DateTime.UtcNow,
-        Lastupdatedbyid = 0, Lastupdatedbyname = "PatientPortal", Lastupdateddate = DateTime.UtcNow
+        CreatedDate = DateTime.UtcNow, LastUpdatedDate = DateTime.UtcNow
     };
 
-    private static void UpdateDlqiFromDto(BbPappPatientDlqi existing, PappDlqiSubmitDto dto)
+    private static void UpdateDlqiFromDto(DlqiSubmission existing, DlqiSubmitDto dto)
     {
         existing.Diagnosis = dto.Diagnosis;
         existing.ItchsoreScore = dto.ItchsoreScore; existing.EmbscScore = dto.EmbscScore;
@@ -604,12 +593,12 @@ public class FormsController : ControllerBase
         existing.TreatmentScore = dto.TreatmentScore;
         existing.TotalScore = ComputeDlqiTotal(dto);
         existing.SkipBreakup = dto.SkipBreakup ? 1 : 0;
-        existing.Lastupdateddate = DateTime.UtcNow;
+        existing.LastUpdatedDate = DateTime.UtcNow;
     }
 
-    private static BbPappPatientLifestyle MapFromLifestyleDto(PappLifestyleSubmitDto dto, int pappFupId) => new()
+    private static LifestyleSubmission MapFromLifestyleDto(LifestyleSubmitDto dto, int visitId) => new()
     {
-        PappFupId = pappFupId,
+        VisitId = visitId,
         Birthtown = dto.Birthtown, Birthcountry = dto.Birthcountry,
         Workstatusid = dto.Workstatusid, Occupation = dto.Occupation,
         Ethnicityid = dto.Ethnicityid, Otherethnicity = dto.Otherethnicity,
@@ -625,11 +614,10 @@ public class FormsController : ControllerBase
         WeightMissing = dto.WeightMissing, WaistMissing = dto.WaistMissing,
         SmokingMissing = dto.SmokingMissing, DrinkingMissing = dto.DrinkingMissing,
         DateCompleted = DateTime.UtcNow, DataStatus = 0,
-        Createdbyid = 0, Createdbyname = "PatientPortal", Createddate = DateTime.UtcNow,
-        Lastupdatedbyid = 0, Lastupdatedbyname = "PatientPortal", Lastupdateddate = DateTime.UtcNow
+        CreatedDate = DateTime.UtcNow, LastUpdatedDate = DateTime.UtcNow
     };
 
-    private static void UpdateLifestyleFromDto(BbPappPatientLifestyle existing, PappLifestyleSubmitDto dto)
+    private static void UpdateLifestyleFromDto(LifestyleSubmission existing, LifestyleSubmitDto dto)
     {
         existing.Birthtown = dto.Birthtown; existing.Birthcountry = dto.Birthcountry;
         existing.Workstatusid = dto.Workstatusid; existing.Occupation = dto.Occupation;
@@ -645,10 +633,10 @@ public class FormsController : ControllerBase
         existing.Height = dto.Height; existing.Weight = dto.Weight; existing.Waist = dto.Waist;
         existing.WeightMissing = dto.WeightMissing; existing.WaistMissing = dto.WaistMissing;
         existing.SmokingMissing = dto.SmokingMissing; existing.DrinkingMissing = dto.DrinkingMissing;
-        existing.Lastupdateddate = DateTime.UtcNow;
+        existing.LastUpdatedDate = DateTime.UtcNow;
     }
 
-    private static int ComputeDlqiTotal(PappDlqiSubmitDto dto) =>
+    private static int ComputeDlqiTotal(DlqiSubmitDto dto) =>
         (dto.ItchsoreScore ?? 0) + (dto.EmbscScore ?? 0) + (dto.ShophgScore ?? 0) +
         (dto.ClothesScore ?? 0) + (dto.SocleisScore ?? 0) + (dto.SportScore ?? 0) +
         (dto.WorkstudScore ?? 0) + (dto.WorkstudnoScore ?? 0) +
@@ -656,19 +644,19 @@ public class FormsController : ControllerBase
 
     // ── Mapping to DTOs ───────────────────────────────────────────────────────
 
-    private static PappDlqiDto MapDlqi(BbPappPatientDlqi d) => new()
+    private static DlqiDto MapDlqi(DlqiSubmission d) => new()
     {
-        PappDlqiId = d.PappDlqiId, PappFupId = d.PappFupId, Diagnosis = d.Diagnosis,
+        DlqiId = d.DlqiId, VisitId = d.VisitId, Diagnosis = d.Diagnosis,
         ItchsoreScore = d.ItchsoreScore, EmbscScore = d.EmbscScore, ShophgScore = d.ShophgScore,
         ClothesScore = d.ClothesScore, SocleisScore = d.SocleisScore, SportScore = d.SportScore,
         WorkstudScore = d.WorkstudScore, WorkstudnoScore = d.WorkstudnoScore,
         PartcrfScore = d.PartcrfScore, SexdifScore = d.SexdifScore, TreatmentScore = d.TreatmentScore,
-        TotalScore = d.TotalScore, Datecomp = d.Datecomp, SkipBreakup = d.SkipBreakup == 1
+        TotalScore = d.TotalScore, DateCompleted = d.DateCompleted, SkipBreakup = d.SkipBreakup == 1
     };
 
-    private static PappLifestyleDto MapLifestyle(BbPappPatientLifestyle l) => new()
+    private static LifestyleDto MapLifestyle(LifestyleSubmission l) => new()
     {
-        PappLifestyleId = l.PappLifestyleId, PappFupId = l.PappFupId,
+        LifestyleId = l.LifestyleId, VisitId = l.VisitId,
         Birthtown = l.Birthtown, Birthcountry = l.Birthcountry,
         Workstatusid = l.Workstatusid, Occupation = l.Occupation,
         Ethnicityid = l.Ethnicityid, Otherethnicity = l.Otherethnicity,
@@ -678,22 +666,22 @@ public class FormsController : ControllerBase
         SmokingMissing = l.SmokingMissing, DrinkingMissing = l.DrinkingMissing
     };
 
-    private static PappCageDto MapCage(BbPappPatientCage c) => new()
+    private static CageDto MapCage(CageSubmission c) => new()
     {
-        PappCageId = c.PappCageId, PappFupId = c.PappFupId,
+        CageId = c.CageId, VisitId = c.VisitId,
         Cutdown = c.Cutdown, Annoyed = c.Annoyed, Guilty = c.Guilty, Earlymorning = c.Earlymorning
     };
 
-    private static PappEuroqolDto MapEuroqol(BbPappPatientEuroqol e) => new()
+    private static EuroqolDto MapEuroqol(EuroqolSubmission e) => new()
     {
-        PappEuroqolId = e.PappEuroqolId, PappFupId = e.PappFupId,
+        EuroqolId = e.EuroqolId, VisitId = e.VisitId,
         Mobility = e.Mobility, Selfcare = e.Selfcare, Usualacts = e.Usualacts,
         Paindisc = e.Paindisc, Anxdepr = e.Anxdepr, Comphealth = e.Comphealth, Howyoufeel = e.Howyoufeel
     };
 
-    private static PappHadDto MapHad(BbPappPatientHad h) => new()
+    private static HadsDto MapHads(HadsSubmission h) => new()
     {
-        PappHadId = h.PappHadId, PappFupId = h.PappFupId,
+        HadsId = h.HadsId, VisitId = h.VisitId,
         Q01tense = h.Q01tense, Q02enjoy = h.Q02enjoy, Q03frightened = h.Q03frightened,
         Q04laugh = h.Q04laugh, Q05worry = h.Q05worry, Q06cheerful = h.Q06cheerful,
         Q07relaxed = h.Q07relaxed, Q08slowed = h.Q08slowed, Q09butterflies = h.Q09butterflies,
@@ -704,9 +692,9 @@ public class FormsController : ControllerBase
         IsCountable = h.IsCountable
     };
 
-    private static PappHaqDto MapHaq(BbPappPatientHaq h) => new()
+    private static HaqDto MapHaq(HaqSubmission h) => new()
     {
-        PappHaqId = h.PappHaqId, PappFupId = h.PappFupId,
+        HaqId = h.HaqId, VisitId = h.VisitId,
         Missingdata = h.Missingdata, Missingdatadetails = h.Missingdatadetails,
         Dressself = h.Dressself, Shampoo = h.Shampoo, Standchair = h.Standchair, Bed = h.Bed,
         Cutmeat = h.Cutmeat, Liftglass = h.Liftglass, Openmilk = h.Openmilk,
@@ -729,7 +717,7 @@ public class FormsController : ControllerBase
     /// Weights: Head=0.1, Trunk=0.3, UpperLimbs=0.2, LowerLimbs=0.4
     /// Any null field in a region is treated as 0 (patient left it blank).
     /// </summary>
-    private static float ComputeSapasiScore(PappSapasiSubmitDto dto)
+    private static float ComputeSapasiScore(SapasiSubmitDto dto)
     {
         static float RegionScore(int? coverage, int? e, int? i, int? d, float weight)
         {
@@ -743,76 +731,75 @@ public class FormsController : ControllerBase
              + RegionScore(dto.LowerLimbsCoverage, dto.LowerLimbsErythema, dto.LowerLimbsInduration, dto.LowerLimbsDesquamation, 0.4f);
     }
 
-    private static BbPappPatientSapasi BuildSapasiEntity(PappSapasiSubmitDto dto, int pappFupId, float score) => new()
+    private static SapasiSubmission BuildSapasiEntity(SapasiSubmitDto dto, int visitId, float score) => new()
     {
-        PappFupId            = pappFupId,
-        // Store coverage bands in the HeadArea / TrunkArea / … fields (float, 0–4)
-        HeadArea             = dto.SkipForm ? null : dto.HeadCoverage,
+        VisitId              = visitId,
+        HeadCoverage         = dto.SkipForm ? null : dto.HeadCoverage,
         HeadErythema         = dto.SkipForm ? null : dto.HeadErythema,
         HeadInduration       = dto.SkipForm ? null : dto.HeadInduration,
         HeadDesquamation     = dto.SkipForm ? null : dto.HeadDesquamation,
-        TrunkArea            = dto.SkipForm ? null : dto.TrunkCoverage,
+        TrunkCoverage        = dto.SkipForm ? null : dto.TrunkCoverage,
         TrunkErythema        = dto.SkipForm ? null : dto.TrunkErythema,
         TrunkInduration      = dto.SkipForm ? null : dto.TrunkInduration,
         TrunkDesquamation    = dto.SkipForm ? null : dto.TrunkDesquamation,
-        UpperLimbsArea       = dto.SkipForm ? null : dto.UpperLimbsCoverage,
+        UpperLimbsCoverage   = dto.SkipForm ? null : dto.UpperLimbsCoverage,
         UpperLimbsErythema   = dto.SkipForm ? null : dto.UpperLimbsErythema,
         UpperLimbsInduration = dto.SkipForm ? null : dto.UpperLimbsInduration,
         UpperLimbsDesquamation = dto.SkipForm ? null : dto.UpperLimbsDesquamation,
-        LowerLimbsArea       = dto.SkipForm ? null : dto.LowerLimbsCoverage,
+        LowerLimbsCoverage   = dto.SkipForm ? null : dto.LowerLimbsCoverage,
         LowerLimbsErythema   = dto.SkipForm ? null : dto.LowerLimbsErythema,
         LowerLimbsInduration = dto.SkipForm ? null : dto.LowerLimbsInduration,
         LowerLimbsDesquamation = dto.SkipForm ? null : dto.LowerLimbsDesquamation,
         SapasiScore          = score,
         DateScored           = DateTime.UtcNow,
         DataStatus           = 0,
-        Createdbyid = 0, Createdbyname = "PatientPortal", Createddate = DateTime.UtcNow,
-        Lastupdatedbyid = 0, Lastupdatedbyname = "PatientPortal", Lastupdateddate = DateTime.UtcNow
+        CreatedDate          = DateTime.UtcNow,
+        LastUpdatedDate      = DateTime.UtcNow
     };
 
-    private static void UpdateSapasiFromDto(BbPappPatientSapasi existing, PappSapasiSubmitDto dto, float score)
+    private static void UpdateSapasiFromDto(SapasiSubmission existing, SapasiSubmitDto dto, float score)
     {
-        existing.HeadArea             = dto.SkipForm ? null : dto.HeadCoverage;
+        existing.HeadCoverage         = dto.SkipForm ? null : dto.HeadCoverage;
         existing.HeadErythema         = dto.SkipForm ? null : dto.HeadErythema;
         existing.HeadInduration       = dto.SkipForm ? null : dto.HeadInduration;
         existing.HeadDesquamation     = dto.SkipForm ? null : dto.HeadDesquamation;
-        existing.TrunkArea            = dto.SkipForm ? null : dto.TrunkCoverage;
+        existing.TrunkCoverage        = dto.SkipForm ? null : dto.TrunkCoverage;
         existing.TrunkErythema        = dto.SkipForm ? null : dto.TrunkErythema;
         existing.TrunkInduration      = dto.SkipForm ? null : dto.TrunkInduration;
         existing.TrunkDesquamation    = dto.SkipForm ? null : dto.TrunkDesquamation;
-        existing.UpperLimbsArea       = dto.SkipForm ? null : dto.UpperLimbsCoverage;
+        existing.UpperLimbsCoverage   = dto.SkipForm ? null : dto.UpperLimbsCoverage;
         existing.UpperLimbsErythema   = dto.SkipForm ? null : dto.UpperLimbsErythema;
         existing.UpperLimbsInduration = dto.SkipForm ? null : dto.UpperLimbsInduration;
         existing.UpperLimbsDesquamation = dto.SkipForm ? null : dto.UpperLimbsDesquamation;
-        existing.LowerLimbsArea       = dto.SkipForm ? null : dto.LowerLimbsCoverage;
+        existing.LowerLimbsCoverage   = dto.SkipForm ? null : dto.LowerLimbsCoverage;
         existing.LowerLimbsErythema   = dto.SkipForm ? null : dto.LowerLimbsErythema;
         existing.LowerLimbsInduration = dto.SkipForm ? null : dto.LowerLimbsInduration;
         existing.LowerLimbsDesquamation = dto.SkipForm ? null : dto.LowerLimbsDesquamation;
         existing.SapasiScore          = score;
-        existing.Lastupdateddate      = DateTime.UtcNow;
+        existing.LastUpdatedDate      = DateTime.UtcNow;
     }
 
-    private static PappSapasiDto MapSapasi(BbPappPatientSapasi s) => new()
+    private static SapasiDto MapSapasi(SapasiSubmission s) => new()
     {
-        PappSapasiId           = s.PappSapasiId,
-        PappFupId              = s.PappFupId,
-        HeadCoverage           = (int?)s.HeadArea,
-        HeadErythema           = s.HeadErythema,
-        HeadInduration         = s.HeadInduration,
-        HeadDesquamation       = s.HeadDesquamation,
-        TrunkCoverage          = (int?)s.TrunkArea,
-        TrunkErythema          = s.TrunkErythema,
-        TrunkInduration        = s.TrunkInduration,
-        TrunkDesquamation      = s.TrunkDesquamation,
-        UpperLimbsCoverage     = (int?)s.UpperLimbsArea,
-        UpperLimbsErythema     = s.UpperLimbsErythema,
-        UpperLimbsInduration   = s.UpperLimbsInduration,
+        SapasiId             = s.SapasiId,
+        VisitId              = s.VisitId,
+        HeadCoverage         = s.HeadCoverage,
+        HeadErythema         = s.HeadErythema,
+        HeadInduration       = s.HeadInduration,
+        HeadDesquamation     = s.HeadDesquamation,
+        TrunkCoverage        = s.TrunkCoverage,
+        TrunkErythema        = s.TrunkErythema,
+        TrunkInduration      = s.TrunkInduration,
+        TrunkDesquamation    = s.TrunkDesquamation,
+        UpperLimbsCoverage   = s.UpperLimbsCoverage,
+        UpperLimbsErythema   = s.UpperLimbsErythema,
+        UpperLimbsInduration = s.UpperLimbsInduration,
         UpperLimbsDesquamation = s.UpperLimbsDesquamation,
-        LowerLimbsCoverage     = (int?)s.LowerLimbsArea,
-        LowerLimbsErythema     = s.LowerLimbsErythema,
-        LowerLimbsInduration   = s.LowerLimbsInduration,
+        LowerLimbsCoverage   = s.LowerLimbsCoverage,
+        LowerLimbsErythema   = s.LowerLimbsErythema,
+        LowerLimbsInduration = s.LowerLimbsInduration,
         LowerLimbsDesquamation = s.LowerLimbsDesquamation,
-        SapasiScore            = s.SapasiScore,
-        DateScored             = s.DateScored
+        SapasiScore          = s.SapasiScore,
+        DateScored           = s.DateScored
     };
 }

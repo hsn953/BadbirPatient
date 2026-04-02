@@ -41,6 +41,13 @@ public class PatientRegisterRequestDto
 
     /// <summary>CHI / Health &amp; Care number (Scotland). At least one of this or <see cref="NhsNumber"/> is required.</summary>
     public string? ChiNumber { get; set; }
+
+    /// <summary>
+    /// BADBIR study number (if the patient was assigned one). Optional.
+    /// At least one of NhsNumber, ChiNumber, or BadbirStudyNumber must be provided;
+    /// this requirement is enforced at the API level in AuthController.
+    /// </summary>
+    public string? BadbirStudyNumber { get; set; }
 }
 
 /// <summary>Login request payload.</summary>

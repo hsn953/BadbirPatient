@@ -44,3 +44,8 @@ secrets.json
 
 ## Legacy reference – never deploy, but keep in source control for reference
 # legacy_reference/ is intentionally tracked (read-only reference)
+
+## SQLite dev database (generated file — keep folder, not the DB itself)
+src/BADBIR.Api/data/*.db
+src/BADBIR.Api/data/*.db-shm
+src/BADBIR.Api/data/*.db-wal
