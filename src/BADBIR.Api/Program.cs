@@ -75,6 +75,8 @@ builder.Services.AddAuthorization();
 // ── 4. Application Services ───────────────────────────────────────────────────
 builder.Services.AddScoped<IEncryptionService, EncryptionService>();
 builder.Services.AddScoped<IClinicianSystemClient, StubClinicianSystemClient>();
+builder.Services.AddScoped<IEmailService, StubEmailService>();
+builder.Services.AddHostedService<HoldingAccountExpiryService>();
 
 // ── 5. Controllers ───────────────────────────────────────────────────────────
 builder.Services.AddControllers();

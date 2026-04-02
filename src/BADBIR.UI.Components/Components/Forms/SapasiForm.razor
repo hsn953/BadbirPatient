@@ -1,0 +1,109 @@
+@inject IFormApiService FormService
+
+@if (_submitted)
+{
+    <div class="text-center py-4">
+        <div class="fs-1 mb-2">✅</div>
+        <p class="fw-semibold">SAPASI submitted.</p>
+        <a href="/dashboard" class="btn btn-primary">Back to Dashboard</a>
+    </div>
+}
+else
+{
+    <p class="mb-3">For each body area, use the sliders to indicate the coverage and severity of your psoriasis.</p>
+    <p class="text-muted small mb-4">Coverage: 0=None &nbsp;|&nbsp; 1=&lt;10% &nbsp;|&nbsp; 2=10-29% &nbsp;|&nbsp; 3=30-49% &nbsp;|&nbsp; 4=50%+ &nbsp;|&nbsp; Severity: 0=None &nbsp;|&nbsp; 1=Slight &nbsp;|&nbsp; 2=Moderate &nbsp;|&nbsp; 3=Severe &nbsp;|&nbsp; 4=Very severe</p>
+
+    @foreach (var area in _areas)
+    {
+        <div class="card mb-3 border-0 bg-light">
+            <div class="card-header bg-secondary bg-opacity-10 fw-semibold">@area.Name</div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Coverage (0–4): @area.Coverage</label>
+                        <input type="range" class="form-range" min="0" max="4"
+                               value="@area.Coverage" @onchange="e => area.Coverage = int.Parse(e.Value!.ToString()!)" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Redness/Erythema (0–4): @area.Erythema</label>
+                        <input type="range" class="form-range" min="0" max="4"
+                               value="@area.Erythema" @onchange="e => area.Erythema = int.Parse(e.Value!.ToString()!)" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Thickness/Induration (0–4): @area.Induration</label>
+                        <input type="range" class="form-range" min="0" max="4"
+                               value="@area.Induration" @onchange="e => area.Induration = int.Parse(e.Value!.ToString()!)" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Scaling/Desquamation (0–4): @area.Desquamation</label>
+                        <input type="range" class="form-range" min="0" max="4"
+                               value="@area.Desquamation" @onchange="e => area.Desquamation = int.Parse(e.Value!.ToString()!)" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(_error))
+    {
+        <div class="alert alert-danger">@_error</div>
+    }
+
+    <div class="d-flex gap-2 mt-3">
+        <button class="btn btn-primary" disabled="@_loading" @onclick="SubmitAsync">
+            @if (_loading) { <span class="spinner-border spinner-border-sm me-2"></span> }
+            Submit SAPASI
+        </button>
+        <button class="btn btn-outline-secondary" @onclick="SkipAsync">Skip</button>
+    </div>
+}
+
+@code {
+    private bool _loading, _submitted;
+    private string? _error;
+
+    private class SapasiArea
+    {
+        public string Name        { get; init; } = string.Empty;
+        public int Coverage       { get; set; }
+        public int Erythema       { get; set; }
+        public int Induration     { get; set; }
+        public int Desquamation   { get; set; }
+    }
+
+    private readonly SapasiArea[] _areas =
+    [
+        new() { Name = "Head / Scalp" },
+        new() { Name = "Trunk" },
+        new() { Name = "Upper Limbs (arms)" },
+        new() { Name = "Lower Limbs (legs)" }
+    ];
+
+    private async Task SubmitAsync()
+    {
+        _loading = true;
+        var result = await FormService.SubmitSapasiAsync(new SapasiSubmitDto
+        {
+            HeadCoverage          = _areas[0].Coverage,   HeadErythema          = _areas[0].Erythema,
+            HeadInduration        = _areas[0].Induration, HeadDesquamation      = _areas[0].Desquamation,
+            TrunkCoverage         = _areas[1].Coverage,   TrunkErythema         = _areas[1].Erythema,
+            TrunkInduration       = _areas[1].Induration, TrunkDesquamation     = _areas[1].Desquamation,
+            UpperLimbsCoverage    = _areas[2].Coverage,   UpperLimbsErythema    = _areas[2].Erythema,
+            UpperLimbsInduration  = _areas[2].Induration, UpperLimbsDesquamation= _areas[2].Desquamation,
+            LowerLimbsCoverage    = _areas[3].Coverage,   LowerLimbsErythema    = _areas[3].Erythema,
+            LowerLimbsInduration  = _areas[3].Induration, LowerLimbsDesquamation= _areas[3].Desquamation
+        });
+        _loading = false;
+        if (!result.IsSuccess) { _error = result.ErrorMessage; return; }
+        _submitted = true;
+    }
+
+    private async Task SkipAsync()
+    {
+        _loading = true;
+        var result = await FormService.SubmitSapasiAsync(new SapasiSubmitDto { SkipForm = true });
+        _loading = false;
+        if (!result.IsSuccess) { _error = result.ErrorMessage; return; }
+        _submitted = true;
+    }
+}

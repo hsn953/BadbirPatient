@@ -1,0 +1,102 @@
+@inject IFormApiService FormService
+
+@if (_submitted)
+{
+    <div class="text-center py-4">
+        <div class="fs-1 mb-2">✅</div>
+        <p class="fw-semibold">DLQI submitted.</p>
+        <a href="/dashboard" class="btn btn-primary">Back to Dashboard</a>
+    </div>
+}
+else
+{
+    <p class="mb-3">For each question below, tick the box that most applies to you <strong>over the last week</strong>.</p>
+    <p class="text-muted small">0 = Not at all / Not relevant &nbsp;|&nbsp; 1 = A little &nbsp;|&nbsp; 2 = A lot &nbsp;|&nbsp; 3 = Very much</p>
+
+    @foreach (var q in _questions)
+    {
+        <div class="mb-3">
+            <p class="fw-semibold mb-1">@q.Number. @q.Text</p>
+            <div class="d-flex gap-3 flex-wrap">
+                @foreach (var (val, label) in q.Options)
+                {
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" id="@($"dlqi{q.Number}_{val}")" name="@($"dlqi{q.Number}")"
+                               checked="@(q.Value == val)" @onchange="() => q.Value = val" />
+                        <label class="form-check-label" for="@($"dlqi{q.Number}_{val}")">@label</label>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(_error))
+    {
+        <div class="alert alert-danger">@_error</div>
+    }
+
+    <div class="d-flex gap-2 mt-3">
+        <button class="btn btn-primary" disabled="@_loading" @onclick="SubmitAsync">
+            @if (_loading) { <span class="spinner-border spinner-border-sm me-2"></span> }
+            Submit DLQI
+        </button>
+        <button class="btn btn-outline-secondary" @onclick="SkipAsync">Skip</button>
+    </div>
+}
+
+@code {
+    private bool _loading, _submitted;
+    private string? _error;
+
+    private record DlqiQuestion(int Number, string Text, (int Value, string Label)[] Options)
+    {
+        public int? Value { get; set; }
+    }
+
+    private static readonly (int, string)[] _defaultOptions =
+        [(0, "Not at all"), (1, "A little"), (2, "A lot"), (3, "Very much")];
+
+    private readonly DlqiQuestion[] _questions =
+    [
+        new(1,  "How itchy, sore, painful or stinging has your skin been?",                           _defaultOptions),
+        new(2,  "How embarrassed or self-conscious have you been because of your skin?",              _defaultOptions),
+        new(3,  "How much has your skin interfered with your shopping or looking after your home?",    _defaultOptions),
+        new(4,  "How much has your skin influenced the clothes you wear?",                             _defaultOptions),
+        new(5,  "How much has your skin affected any social or leisure activities?",                   _defaultOptions),
+        new(6,  "How much has your skin made it difficult to do any sport?",                           _defaultOptions),
+        new(7,  "Has your skin prevented you from working or studying?",                               [(0, "No"), (1, "Yes")]),
+        new(8,  "Has your skin created problems with your partner, close friends or relatives?",       _defaultOptions),
+        new(9,  "How much has your skin caused any sexual difficulties?",                              _defaultOptions),
+        new(10, "How much of a problem has the treatment for your skin been, e.g. by making your home messy, or by taking up time?", _defaultOptions)
+    ];
+
+    private async Task SubmitAsync()
+    {
+        _loading = true;
+        var result = await FormService.SubmitDlqiAsync(new DlqiSubmitDto
+        {
+            ItchsoreScore   = _questions[0].Value,
+            EmbscScore      = _questions[1].Value,
+            ShophgScore     = _questions[2].Value,
+            ClothesScore    = _questions[3].Value,
+            SocleisScore    = _questions[4].Value,
+            SportScore      = _questions[5].Value,
+            WorkstudScore   = _questions[6].Value,
+            PartcrfScore    = _questions[7].Value,
+            SexdifScore     = _questions[8].Value,
+            TreatmentScore  = _questions[9].Value
+        });
+        _loading = false;
+        if (!result.IsSuccess) { _error = result.ErrorMessage; return; }
+        _submitted = true;
+    }
+
+    private async Task SkipAsync()
+    {
+        _loading = true;
+        var result = await FormService.SubmitDlqiAsync(new DlqiSubmitDto { SkipBreakup = true });
+        _loading = false;
+        if (!result.IsSuccess) { _error = result.ErrorMessage; return; }
+        _submitted = true;
+    }
+}

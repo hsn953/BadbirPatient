@@ -1,27 +1,35 @@
-using BADBIR.Web.Components;
+using BADBIR.UI.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// ── API base URL ──────────────────────────────────────────────────────────────
+var apiBaseUrl = builder.Configuration["ApiBaseUrl"]
+    ?? "https://localhost:7100";
+
+// ── Blazor Server + Auth ──────────────────────────────────────────────────────
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddAuthorizationCore();
+builder.Services.AddCascadingAuthenticationState();
+
+// ── Register shared UI component services (auth, API clients) ─────────────────
+builder.Services.AddBADBIRUIComponents(apiBaseUrl);
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-app.MapRazorComponents<App>()
+app.MapRazorComponents<BADBIR.Web.Components.App>()
     .AddInteractiveServerRenderMode();
 
 app.Run();

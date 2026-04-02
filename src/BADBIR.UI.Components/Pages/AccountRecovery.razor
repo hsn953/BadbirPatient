@@ -1,0 +1,157 @@
+@page "/account-recovery"
+@inject IAuthApiService AuthService
+@inject NavigationManager Nav
+
+<PageTitle>Account Recovery – BADBIR Patient</PageTitle>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <a href="/login" class="text-decoration-none small text-muted mb-3 d-block">← Back to Login</a>
+
+                    @if (!string.IsNullOrEmpty(_error))
+                    {
+                        <div class="alert alert-danger">@_error</div>
+                    }
+
+                    @switch (_step)
+                    {
+                        case RecoveryStep.VerifyIdentity:
+                            <h3>Account Recovery</h3>
+                            <p class="text-muted">To recover your account, please verify your identity using the details registered with BADBIR.</p>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-semibold">Date of Birth <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" @bind="_dob" @bind:format="yyyy-MM-dd" />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-semibold">Initials <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" @bind="_initials" maxlength="10" placeholder="e.g. JD" />
+                                </div>
+                            </div>
+
+                            <p class="fw-semibold">Identification number (at least one required):</p>
+                            <div class="mb-2">
+                                <input type="text" class="form-control" @bind="_nhsNumber" placeholder="NHS Number" />
+                            </div>
+                            <div class="mb-2">
+                                <input type="text" class="form-control" @bind="_chiNumber" placeholder="CHI Number" />
+                            </div>
+                            <div class="mb-4">
+                                <input type="text" class="form-control" @bind="_badbirNumber" placeholder="BADBIR Study Number" />
+                            </div>
+
+                            <button class="btn btn-primary w-100" disabled="@_loading" @onclick="VerifyAsync">
+                                @if (_loading) { <span class="spinner-border spinner-border-sm me-2"></span> }
+                                Verify Identity →
+                            </button>
+                            break;
+
+                        case RecoveryStep.SetCredentials:
+                            <h3>Set New Credentials</h3>
+                            <p class="text-muted">Identity verified. Your account email is <strong>@_maskedEmail</strong>. Please set your new credentials.</p>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">New Email Address</label>
+                                <input type="email" class="form-control" @bind="_newEmail" placeholder="Leave as-is if unchanged" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">New Password</label>
+                                <div class="input-group">
+                                    <input type="@(_showPwd ? "text" : "password")" class="form-control" @bind="_newPassword" />
+                                    <button type="button" class="btn btn-outline-secondary"
+                                            @onclick="() => _showPwd = !_showPwd">@(_showPwd ? "🙈" : "👁️")</button>
+                                </div>
+                                <PasswordStrengthIndicator Password="@_newPassword" />
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">Confirm New Password</label>
+                                <input type="@(_showPwd ? "text" : "password")" class="form-control" @bind="_confirmPassword" />
+                            </div>
+
+                            <button class="btn btn-primary w-100" disabled="@_loading" @onclick="ResetAsync">
+                                @if (_loading) { <span class="spinner-border spinner-border-sm me-2"></span> }
+                                Update Account
+                            </button>
+                            break;
+
+                        case RecoveryStep.Done:
+                            <div class="text-center py-3">
+                                <div class="fs-1 mb-3">✅</div>
+                                <h3>Account Updated</h3>
+                                <p class="text-muted">Your credentials have been updated. All previous sessions have been signed out.</p>
+                                <a href="/login" class="btn btn-primary mt-2">Log In</a>
+                            </div>
+                            break;
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private enum RecoveryStep { VerifyIdentity, SetCredentials, Done }
+    private RecoveryStep _step = RecoveryStep.VerifyIdentity;
+
+    private DateTime? _dob;
+    private string _initials = string.Empty;
+    private string? _nhsNumber, _chiNumber, _badbirNumber;
+    private string _maskedEmail = string.Empty;
+    private string _recoveryToken = string.Empty;
+    private string _newEmail = string.Empty;
+    private string _newPassword = string.Empty;
+    private string _confirmPassword = string.Empty;
+    private bool _showPwd;
+    private bool _loading;
+    private string? _error;
+
+    private async Task VerifyAsync()
+    {
+        _error = null;
+        if (!_dob.HasValue || string.IsNullOrWhiteSpace(_initials))
+        { _error = "Please enter your date of birth and initials."; return; }
+        if (string.IsNullOrWhiteSpace(_nhsNumber) && string.IsNullOrWhiteSpace(_chiNumber) && string.IsNullOrWhiteSpace(_badbirNumber))
+        { _error = "Please provide at least one identification number."; return; }
+
+        _loading = true;
+        var result = await AuthService.RequestRecoveryAsync(new AccountRecoveryRequestDto
+        {
+            DateOfBirth       = DateOnly.FromDateTime(_dob!.Value),
+            Initials          = _initials,
+            NhsNumber         = string.IsNullOrWhiteSpace(_nhsNumber) ? null : _nhsNumber,
+            ChiNumber         = string.IsNullOrWhiteSpace(_chiNumber) ? null : _chiNumber,
+            BadbirStudyNumber = string.IsNullOrWhiteSpace(_badbirNumber) ? null : _badbirNumber
+        });
+        _loading = false;
+
+        if (!result.IsSuccess || result.Data is null) { _error = result.ErrorMessage; return; }
+
+        _recoveryToken = result.Data.RecoveryToken;
+        _maskedEmail   = result.Data.MaskedEmail;
+        _newEmail      = string.Empty;
+        _step          = RecoveryStep.SetCredentials;
+    }
+
+    private async Task ResetAsync()
+    {
+        _error = null;
+        if (string.IsNullOrWhiteSpace(_newPassword)) { _error = "Please enter a new password."; return; }
+        if (_newPassword != _confirmPassword) { _error = "Passwords do not match."; return; }
+
+        _loading = true;
+        var result = await AuthService.ResetAccountAsync(new AccountRecoveryResetDto
+        {
+            RecoveryToken = _recoveryToken,
+            NewEmail      = string.IsNullOrWhiteSpace(_newEmail) ? _maskedEmail : _newEmail,
+            NewPassword   = _newPassword
+        });
+        _loading = false;
+
+        if (!result.IsSuccess) { _error = result.ErrorMessage; return; }
+        _step = RecoveryStep.Done;
+    }
+}

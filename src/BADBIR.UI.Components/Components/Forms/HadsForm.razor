@@ -1,0 +1,96 @@
+@inject IFormApiService FormService
+
+@if (_submitted)
+{
+    <div class="text-center py-4">
+        <div class="fs-1 mb-2">✅</div>
+        <p class="fw-semibold">HADS submitted.</p>
+        <a href="/dashboard" class="btn btn-primary">Back to Dashboard</a>
+    </div>
+}
+else
+{
+    <p class="mb-3">Please tick the reply that comes closest to how you have been feeling <strong>in the past week</strong>. Don't take too long — your immediate reaction to each item will probably be more accurate than a long thought-out response.</p>
+
+    @foreach (var q in _questions)
+    {
+        <div class="mb-4 p-3 border rounded">
+            <p class="fw-semibold mb-2">@q.Number. @q.Stem</p>
+            @foreach (var (val, label) in q.Options)
+            {
+                <div class="form-check p-2 border-bottom @(q.Value == val ? "bg-primary bg-opacity-10" : "")">
+                    <input class="form-check-input" type="radio" id="@($"hads{q.Number}_{val}")" name="@($"hads{q.Number}")"
+                           checked="@(q.Value == val)" @onchange="() => q.Value = val" />
+                    <label class="form-check-label" for="@($"hads{q.Number}_{val}")">@label</label>
+                </div>
+            }
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(_error))
+    {
+        <div class="alert alert-danger">@_error</div>
+    }
+
+    <div class="d-flex gap-2 mt-3">
+        <button class="btn btn-primary" disabled="@_loading" @onclick="SubmitAsync">
+            @if (_loading) { <span class="spinner-border spinner-border-sm me-2"></span> }
+            Submit HADS
+        </button>
+        <button class="btn btn-outline-secondary" @onclick="SkipAsync">Skip</button>
+    </div>
+}
+
+@code {
+    private bool _loading, _submitted;
+    private string? _error;
+
+    private record HadsQ(int Number, string Stem, (int Value, string Label)[] Options)
+    {
+        public int? Value { get; set; }
+    }
+
+    private readonly HadsQ[] _questions =
+    [
+        new(1,  "I feel tense or 'wound up':",                   [(3,"Most of the time"),(2,"A lot of the time"),(1,"From time to time, occasionally"),(0,"Not at all")]),
+        new(2,  "I still enjoy the things I used to enjoy:",     [(0,"Definitely as much"),(1,"Not quite so much"),(2,"Only a little"),(3,"Hardly at all")]),
+        new(3,  "I get a sort of frightened feeling as if something awful is about to happen:", [(3,"Very definitely and quite badly"),(2,"Yes, but not too badly"),(1,"A little, but it doesn't worry me"),(0,"Not at all")]),
+        new(4,  "I can laugh and see the funny side of things:", [(0,"As much as I always could"),(1,"Not quite so much now"),(2,"Definitely not so much now"),(3,"Not at all")]),
+        new(5,  "Worrying thoughts go through my mind:",         [(3,"A great deal of the time"),(2,"A lot of the time"),(1,"From time to time but not too often"),(0,"Only occasionally")]),
+        new(6,  "I feel cheerful:",                               [(3,"Not at all"),(2,"Not often"),(1,"Sometimes"),(0,"Most of the time")]),
+        new(7,  "I can sit at ease and feel relaxed:",           [(0,"Definitely"),(1,"Usually"),(2,"Not often"),(3,"Not at all")]),
+        new(8,  "I feel as if I am slowed down:",                [(3,"Nearly all the time"),(2,"Very often"),(1,"Sometimes"),(0,"Not at all")]),
+        new(9,  "I get a sort of frightened feeling like 'butterflies' in the stomach:", [(0,"Not at all"),(1,"Occasionally"),(2,"Quite often"),(3,"Very often")]),
+        new(10, "I have lost interest in my appearance:",        [(3,"Definitely"),(2,"I don't take as much care as I should"),(1,"I may not take quite as much care"),(0,"I take just as much care as ever")]),
+        new(11, "I feel restless as if I have to be on the move:", [(3,"Very much indeed"),(2,"Quite a lot"),(1,"Not very much"),(0,"Not at all")]),
+        new(12, "I look forward with enjoyment to things:",       [(0,"As much as I ever did"),(1,"Rather less than I used to"),(2,"Definitely less than I used to"),(3,"Hardly at all")]),
+        new(13, "I get sudden feelings of panic:",               [(3,"Very often indeed"),(2,"Quite often"),(1,"Not very often"),(0,"Not at all")]),
+        new(14, "I can enjoy a good book or radio or TV programme:", [(0,"Often"),(1,"Sometimes"),(2,"Not often"),(3,"Very seldom")])
+    ];
+
+    private async Task SubmitAsync()
+    {
+        _loading = true;
+        var q = _questions;
+        var result = await FormService.SubmitHadsAsync(new HadsSubmitRequest
+        {
+            Q01tense      = q[0].Value, Q02enjoy       = q[1].Value, Q03frightened = q[2].Value,
+            Q04laugh      = q[3].Value, Q05worry       = q[4].Value, Q06cheerful   = q[5].Value,
+            Q07relaxed    = q[6].Value, Q08slowed      = q[7].Value, Q09butterflies= q[8].Value,
+            Q10appearence = q[9].Value, Q11restless    = q[10].Value,Q12enjoyment  = q[11].Value,
+            Q13panic      = q[12].Value,Q14goodbook    = q[13].Value
+        });
+        _loading = false;
+        if (!result.IsSuccess) { _error = result.ErrorMessage; return; }
+        _submitted = true;
+    }
+
+    private async Task SkipAsync()
+    {
+        _loading = true;
+        var result = await FormService.SubmitHadsAsync(new HadsSubmitRequest { SkipForm = true });
+        _loading = false;
+        if (!result.IsSuccess) { _error = result.ErrorMessage; return; }
+        _submitted = true;
+    }
+}

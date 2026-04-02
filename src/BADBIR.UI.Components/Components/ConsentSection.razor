@@ -1,0 +1,29 @@
+@* Collapsible section for the consent page *@
+
+<div class="card border-0 shadow-sm mb-3">
+    <button class="card-header bg-white border-0 d-flex justify-content-between align-items-center w-100 text-start btn"
+            type="button"
+            @onclick="Toggle"
+            aria-expanded="@_open"
+            aria-controls="section-@_id">
+        <span class="fw-semibold"><span class="me-2">@Icon</span>@Title</span>
+        <span>@(_open ? "▲" : "▼")</span>
+    </button>
+    @if (_open)
+    {
+        <div class="card-body pt-0" id="section-@_id">
+            @ChildContent
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Icon { get; set; } = "📄";
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private bool _open = true;
+    private readonly string _id = Guid.NewGuid().ToString("N")[..8];
+
+    private void Toggle() => _open = !_open;
+}
