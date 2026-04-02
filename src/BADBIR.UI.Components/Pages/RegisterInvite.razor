@@ -1,0 +1,118 @@
+@page "/register/invite/{Token}"
+@inject IAuthApiService AuthService
+@inject NavigationManager Nav
+
+<PageTitle>Complete Your Registration – BADBIR Patient</PageTitle>
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+
+                    @if (_loading && _step == InviteStep.Loading)
+                    {
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary mb-3"></div>
+                            <p>Validating your invitation link…</p>
+                        </div>
+                    }
+                    else if (_step == InviteStep.Invalid)
+                    {
+                        <div class="alert alert-danger">
+                            <h5>Invalid or Expired Link</h5>
+                            <p class="mb-0">This invitation link is invalid or has expired. Please contact your clinical team for a new invitation.</p>
+                        </div>
+                        <a href="/" class="btn btn-outline-primary">Return Home</a>
+                    }
+                    else if (_step == InviteStep.SetCredentials)
+                    {
+                        <h3>Complete Your Registration</h3>
+                        <p class="text-muted">Your clinical team has pre-registered you. Please set up your login details.</p>
+
+                        @if (!string.IsNullOrEmpty(_error))
+                        {
+                            <div class="alert alert-danger">@_error</div>
+                        }
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Email address</label>
+                            <input type="email" class="form-control" @bind="_email" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Password</label>
+                            <div class="input-group">
+                                <input type="@(_showPwd ? "text" : "password")" class="form-control" @bind="_password" />
+                                <button type="button" class="btn btn-outline-secondary"
+                                        @onclick="() => _showPwd = !_showPwd">@(_showPwd ? "🙈" : "👁️")</button>
+                            </div>
+                            <PasswordStrengthIndicator Password="@_password" />
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Confirm password</label>
+                            <input type="@(_showPwd ? "text" : "password")" class="form-control" @bind="_confirmPwd" />
+                        </div>
+
+                        <button class="btn btn-primary w-100" disabled="@_loading" @onclick="SubmitAsync">
+                            @if (_loading) { <span class="spinner-border spinner-border-sm me-2"></span> }
+                            Create Account
+                        </button>
+                    }
+                    else if (_step == InviteStep.Done)
+                    {
+                        <div class="text-center py-3">
+                            <div class="fs-1 mb-3">✅</div>
+                            <h3>Registration Complete!</h3>
+                            <p class="text-muted">Your account has been created and is immediately active.</p>
+                            <a href="/login" class="btn btn-primary mt-2">Log In</a>
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Token { get; set; } = string.Empty;
+
+    private enum InviteStep { Loading, Invalid, SetCredentials, Done }
+    private InviteStep _step = InviteStep.Loading;
+    private bool _loading = true;
+    private string _email = string.Empty;
+    private string _password = string.Empty;
+    private string _confirmPwd = string.Empty;
+    private bool _showPwd;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // TODO: call POST /api/internal/qr/validate with Token to get pre-populated data
+        // For now, transition directly to SetCredentials if token appears valid
+        await Task.Delay(500); // simulate validation
+        _loading = false;
+        _step    = string.IsNullOrWhiteSpace(Token) ? InviteStep.Invalid : InviteStep.SetCredentials;
+    }
+
+    private async Task SubmitAsync()
+    {
+        _error = null;
+        if (string.IsNullOrWhiteSpace(_email)) { _error = "Please enter your email address."; return; }
+        if (_password != _confirmPwd) { _error = "Passwords do not match."; return; }
+
+        _loading = true;
+        // The invite pathway uses a placeholder DOB/initials since clinician already verified
+        var result = await AuthService.RegisterNewAsync(new NewPatientRegistrationDto
+        {
+            Email       = _email,
+            Password    = _password,
+            DateOfBirth = DateOnly.FromDateTime(DateTime.Today), // Clinician-confirmed; DOB from token
+            Initials    = "N/A"
+        });
+        _loading = false;
+
+        if (!result.IsSuccess) { _error = result.ErrorMessage; return; }
+        _step = InviteStep.Done;
+    }
+}

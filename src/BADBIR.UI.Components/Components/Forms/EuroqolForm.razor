@@ -1,0 +1,100 @@
+@inject IFormApiService FormService
+
+@if (_submitted)
+{
+    <div class="text-center py-4">
+        <div class="fs-1 mb-2">✅</div>
+        <p class="fw-semibold">EQ-5D submitted.</p>
+        <a href="/dashboard" class="btn btn-primary">Back to Dashboard</a>
+    </div>
+}
+else
+{
+    <p class="mb-3">Under each heading, please tick the ONE box that best describes your health <strong>today</strong>.</p>
+
+    @foreach (var dim in _dimensions)
+    {
+        <div class="mb-4">
+            <p class="fw-semibold">@dim.Title</p>
+            @foreach (var (val, label) in dim.Options)
+            {
+                <div class="form-check p-2 border rounded mb-1 @(dim.Value == val ? "border-primary bg-primary bg-opacity-10" : "")">
+                    <input class="form-check-input" type="radio" id="@($"eq{dim.Key}_{val}")" name="@($"eq{dim.Key}")"
+                           checked="@(dim.Value == val)" @onchange="() => dim.Value = val" />
+                    <label class="form-check-label" for="@($"eq{dim.Key}_{val}")">@label</label>
+                </div>
+            }
+        </div>
+    }
+
+    <div class="mb-4">
+        <p class="fw-semibold">Your health today (0 = Worst imaginable, 100 = Best imaginable)</p>
+        <input type="range" class="form-range" min="0" max="100" @bind="_vas" />
+        <p class="text-center fw-bold fs-4">@_vas</p>
+    </div>
+
+    @if (!string.IsNullOrEmpty(_error))
+    {
+        <div class="alert alert-danger">@_error</div>
+    }
+
+    <div class="d-flex gap-2">
+        <button class="btn btn-primary" disabled="@_loading" @onclick="SubmitAsync">
+            @if (_loading) { <span class="spinner-border spinner-border-sm me-2"></span> }
+            Submit EQ-5D
+        </button>
+        <button class="btn btn-outline-secondary" @onclick="SkipAsync">Skip</button>
+    </div>
+}
+
+@code {
+    private bool _loading, _submitted;
+    private string? _error;
+    private int _vas = 50;
+
+    private record EqDim(string Key, string Title, (int Value, string Label)[] Options)
+    {
+        public int? Value { get; set; }
+    }
+
+    private static readonly (int, string)[] _mobility     = [(1, "I have no problems in walking about"), (2, "I have some problems in walking about"), (3, "I am confined to bed")];
+    private static readonly (int, string)[] _selfcare     = [(1, "I have no problems with self-care"), (2, "I have some problems washing or dressing myself"), (3, "I am unable to wash or dress myself")];
+    private static readonly (int, string)[] _usualActs    = [(1, "I have no problems with performing my usual activities"), (2, "I have some problems with performing my usual activities"), (3, "I am unable to perform my usual activities")];
+    private static readonly (int, string)[] _pain         = [(1, "I have no pain or discomfort"), (2, "I have moderate pain or discomfort"), (3, "I have extreme pain or discomfort")];
+    private static readonly (int, string)[] _anxietyDepr  = [(1, "I am not anxious or depressed"), (2, "I am moderately anxious or depressed"), (3, "I am extremely anxious or depressed")];
+
+    private readonly EqDim[] _dimensions =
+    [
+        new("mob",  "MOBILITY",          _mobility),
+        new("sc",   "SELF-CARE",         _selfcare),
+        new("ua",   "USUAL ACTIVITIES",  _usualActs),
+        new("pd",   "PAIN / DISCOMFORT", _pain),
+        new("ad",   "ANXIETY / DEPRESSION", _anxietyDepr)
+    ];
+
+    private async Task SubmitAsync()
+    {
+        _loading = true;
+        var result = await FormService.SubmitEuroqolAsync(new EuroqolSubmitDto
+        {
+            Mobility   = _dimensions[0].Value,
+            Selfcare   = _dimensions[1].Value,
+            Usualacts  = _dimensions[2].Value,
+            Paindisc   = _dimensions[3].Value,
+            Anxdepr    = _dimensions[4].Value,
+            Howyoufeel = _vas
+        });
+        _loading = false;
+        if (!result.IsSuccess) { _error = result.ErrorMessage; return; }
+        _submitted = true;
+    }
+
+    private async Task SkipAsync()
+    {
+        _loading = true;
+        var result = await FormService.SubmitEuroqolAsync(new EuroqolSubmitDto { SkipForm = true });
+        _loading = false;
+        if (!result.IsSuccess) { _error = result.ErrorMessage; return; }
+        _submitted = true;
+    }
+}

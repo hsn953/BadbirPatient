@@ -1,0 +1,437 @@
+@page "/register"
+@inject IAuthApiService AuthService
+@inject NavigationManager Nav
+
+<PageTitle>Register – BADBIR Patient</PageTitle>
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+
+            @* Progress indicator *@
+            <div class="d-flex justify-content-between mb-4 step-indicator">
+                @foreach (var step in _steps)
+                {
+                    <div class="step @(step == _currentStep ? "step-active" : step < _currentStep ? "step-done" : "step-pending")">
+                        <div class="step-circle">@((int)step)</div>
+                        <div class="step-label small d-none d-md-block">@StepLabel(step)</div>
+                    </div>
+                }
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+
+                    @if (!string.IsNullOrEmpty(_globalError))
+                    {
+                        <div class="alert alert-danger" role="alert">@_globalError</div>
+                    }
+
+                    @switch (_currentStep)
+                    {
+                        // ── Step 1: Eligibility Screener ──────────────────────────────
+                        case RegStep.Screener:
+                            <h3>Eligibility Check</h3>
+                            <p class="text-muted">Before we begin, please answer three short questions to confirm you are eligible to participate in BADBIR.</p>
+                            <div class="mb-4">
+                                <p class="fw-semibold">1. Have you been diagnosed with psoriasis by a dermatologist?</p>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" id="q1y" name="q1" value="yes"
+                                           @onchange='() => _q1 = true' checked="@(_q1 == true)" />
+                                    <label class="form-check-label" for="q1y">Yes</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" id="q1n" name="q1" value="no"
+                                           @onchange='() => _q1 = false' checked="@(_q1 == false)" />
+                                    <label class="form-check-label" for="q1n">No</label>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <p class="fw-semibold">2. Have you started a new prescribed pill, injection, or light therapy (systemic treatment) for your psoriasis in the last 6 months?</p>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" id="q2y" name="q2" value="yes"
+                                           @onchange='() => _q2 = true' checked="@(_q2 == true)" />
+                                    <label class="form-check-label" for="q2y">Yes</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" id="q2n" name="q2" value="no"
+                                           @onchange='() => _q2 = false' checked="@(_q2 == false)" />
+                                    <label class="form-check-label" for="q2n">No</label>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <p class="fw-semibold">3. Are you currently 16 years of age or older?</p>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" id="q3y" name="q3" value="yes"
+                                           @onchange='() => _q3 = true' checked="@(_q3 == true)" />
+                                    <label class="form-check-label" for="q3y">Yes</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" id="q3n" name="q3" value="no"
+                                           @onchange='() => _q3 = false' checked="@(_q3 == false)" />
+                                    <label class="form-check-label" for="q3n">No</label>
+                                </div>
+                            </div>
+
+                            @if (_screenerRejected)
+                            {
+                                <div class="alert alert-warning" role="alert">
+                                    @if (_q3 == false)
+                                    {
+                                        <strong>Thank you for your interest.</strong>
+                                        <p class="mb-0">BADBIR is currently for patients aged 16 and over. If you are under 16, please speak with your clinical team who can assist with registration when you turn 16.</p>
+                                    }
+                                    else
+                                    {
+                                        <strong>Unfortunately, you do not meet the eligibility criteria at this time.</strong>
+                                        <p class="mb-0">BADBIR is for patients who have been diagnosed with psoriasis by a dermatologist and have started a new systemic treatment in the last 6 months. Please speak with your clinical team.</p>
+                                    }
+                                </div>
+                            }
+
+                            <button class="btn btn-primary" @onclick="CheckScreener">Next →</button>
+                            break;
+
+                        // ── Step 2: Centre Selection ──────────────────────────────────
+                        case RegStep.Centre:
+                            <h3>Select Your Clinical Centre</h3>
+                            <p class="text-muted">Please select the clinical centre where you receive your psoriasis treatment.</p>
+                            <div class="mb-3">
+                                <label for="centre" class="form-label fw-semibold">Clinical Centre</label>
+                                <select id="centre" class="form-select" @bind="_selectedCentre">
+                                    <option value="">— Select a centre —</option>
+                                    @foreach (var c in AppConstants.ClinicalCentres)
+                                    {
+                                        <option value="@c">@c</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-secondary" @onclick="() => _currentStep = RegStep.Screener">← Back</button>
+                                <button class="btn btn-primary" @onclick="ConfirmCentre">Next →</button>
+                            </div>
+                            break;
+
+                        // ── Step 3: Identity Details ──────────────────────────────────
+                        case RegStep.Identity:
+                            <h3>Your Details</h3>
+                            <p class="text-muted">We need a few details to verify your identity against the BADBIR register.</p>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-semibold">Date of Birth <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" @bind="_dob" @bind:format="yyyy-MM-dd" />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-semibold">Initials <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" @bind="_initials" maxlength="10"
+                                           placeholder="e.g. JD" />
+                                    <div class="form-text">Your first and last initials (e.g. John Doe → JD)</div>
+                                </div>
+                            </div>
+                            <p class="fw-semibold mt-2">Please provide at least one of the following:</p>
+                            <div class="mb-3">
+                                <label class="form-label">NHS Number (England/Wales)</label>
+                                <input type="text" class="form-control" @bind="_nhsNumber" placeholder="123 456 7890" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">CHI Number (Scotland)</label>
+                                <input type="text" class="form-control" @bind="_chiNumber" placeholder="0101501234" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">BADBIR Study Number</label>
+                                <input type="text" class="form-control" @bind="_badbirNumber" placeholder="If you were given one by your clinic" />
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-secondary" @onclick="() => _currentStep = RegStep.Centre">← Back</button>
+                                <button class="btn btn-primary" disabled="@_loading" @onclick="VerifyIdentityAsync">
+                                    @if (_loading) { <span class="spinner-border spinner-border-sm me-2"></span> }
+                                    Verify Identity →
+                                </button>
+                            </div>
+                            break;
+
+                        // ── Step 4: Identity Resolution ───────────────────────────────
+                        case RegStep.Resolution:
+                            <h3>Identity Check Result</h3>
+                            @if (_identityMatched)
+                            {
+                                <div class="alert alert-success">
+                                    ✅ <strong>Your identity has been verified.</strong> Please continue to set up your account.
+                                </div>
+                                <button class="btn btn-primary" @onclick="() => _currentStep = RegStep.Credentials">Continue →</button>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info">
+                                    <strong>We couldn't find your details in our system.</strong>
+                                    <p class="mb-2">Has your dermatologist recently referred you to BADBIR? If you are registering for the first time, we can create an unverified account and your clinical team will confirm you within 14 days.</p>
+                                    <p class="mb-0 text-warning fw-semibold">⚠️ If your account is not confirmed within 14 days, all your data will be permanently deleted.</p>
+                                </div>
+                                <div class="d-flex gap-2 flex-wrap mt-3">
+                                    <button class="btn btn-primary" @onclick="() => { _firstTimeRegistration = true; _currentStep = RegStep.Credentials; }">
+                                        Yes, I'm registering for the first time →
+                                    </button>
+                                    <button class="btn btn-outline-secondary" @onclick="() => _currentStep = RegStep.Identity">← Go back and check my details</button>
+                                </div>
+                                <div class="mt-3">
+                                    <p class="text-muted small">If you believe there has been an error, please contact your clinical team or the BADBIR helpline.</p>
+                                </div>
+                            }
+                            break;
+
+                        // ── Step 5: Email & Password ──────────────────────────────────
+                        case RegStep.Credentials:
+                            <h3>Create Your Account</h3>
+                            <p class="text-muted">Set up your email address and password.</p>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Email address <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" @bind="_email" autocomplete="email" placeholder="your@email.com" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Confirm email address <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" @bind="_confirmEmail" placeholder="your@email.com" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Password <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="@(_showPassword ? "text" : "password")" class="form-control"
+                                           @bind="_password" autocomplete="new-password" />
+                                    <button type="button" class="btn btn-outline-secondary"
+                                            @onclick="() => _showPassword = !_showPassword">
+                                        @(_showPassword ? "🙈" : "👁️")
+                                    </button>
+                                </div>
+                                <PasswordStrengthIndicator Password="@_password" />
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">Confirm password <span class="text-danger">*</span></label>
+                                <input type="@(_showPassword ? "text" : "password")" class="form-control"
+                                       @bind="_confirmPassword" autocomplete="new-password" />
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-secondary" @onclick="() => _currentStep = RegStep.Resolution">← Back</button>
+                                <button class="btn btn-primary" disabled="@_loading" @onclick="SubmitRegistrationAsync">
+                                    @if (_loading) { <span class="spinner-border spinner-border-sm me-2"></span> }
+                                    Create Account
+                                </button>
+                            </div>
+                            break;
+
+                        // ── Step 6: Email Sent ────────────────────────────────────────
+                        case RegStep.EmailSent:
+                            <div class="text-center py-3">
+                                <div class="fs-1 mb-3">📧</div>
+                                <h3>Check Your Email</h3>
+                                <p class="text-muted">We've sent a verification link to <strong>@_email</strong>.</p>
+                                <p class="text-muted">Click the link in the email to verify your address. You can still access your dashboard and fill in forms while your email is unverified.</p>
+                                @if (_firstTimeRegistration)
+                                {
+                                    <div class="alert alert-warning mt-3">
+                                        ⚠️ Your account is in <strong>holding state</strong>. Your data will be permanently deleted in 14 days if your clinical team does not confirm your registration.
+                                    </div>
+                                }
+                                <a href="/login" class="btn btn-primary mt-3">Log In Now</a>
+                            </div>
+                            break;
+                    }
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .step-indicator { gap: 4px; }
+    .step { display: flex; flex-direction: column; align-items: center; flex: 1; }
+    .step-circle { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem; }
+    .step-active .step-circle { background: #0d6efd; color: white; }
+    .step-done .step-circle { background: #198754; color: white; }
+    .step-pending .step-circle { background: #dee2e6; color: #6c757d; }
+    .step-label { margin-top: 4px; color: #6c757d; font-size: 0.75rem; }
+</style>
+
+@code {
+    private enum RegStep { Screener = 1, Centre = 2, Identity = 3, Resolution = 4, Credentials = 5, EmailSent = 6 }
+
+    private static readonly RegStep[] _steps = [RegStep.Screener, RegStep.Centre, RegStep.Identity, RegStep.Resolution, RegStep.Credentials, RegStep.EmailSent];
+
+    private RegStep _currentStep = RegStep.Screener;
+
+    // Screener
+    private bool? _q1, _q2, _q3;
+    private bool _screenerRejected;
+
+    // Centre
+    [SupplyParameterFromQuery(Name = "centre")]
+    public string? PreselectedCentre { get; set; }
+    private string _selectedCentre = string.Empty;
+
+    // Identity
+    private DateTime? _dob;
+    private string _initials = string.Empty;
+    private string? _nhsNumber, _chiNumber, _badbirNumber;
+    private bool _identityMatched;
+    private bool _firstTimeRegistration;
+
+    // Credentials
+    private string _email = string.Empty;
+    private string _confirmEmail = string.Empty;
+    private string _password = string.Empty;
+    private string _confirmPassword = string.Empty;
+    private bool _showPassword;
+
+    private bool _loading;
+    private string? _globalError;
+
+    protected override void OnInitialized()
+    {
+        if (!string.IsNullOrWhiteSpace(PreselectedCentre))
+            _selectedCentre = Uri.UnescapeDataString(PreselectedCentre);
+    }
+
+    private string StepLabel(RegStep step) => step switch
+    {
+        RegStep.Screener    => "Eligibility",
+        RegStep.Centre      => "Centre",
+        RegStep.Identity    => "Identity",
+        RegStep.Resolution  => "Verify",
+        RegStep.Credentials => "Account",
+        RegStep.EmailSent   => "Done",
+        _                   => string.Empty
+    };
+
+    private void CheckScreener()
+    {
+        _screenerRejected = false;
+        if (_q3 == false || _q1 == false || _q2 == false)
+        {
+            _screenerRejected = true;
+            return;
+        }
+        if (_q1 != true || _q2 != true || _q3 != true)
+        {
+            _globalError = "Please answer all three questions.";
+            return;
+        }
+        _globalError      = null;
+        _screenerRejected = false;
+        _currentStep      = RegStep.Centre;
+    }
+
+    private void ConfirmCentre()
+    {
+        if (string.IsNullOrWhiteSpace(_selectedCentre))
+        {
+            _globalError = "Please select a clinical centre.";
+            return;
+        }
+        _globalError = null;
+        _currentStep = RegStep.Identity;
+    }
+
+    private async Task VerifyIdentityAsync()
+    {
+        _globalError = null;
+        if (!_dob.HasValue || string.IsNullOrWhiteSpace(_initials))
+        {
+            _globalError = "Please enter your date of birth and initials.";
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(_nhsNumber) &&
+            string.IsNullOrWhiteSpace(_chiNumber) &&
+            string.IsNullOrWhiteSpace(_badbirNumber))
+        {
+            _globalError = "Please provide at least one identification number.";
+            return;
+        }
+
+        _loading = true;
+        var dto = new PatientRegisterRequestDto
+        {
+            Email              = "verify-only@placeholder.com", // placeholder, not used
+            Password           = "Placeholder1!", // placeholder
+            DateOfBirth        = DateOnly.FromDateTime(_dob!.Value),
+            Initials           = _initials,
+            NhsNumber          = string.IsNullOrWhiteSpace(_nhsNumber) ? null : _nhsNumber,
+            ChiNumber          = string.IsNullOrWhiteSpace(_chiNumber) ? null : _chiNumber,
+            BadbirStudyNumber  = string.IsNullOrWhiteSpace(_badbirNumber) ? null : _badbirNumber
+        };
+
+        // Use the standard register endpoint as a verify-only call.
+        // A 400 with identityMatch:false means not found (first-time).
+        // A 400 with errors means password/account issue (expected here — user not created).
+        var result = await AuthService.RegisterAsync(dto);
+        _loading   = false;
+
+        // If result says "Identity verification failed" → not matched
+        // If result says "already in use" → matched (account exists)
+        // If success → matched (new account created — unlikely at this point since password is placeholder)
+        _identityMatched = result.IsSuccess ||
+                          (result.ErrorMessage != null &&
+                           !result.ErrorMessage.Contains("verification failed") &&
+                           !result.ErrorMessage.Contains("not found"));
+
+        _currentStep = RegStep.Resolution;
+    }
+
+    private async Task SubmitRegistrationAsync()
+    {
+        _globalError = null;
+
+        if (string.IsNullOrWhiteSpace(_email) || string.IsNullOrWhiteSpace(_confirmEmail))
+        { _globalError = "Please enter and confirm your email address."; return; }
+
+        if (!string.Equals(_email, _confirmEmail, StringComparison.OrdinalIgnoreCase))
+        { _globalError = "Email addresses do not match."; return; }
+
+        if (string.IsNullOrWhiteSpace(_password))
+        { _globalError = "Please enter a password."; return; }
+
+        if (_password != _confirmPassword)
+        { _globalError = "Passwords do not match."; return; }
+
+        _loading = true;
+
+        ApiResult result;
+
+        if (_firstTimeRegistration)
+        {
+            result = await AuthService.RegisterNewAsync(new NewPatientRegistrationDto
+            {
+                Email             = _email,
+                Password          = _password,
+                DateOfBirth       = DateOnly.FromDateTime(_dob!.Value),
+                Initials          = _initials,
+                NhsNumber         = string.IsNullOrWhiteSpace(_nhsNumber) ? null : _nhsNumber,
+                ChiNumber         = string.IsNullOrWhiteSpace(_chiNumber) ? null : _chiNumber,
+                BadbirStudyNumber = string.IsNullOrWhiteSpace(_badbirNumber) ? null : _badbirNumber,
+                ClinicalCentre    = _selectedCentre
+            });
+        }
+        else
+        {
+            result = await AuthService.RegisterAsync(new PatientRegisterRequestDto
+            {
+                Email             = _email,
+                Password          = _password,
+                DateOfBirth       = DateOnly.FromDateTime(_dob!.Value),
+                Initials          = _initials,
+                NhsNumber         = string.IsNullOrWhiteSpace(_nhsNumber) ? null : _nhsNumber,
+                ChiNumber         = string.IsNullOrWhiteSpace(_chiNumber) ? null : _chiNumber,
+                BadbirStudyNumber = string.IsNullOrWhiteSpace(_badbirNumber) ? null : _badbirNumber
+            });
+        }
+
+        _loading = false;
+
+        if (!result.IsSuccess)
+        {
+            _globalError = result.ErrorMessage;
+            return;
+        }
+
+        _currentStep = RegStep.EmailSent;
+    }
+}
